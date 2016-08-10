@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<package>
+  <name>dense</name>
+  <version>0.0.0</version>
+  <description>The dense package</description>
+  <maintainer email="ariel.dalessandro@gmail.com">Ariel D'Alessandro</maintainer>
+  <license>GPLv3</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+</package>
