@@ -1,0 +1,9 @@
+<library path="lib/libdense_nodelet">
+
+    <class name="dense/denseNodelet" type="dense::denseNodelet" base_class_type="nodelet::Nodelet">
+        <description>
+            DENSE nodelet.
+        </description>
+    </class>
+
+</library>
