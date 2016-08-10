@@ -15,10 +15,12 @@
 -->
 
   <!-- S-PTAM pose path publisher. Used for visualization. -->
+  <!--
   <node pkg="ros_utils" type="pose_to_path" name="sptam_path">
     <remap from="pose" to="sptam/robot/pose" />
     <remap from="path" to="sptam/robot/path" />
   </node>
+  -->
 
   <!--
     Master nodelet manager.
@@ -42,6 +44,10 @@
     <remap from="/stereo/left/camera_info"  to="/kitti_stereo/left/camera_info"/>
     <remap from="/stereo/right/camera_info"  to="/kitti_stereo/right/camera_info"/>
 
+  </node>
+
+  <!-- DENSE node -->
+  <node pkg="nodelet" type="nodelet" name="dense" args="load dense/denseNodelet nodelet_manager" output="screen" clear_params="true">
   </node>
 
 </launch>
