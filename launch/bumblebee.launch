@@ -1,0 +1,51 @@
+<launch>
+
+  <!-- Set use_sim_time true for datasets-->
+  <param name="use_sim_time" value="true"/>
+
+  <!-- static_transform_publisher x y z yaw pitch roll frame_id child_frame_id-->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="camera_broadcaster" args="0 0 0 0 0 0 base_link left_camera" />
+
+  <!-- Ground Truth path publisher. Used for visualization. -->
+<!--
+  <node pkg="ros_utils" type="pose_to_path" name="gt_path">
+    <remap from="pose" to="robot/gt_pose" />
+    <remap from="path" to="ground_truth/path" />
+  </node>
+-->
+
+  <!-- Call stereo_image_proc to undistort and rectify images -->
+  <group ns="stereo">
+    <node pkg="stereo_image_proc" type="stereo_image_proc" name="stereo_image_proc">
+      <remap from="/stereo/left/image_raw"  to="/stereo/left/image_raw"/>
+      <remap from="/stereo/right/image_raw"  to="/stereo/right/image_raw"/>
+      <remap from="/stereo/left/camera_info"  to="/stereo/left/camera_info"/>
+      <remap from="/stereo/right/camera_info"  to="/stereo/right/camera_info"/>
+    </node>
+  </group>
+
+  <!-- S-PTAM pose path publisher. Used for visualization. -->
+  <node pkg="ros_utils" type="pose_to_path" name="sptam_path">
+    <remap from="pose" to="sptam/robot/pose" />
+    <remap from="path" to="sptam/robot/path" />
+  </node>
+
+  <!--
+    Master nodelet manager.
+    S-PTAM as well as the extraction nodelets will be run
+    under a single manager to avoid unnecesary serialization of messages.
+  -->
+  <node name="nodelet_manager" pkg="nodelet" type="nodelet" args="manager" output="screen" clear_params="true"/>
+
+  <!-- S-PTAM node -->
+  <node pkg="nodelet" type="nodelet" name="sptam" args="load sptam/SPTAMNodelet nodelet_manager" output="screen" clear_params="true">
+
+    <!-- Read S-PTAM parameters file -->
+    <rosparam command="load" file="$(find sptam)/configurationFiles/bumblebee.yaml" />
+
+    <param name="approximate_sync" value="false" />
+    <param name="camera_frame" value="left_camera"/>
+
+  </node>
+
+</launch>

@@ -1,0 +1,33 @@
+<launch>
+
+
+  <!-- path publisher. Transforms poses into path. -->
+  <node pkg="ros_utils" type="pose_to_path" name="sptam_path">
+    <remap from="pose" to="/sptam/robot/pose" />
+  </node>
+
+  <!-- Publish static transform between robot origin and left camera origin-->
+
+  <!-- change the coordinate system ROS->SPTAM
+       ROS: x: forward, y:left, z: up
+       SPTAM: x: right, y: down, z: forward -->
+
+  <!-- static_transform_publisher x y z yaw pitch roll frame_id child_frame_id period_in_ms -->
+  <node pkg="tf" type="static_transform_publisher" name="camera_broadcaster" args="0.0 0.0 0.0 -1.57 0 -1.57 base_link camera 0.1"/>
+
+  <!-- Debugging -->
+<!--  <node pkg="sptam" type="sptam" name="sptam" output="screen" launch-prefix="xterm -e gdbserver localhost:10000">-->
+
+  <!-- Release -->
+  <node pkg="sptam" type="sptam_node" name="sptam" output="screen" >
+    <param name="use_odometry" value="false"/>
+    <param name="approximate_sync" type="bool" value="True" />
+    <param name="camera_frame" value="camera"/>
+    <param name="odom_frame" value="odom"/>
+
+    <!-- Read S-PTAM parameters file -->
+    <rosparam command="load" file="$(find sptam)/configurationFiles/mobius.yaml" />
+
+  </node>
+
+</launch>

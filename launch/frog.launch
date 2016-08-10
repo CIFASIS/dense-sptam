@@ -1,0 +1,72 @@
+<launch>
+
+  <!-- Set use_sim_time true for datasets-->
+  <param name="use_sim_time" value="true"/>
+
+  <!-- Read S-PTAM parameters file -->
+  <rosparam command="load" file="$(find sptam)/configurationFiles/frog.yaml" ns="sptam" />
+
+  <!-- static_transform_publisher x y z yaw pitch roll frame_id child_frame_id-->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="camera_broadcaster" args="0 0 0 0 0 0 base_link left_camera" />
+
+  <!-- S-PTAM pose path publisher. Used for visualization. -->
+  <node pkg="ros_utils" type="pose_to_path" name="sptam_path">
+    <remap from="pose" to="sptam/robot/pose" />
+    <remap from="path" to="sptam/robot/path" />
+  </node>
+
+  <group ns="stereo">
+
+    <group ns="left">
+
+      <!-- uncompress the images -->
+      <node name="republish_left" pkg="image_transport" type="republish" output="screen" args="compressed in:=image_raw raw out:=image_rect" />
+
+    </group>
+
+    <group ns="right">
+
+      <!-- uncompress the images -->
+      <node name="republish_right" pkg="image_transport" type="republish" output="screen" args="compressed in:=image_raw raw out:=image_rect" />
+
+    </group>
+
+  </group>
+
+  <!--
+    Master nodelet manager.
+    S-PTAM as well as the extraction nodelets will be run
+    under a single manager to avoid unnecesary serialization of messages.
+  -->
+  <node name="nodelet_manager" pkg="nodelet" type="nodelet" args="manager" output="screen" clear_params="true"/>
+
+  <!-- extract left features and descriptors -->
+  <node name="extractor_left" pkg="nodelet" type="nodelet" args="load image_features/FeatureExtractorNodelet nodelet_manager" output="screen" clear_params="true">
+    <param name="configuration_space" value="/sptam" />
+    <!-- Remap input topic -->
+    <remap from="image_raw" to="/stereo/left/image_rect"/>
+    <!-- Remap output topic -->
+    <remap from="image_features" to="/stereo/left/image_features"/>
+  </node>
+
+  <!-- extract right features and descriptors -->
+  <node name="extractor_right" pkg="nodelet" type="nodelet" args="load image_features/FeatureExtractorNodelet nodelet_manager" output="screen" clear_params="true">
+    <param name="configuration_space" value="/sptam" />
+    <!-- Remap input topic -->
+    <remap from="image_raw" to="/stereo/right/image_rect"/>
+    <!-- Remap output topic -->
+    <remap from="image_features" to="/stereo/right/image_features"/>
+  </node>
+
+  <!-- S-PTAM node -->
+  <node pkg="nodelet" type="nodelet" name="sptam" args="load sptam/SPTAMNodelet nodelet_manager" output="screen" clear_params="true">
+
+    <!-- Read S-PTAM parameters file -->
+    <rosparam command="load" file="$(find sptam)/configurationFiles/frog.yaml" />
+
+    <param name="approximate_sync" value="false" />
+    <param name="camera_frame" value="left_camera"/>
+
+  </node>
+
+</launch>

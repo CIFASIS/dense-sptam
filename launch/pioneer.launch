@@ -1,0 +1,33 @@
+<launch>
+
+  <param name="use_sim_time" value="true"/>
+
+  <!-- Publish static transform between robot origin and left camera origin-->
+  <!-- static_transform_publisher x y z yaw pitch roll frame_id child_frame_id period_in_ms -->
+  <node pkg="tf" type="static_transform_publisher" name="camera_broadcaster" args="0.23 0.07 0.73 -1.57 0 -1.57 base_link camera 0.1"/>
+
+  <!-- path publisher. Transforms poses into path. -->
+  <node pkg="ros_utils" type="pose_to_path" name="sptam_path">
+    <remap from="pose" to="sptam/robot/pose" />
+    <remap from="path" to="sptam/robot/path" />
+  </node>
+
+  <!-- Release -->
+  <node pkg="sptam" type="sptam_node" name="sptam" output="screen" >
+
+    <!-- Read S-PTAM parameters file -->
+    <rosparam command="load" file="$(find sptam)/configurationFiles/firefly.yaml" />
+
+    <param name="use_odometry" value="true"/>
+    <param name="camera_frame" value="camera"/>
+    <param name="odom_frame" value="odom"/>
+
+    <!--  Firefly camera -->
+    <remap from="/stereo/left/image_rect"  to="/trigger/left/image_rect"/>
+    <remap from="/stereo/right/image_rect"  to="/trigger/right/image_rect"/>
+    <remap from="/stereo/left/camera_info"  to="/trigger/left/camera_info"/>
+    <remap from="/stereo/right/camera_info"  to="/trigger/right/camera_info"/>
+
+  </node>
+
+</launch>

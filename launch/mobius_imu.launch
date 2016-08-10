@@ -1,0 +1,42 @@
+<launch>
+
+  <group ns="stereo">
+
+    <!-- Open Mobius Left Camera-->
+    <node name="left" pkg="usb_cam" type="usb_cam_node" output="screen">
+      <param name="video_device" value="/dev/video2" />
+      <param name="image_width" value="640" />
+      <param name="image_height" value="480" />
+      <param name="pixel_format" value="mjpeg" />
+      <param name="framerate" value="30" />
+      <param name="camera_frame_id" value="left" />
+
+      <!-- El archivo de configuracion de la camara lo crea el calibrador de ROS -->
+      <param name="camera_info_url" value="file://${ROS_HOME}/camera_info/mobius_left.yaml"/>
+
+    </node>
+
+    <!-- Open Mobius Right Camera-->
+    <node name="right" pkg="usb_cam" type="usb_cam_node" output="screen">
+      <param name="video_device" value="/dev/video1" />
+      <param name="image_width" value="640" />
+      <param name="image_height" value="480" />
+      <param name="pixel_format" value="mjpeg" />
+      <param name="framerate" value="30" />
+      <param name="camera_frame_id" value="right" />
+
+      <!-- El archivo de configuracion de la camara lo crea el calibrador de ROS -->
+      <param name="camera_info_url" value="file://${ROS_HOME}/camera_info/mobius_right.yaml"/>
+
+    </node>
+
+    <!-- Call stereo_image_proc to undistort and rectify images -->
+    <node pkg="stereo_image_proc" type="stereo_image_proc" name="stereo_image_proc">
+      <param name="approximate_sync" type="bool" value="True" />
+    </node>
+
+    <include file="$(find receive_xsens)/launch/receive_xsens.launch" />
+
+  </group>
+
+</launch>

@@ -1,0 +1,36 @@
+<launch>
+
+  <param name="use_sim_time" value="false"/>
+
+  <include file="$(find sptam)/launch/mobius_imu.launch" />
+
+  <!-- path publisher. Transforms poses into path. -->
+  <node pkg="ros_utils" type="pose_to_path" name="sptam_path">
+    <remap from="pose" to="sptam/robot/pose" />
+    <remap from="path" to="sptam/robot/path" />
+  </node>
+
+  <!-- Publish static transform between robot origin and left camera origin-->
+
+  <!-- change the coordinate system ROS->SPTAM
+       ROS: x: forward, y:left, z: up
+       SPTAM: x: right, y: down, z: forward -->
+
+  <!-- static_transform_publisher x y z yaw pitch roll frame_id child_frame_id period_in_ms -->
+  <node pkg="tf" type="static_transform_publisher" name="camera_broadcaster" args="0.0 0.0 0.0 -1.57 0 -1.57 base_link camera 0.1"/>
+  <node pkg="tf" type="static_transform_publisher" name="imu_pose" args="0.0 0.0 0.0 0.0 0 0.0 base_link imu 0.1"/>
+
+  <!-- Release -->
+  <node pkg="sptam" type="sptam_node" name="sptam" output="screen" >
+
+    <!-- Read S-PTAM parameters file -->
+    <rosparam command="load" file="$(find sptam)/configurationFiles/mobius.yaml" />
+
+<!--    <param name="use_odometry" value="true"/>-->
+    <param name="approximate_sync" type="bool" value="True" />
+    <param name="camera_frame" value="camera"/>
+    <param name="odom_frame" value="odom"/>
+
+  </node>
+
+</launch>

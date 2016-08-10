@@ -1,0 +1,30 @@
+<launch>
+
+  <!-- Launch para levantar la camara Minoru, con o sin su calibracion -->
+
+  <group ns="stereo">
+
+    <node name="stereo" pkg="uvc_camera" type="uvc_stereo_node" output="screen">
+
+      <param name="width" type="int" value="640" />
+      <param name="height" type="int" value="480" />
+      <param name="fps" type="int" value="15" />
+
+      <param name="left/device" type="string" value="/dev/video2" />
+      <!-- El archivo de configuracion de la camara lo crea el calibrador de ROS -->
+      <param name="left/camera_info_url" value="file://${ROS_HOME}/camera_info/${NAME}.yaml"/>
+
+
+      <param name="right/device" type="string" value="/dev/video1" />
+      <!-- El archivo de configuracion de la camara lo crea el calibrador de ROS -->
+      <param name="right/camera_info_url" value="file://${ROS_HOME}/camera_info/${NAME}.yaml"/>
+
+    </node>
+
+    <!-- Call stereo_image_proc to undistort and rectify images -->
+    <node pkg="stereo_image_proc" type="stereo_image_proc" name="stereo_image_proc"/>
+
+
+  </group>
+
+</launch>

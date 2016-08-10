@@ -1,0 +1,36 @@
+<launch>
+
+  <!-- Clear old S-PTAM parameters, just in case -->
+  <rosparam command="delete" ns="bumblebee_driver"/>
+
+  <!-- Bumblebee camera driver nodelet -->
+  <node pkg="camera1394stereo" type="camera1394stereo_node" name="bumblebee_driver" output="screen" clear_params="true">
+
+    <param name="frame_id" value="bumblebee" />
+    <param name="video_mode" value="format7_mode3" />
+    <param name="format7_color_coding" value="mono16" />
+    <param name="bayer_pattern" value="grbg" />
+    <param name="bayer_method" value="" />
+    <param name="stereo_method" value="Interlaced" />
+
+    <!-- For the auto_option the possible values are:
+         Off (0): Use fixed value
+         Query (1): Query current values
+         Auto (2): Camera sets continuously
+         Manual (3): Use explicit value
+         OnePush (4): Camera sets once
+         None (5): Feature not available -->
+
+    <param name="auto_shutter" value="2" />
+    <param name="auto_exposure" value="2" />
+    <param name="auto_frame_rate_feature" value="3" />
+    <param name="frame_rate_feature" value="470" /> <!-- Range: 470 to 4095.0 -->
+    <!-- <param name="shutter" value="2000" /> --> <!-- Range: 0.0 to 4095.0  -->
+    <!-- <param name="exposure" value="1" /> -->
+
+
+    <remap from="stereo_camera" to="stereo" />
+
+  </node>
+
+</launch>
