@@ -12,6 +12,8 @@ namespace std
 
 dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
 {
+    sub_path_ = nhp.subscribe("keyframes", 1, &denseInterface::cb_keyframes_path, this);
+
     ROS_INFO("DENSE node initialized.");
 }
 
@@ -21,4 +23,9 @@ dense::denseInterface::~denseInterface()
 
     std::cout << "Done!" << std::endl;
     ros::Duration(1.0).sleep();
+}
+
+void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path)
+{
+    ROS_INFO("Keyframe path received.");
 }
