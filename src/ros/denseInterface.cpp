@@ -60,8 +60,8 @@ void dense::denseInterface::cb_images(
     if (!dense_)
         dense_ = new Dense(left_info, right_info);
 
-    sensor_msgs::ImagePtr img_msg_left_copy = boost::make_shared<sensor_msgs::Image>(*img_msg_left);
-    sensor_msgs::ImagePtr img_msg_right_copy = boost::make_shared<sensor_msgs::Image>(*img_msg_right);
+    ImagePtr img_msg_left_copy = boost::make_shared<Image>(*img_msg_left);
+    ImagePtr img_msg_right_copy = boost::make_shared<Image>(*img_msg_right);
 
     dense_->raw_left_images->push(img_msg_left_copy);
     dense_->raw_right_images->push(img_msg_right_copy);

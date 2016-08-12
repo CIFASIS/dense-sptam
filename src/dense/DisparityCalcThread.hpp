@@ -5,12 +5,13 @@
 #include <thread>
 
 #include "ImageQueue.hpp"
+#include "DispImageQueue.hpp"
 
 class DisparityCalcThread
 {
 public:
 
-    DisparityCalcThread(ImageQueue *raw_left_images, ImageQueue *raw_right_images);
+    DisparityCalcThread(ImageQueue *raw_left_images, ImageQueue *raw_right_images, DispImageQueue *disp_images);
 
     inline void WaitUntilFinished()
     { disparityCalcThread_.join(); }
@@ -18,6 +19,7 @@ public:
 private:
     
     ImageQueue *raw_left_images_, *raw_right_images_;
+    DispImageQueue *disp_images_;
     std::thread disparityCalcThread_;
     void compute();
 };

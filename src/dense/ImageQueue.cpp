@@ -6,22 +6,32 @@ ImageQueue::ImageQueue()
 ImageQueue::~ImageQueue()
 {}
 
-void ImageQueue::push(sensor_msgs::ImagePtr image)
+void ImageQueue::push(ImagePtr image)
 {
     std::lock_guard<std::mutex> lock(image_queue_lock_);
-    images_.push_back(image);
+    images_.push(image);
+    empty_queue_cv.notify_all();
 }
 
-sensor_msgs::ImagePtr ImageQueue::at(unsigned int pos)
+ImagePtr ImageQueue::pop()
 {
-    std::lock_guard<std::mutex> lock(image_queue_lock_);
-    return images_.at(pos);
-}
+    std::mutex m;
+    std::unique_lock<std::mutex> lock(m);
 
-sensor_msgs::ImagePtr ImageQueue::back()
-{
-    std::lock_guard<std::mutex> lock(image_queue_lock_);
-    return images_.back();
+    image_queue_lock_.lock();
+
+    while (images_.empty()) {
+        image_queue_lock_.unlock();
+        empty_queue_cv.wait(lock);
+        image_queue_lock_.lock();
+    }
+
+    ImagePtr ret = images_.front();
+    images_.pop();
+
+    image_queue_lock_.unlock();
+
+    return ret;
 }
 
 size_t ImageQueue::size()

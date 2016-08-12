@@ -13,6 +13,7 @@ public:
     ~Dense();
 
     ImageQueue *raw_left_images, *raw_right_images;
+    DispImageQueue  *disp_images;
 
 private:
 
