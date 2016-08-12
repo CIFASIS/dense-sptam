@@ -55,8 +55,6 @@ void dense::denseInterface::cb_images(
 ) {
     ROS_INFO("Images received.");
 
-    if (!camera_) {
-        camera_ = new Camera(left_info, right_info);
-        disparityCalcThread_ = new DisparityCalcThread();
-    }
+    if (!dense_)
+        dense_ = new Dense(left_info, right_info);
 }
