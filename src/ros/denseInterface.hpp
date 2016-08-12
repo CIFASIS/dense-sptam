@@ -12,6 +12,7 @@
 #include <tf2_ros/transform_listener.h>
 
 #include "../dense/Camera.hpp"
+#include "../dense/DisparityCalcThread.hpp"
 
 namespace dense
 {
@@ -50,6 +51,8 @@ namespace dense
         boost::shared_ptr<ApproximateSync> approximate_sync_;
 
         Camera *camera_;
+
+        DisparityCalcThread *disparityCalcThread_;
     };
 
 }

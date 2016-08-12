@@ -57,5 +57,6 @@ void dense::denseInterface::cb_images(
 
     if (!camera_) {
         camera_ = new Camera(left_info, right_info);
+        disparityCalcThread_ = new DisparityCalcThread();
     }
 }
