@@ -54,4 +54,8 @@ void dense::denseInterface::cb_images(
     const sensor_msgs::ImageConstPtr& img_msg_right, const sensor_msgs::CameraInfoConstPtr& right_info
 ) {
     ROS_INFO("Images received.");
+
+    if (!camera_) {
+        camera_ = new Camera(left_info, right_info);
+    }
 }

@@ -11,6 +11,8 @@
 #include <sensor_msgs/Image.h>
 #include <tf2_ros/transform_listener.h>
 
+#include "../dense/Camera.hpp"
+
 namespace dense
 {
 
@@ -47,6 +49,7 @@ namespace dense
         typedef message_filters::Synchronizer<ApproximatePolicy> ApproximateSync;
         boost::shared_ptr<ApproximateSync> approximate_sync_;
 
+        Camera *camera_;
     };
 
 }
