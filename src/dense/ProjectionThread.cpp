@@ -3,8 +3,9 @@
 #include <cv_bridge/cv_bridge.h>
 
 ProjectionThread::ProjectionThread(
-    DispImageQueue *disp_images, Camera *camera
+    DispImageQueue *disp_images, PointCloudQueue *point_clouds, Camera *camera
 ) : disp_images_(disp_images)
+  , point_clouds_(point_clouds)
   , camera_(camera)
   , projectionThread_(&ProjectionThread::compute, this)
 {}
@@ -14,7 +15,9 @@ void ProjectionThread::compute()
     while(1) {
         /* Calls to pop() are blocking */
         DispRawImagePtr disp_raw_img = disp_images_->pop();
-        processPoints(disp_raw_img);
+        PointCloudPtr cloud = processPoints(disp_raw_img);
+        PointCloudEntry pointcloud_entry(disp_raw_img->first->header.seq, cloud);
+        point_clouds_->push(pointcloud_entry);
     }
 }
 
@@ -25,10 +28,10 @@ bool ProjectionThread::isValidPoint(const cv::Vec3f& pt)
     return pt[2] != image_geometry::StereoCameraModel::MISSING_Z && !isinf(pt[2]);
 }
 
-pcl::PointCloud<pcl::PointXYZRGB>::Ptr ProjectionThread::processPoints(
-        const DispRawImagePtr disp_raw_img
+PointCloudPtr ProjectionThread::processPoints(
+    const DispRawImagePtr disp_raw_img
 ) {
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    PointCloudPtr cloud(new PointCloud);
     ImagePtr raw_left_image = disp_raw_img->first;
     DispImagePtr disp_img = disp_raw_img->second;
 

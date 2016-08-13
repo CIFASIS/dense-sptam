@@ -51,8 +51,8 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
     if (!dense_)
         return;
 
-    ROS_INFO("Path size = %lu, Raw size = %lu, Disp size = %lu", path->poses.size(),
-            dense_->raw_left_images->size(), dense_->disp_images->size());
+    ROS_INFO("Path size = %lu, Raw size = %lu, Disp size = %lu, Clouds = %lu", path->poses.size(),
+            dense_->raw_left_images->size(), dense_->disp_images->size(), dense_->point_clouds->size());
 }
 
 void dense::denseInterface::cb_images(

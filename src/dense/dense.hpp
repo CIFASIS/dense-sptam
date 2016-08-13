@@ -15,6 +15,7 @@ public:
 
     ImageQueue *raw_left_images, *raw_right_images;
     DispImageQueue  *disp_images;
+    PointCloudQueue *point_clouds;
 
 private:
 

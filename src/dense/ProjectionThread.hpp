@@ -4,14 +4,15 @@
 #include <thread>
 #include <pcl_ros/point_cloud.h>
 
-#include "DispImageQueue.hpp"
 #include "Camera.hpp"
+#include "DispImageQueue.hpp"
+#include "PointCloudQueue.hpp"
 
 class ProjectionThread
 {
 public:
 
-    ProjectionThread(DispImageQueue *disp_images, Camera *camera);
+    ProjectionThread(DispImageQueue *disp_images, PointCloudQueue *point_clouds, Camera *camera);
 
     inline void WaitUntilFinished()
     { projectionThread_.join(); }
@@ -19,13 +20,14 @@ public:
 private:
 
     DispImageQueue *disp_images_;
+    PointCloudQueue *point_clouds_;
     Camera *camera_;
 
     std::thread projectionThread_;
     void compute();
 
     bool isValidPoint(const cv::Vec3f& pt);
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr processPoints(const DispRawImagePtr disp_raw_img);
+    PointCloudPtr processPoints(const DispRawImagePtr disp_raw_img);
 };
 
 #endif /* __PROJECTIONTHREAD_H */
