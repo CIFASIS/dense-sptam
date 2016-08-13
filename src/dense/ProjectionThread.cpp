@@ -10,6 +10,6 @@ void ProjectionThread::compute()
 {
     while(1) {
         /* Calls to pop() are blocking */
-        DispImagePtr disp_img = disp_images_->pop();
+        DispRawImagePtr disp_raw_img = disp_images_->pop();
     }
 }

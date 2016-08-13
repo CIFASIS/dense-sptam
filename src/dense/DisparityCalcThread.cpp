@@ -29,7 +29,8 @@ void DisparityCalcThread::compute()
 
         stereo(image_left, image_right, dmat, CV_32F);
         DispImagePtr disp_img = boost::make_shared<DispImage>(dmat);
-        disp_images_->push(disp_img);
+        DispRawImagePtr disp_raw_img = boost::make_shared<DispRawImage>(disp_img, raw_left_image);
+        disp_images_->push(disp_raw_img);
     }
 
 }
