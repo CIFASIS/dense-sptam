@@ -1,10 +1,10 @@
 #include "DisparityCalcThread.hpp"
 
+#include <boost/smart_ptr.hpp>
+#include <cv_bridge/cv_bridge.h>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <cv_bridge/cv_bridge.h>
-#include <boost/smart_ptr.hpp>
 
 DisparityCalcThread::DisparityCalcThread(
         ImageQueue *raw_left_images, ImageQueue *raw_right_images, DispImageQueue *disp_images

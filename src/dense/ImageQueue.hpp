@@ -1,10 +1,9 @@
 #ifndef __IMAGE_QUEUE_H
 #define __IMAGE_QUEUE_H
 
-#include <ros/ros.h>
 #include <sensor_msgs/Image.h>
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
 #include <queue>
 
 typedef sensor_msgs::Image Image;

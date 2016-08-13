@@ -1,12 +1,10 @@
 #ifndef __DISP_IMAGE_QUEUE_H
 #define __DISP_IMAGE_QUEUE_H
 
-#include <ros/ros.h>
-#include <sensor_msgs/Image.h>
-#include <mutex>
 #include <condition_variable>
-#include <queue>
+#include <mutex>
 #include <opencv2/opencv.hpp>
+#include <queue>
 
 #include "ImageQueue.hpp"
 

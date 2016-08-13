@@ -1,7 +1,6 @@
 #ifndef __PROJECTIONTHREAD_H
 #define __PROJECTIONTHREAD_H
 
-#include <ros/ros.h>
 #include <thread>
 #include <pcl_ros/point_cloud.h>
 

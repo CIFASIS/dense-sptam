@@ -1,11 +1,10 @@
 #ifndef __DISPARITYCALCTHREAD_H
 #define __DISPARITYCALCTHREAD_H
 
-#include <ros/ros.h>
 #include <thread>
 
-#include "ImageQueue.hpp"
 #include "DispImageQueue.hpp"
+#include "ImageQueue.hpp"
 
 class DisparityCalcThread
 {

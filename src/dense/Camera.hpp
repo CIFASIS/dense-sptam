@@ -1,10 +1,8 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <boost/smart_ptr.hpp>
 #include <image_geometry/stereo_camera_model.h>
 #include <sensor_msgs/CameraInfo.h>
-#include <sensor_msgs/Image.h>
 
 class Camera
 {

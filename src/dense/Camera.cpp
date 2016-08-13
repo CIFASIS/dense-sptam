@@ -1,5 +1,7 @@
 #include "Camera.hpp"
 
+#include <boost/smart_ptr.hpp>
+
 Camera::Camera(
     const sensor_msgs::CameraInfoConstPtr& left_info,
     const sensor_msgs::CameraInfoConstPtr& right_info
