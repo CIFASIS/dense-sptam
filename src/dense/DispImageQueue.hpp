@@ -13,7 +13,7 @@
 typedef cv::Mat DispImage;
 typedef boost::shared_ptr<DispImage> DispImagePtr;
 
-typedef std::pair<DispImagePtr, ImagePtr> DispRawImage;
+typedef std::pair<ImagePtr, DispImagePtr> DispRawImage;
 typedef boost::shared_ptr<DispRawImage> DispRawImagePtr;
 
 class DispImageQueue

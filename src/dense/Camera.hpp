@@ -13,6 +13,9 @@ public:
     Camera(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info);
     ~Camera();
 
+    inline image_geometry::StereoCameraModel *getStereoModel()
+    { return &stereoCameraModel_; }
+
 private:
 
     image_geometry::StereoCameraModel stereoCameraModel_;
