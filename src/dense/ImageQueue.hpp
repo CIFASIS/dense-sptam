@@ -18,7 +18,7 @@ public:
     ~ImageQueue();
 
     void push(ImagePtr image);
-    ImagePtr pop();
+    ImagePtr pop(bool remove = true);
     size_t size();
 
 private:

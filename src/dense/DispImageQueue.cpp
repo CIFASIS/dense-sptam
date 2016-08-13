@@ -9,19 +9,31 @@ DispImageQueue::~DispImageQueue()
 void DispImageQueue::push(DispImagePtr image)
 {
     std::lock_guard<std::mutex> lock(image_queue_lock_);
-    images_.push_back(image);
+    images_.push(image);
+    empty_queue_cv.notify_all();
 }
 
-DispImagePtr DispImageQueue::at(unsigned int pos)
+DispImagePtr DispImageQueue::pop(bool remove)
 {
-    std::lock_guard<std::mutex> lock(image_queue_lock_);
-    return images_.at(pos);
-}
+    std::mutex m;
+    std::unique_lock<std::mutex> lock(m);
 
-DispImagePtr DispImageQueue::back()
-{
-    std::lock_guard<std::mutex> lock(image_queue_lock_);
-    return images_.back();
+    image_queue_lock_.lock();
+
+    while (images_.empty()) {
+        image_queue_lock_.unlock();
+        empty_queue_cv.wait(lock);
+        image_queue_lock_.lock();
+    }
+
+    DispImagePtr ret = images_.front();
+
+    if (remove)
+        images_.pop();
+
+    image_queue_lock_.unlock();
+
+    return ret;
 }
 
 size_t DispImageQueue::size()

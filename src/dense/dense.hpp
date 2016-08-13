@@ -3,6 +3,7 @@
 
 #include "../dense/Camera.hpp"
 #include "../dense/DisparityCalcThread.hpp"
+#include "../dense/ProjectionThread.hpp"
 #include "../dense/ImageQueue.hpp"
 
 class Dense
@@ -19,6 +20,7 @@ private:
 
     Camera *camera_;
     DisparityCalcThread *disparityCalcThread_;
+    ProjectionThread *projectionThread_;
 
 };
 

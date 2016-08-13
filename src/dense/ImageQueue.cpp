@@ -13,7 +13,7 @@ void ImageQueue::push(ImagePtr image)
     empty_queue_cv.notify_all();
 }
 
-ImagePtr ImageQueue::pop()
+ImagePtr ImageQueue::pop(bool remove)
 {
     std::mutex m;
     std::unique_lock<std::mutex> lock(m);
@@ -27,7 +27,9 @@ ImagePtr ImageQueue::pop()
     }
 
     ImagePtr ret = images_.front();
-    images_.pop();
+
+    if (remove)
+        images_.pop();
 
     image_queue_lock_.unlock();
 

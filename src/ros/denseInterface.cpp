@@ -48,14 +48,18 @@ dense::denseInterface::~denseInterface()
 
 void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path)
 {
-    ROS_INFO("Keyframe path received.");
+    if (!dense_)
+        return;
+
+    ROS_INFO("Path size = %lu, Raw size = %lu, Disp size = %lu", path->poses.size(),
+            dense_->raw_left_images->size(), dense_->disp_images->size());
 }
 
 void dense::denseInterface::cb_images(
     const sensor_msgs::ImageConstPtr& img_msg_left, const sensor_msgs::CameraInfoConstPtr& left_info,
     const sensor_msgs::ImageConstPtr& img_msg_right, const sensor_msgs::CameraInfoConstPtr& right_info
 ) {
-    ROS_INFO("Images received.");
+    ROS_DEBUG("Images received.");
 
     if (!dense_)
         dense_ = new Dense(left_info, right_info);
