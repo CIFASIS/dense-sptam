@@ -3,7 +3,9 @@
 PointCloudEntry::PointCloudEntry(
     uint32_t seq, PointCloudPtr cloud
 ) : seq_(seq)
-, cloud_(cloud)
+  , current_(nullptr)
+  , next_(nullptr)
+  , cloud_(cloud)
 {}
 
 PointCloudEntry::~PointCloudEntry()

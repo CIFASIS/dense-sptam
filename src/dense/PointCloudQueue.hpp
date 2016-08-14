@@ -4,6 +4,8 @@
 #include <mutex>
 #include <pcl_ros/point_cloud.h>
 
+#include "Camera.hpp"
+
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud;
 typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr PointCloudPtr;
 
@@ -17,6 +19,8 @@ public:
 private:
 
     uint32_t seq_;
+    CameraPose::Ptr current_;
+    CameraPose::Ptr next_;
     PointCloudPtr cloud_;
 
 };

@@ -18,3 +18,12 @@ Camera::Camera(
 
 Camera::~Camera()
 {}
+
+CameraPose::CameraPose(
+    Position position, Orientation orientation
+) : position_(position)
+  , orientation_(orientation)
+{}
+
+CameraPose::~CameraPose()
+{}
