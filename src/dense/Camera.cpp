@@ -27,3 +27,14 @@ CameraPose::CameraPose(
 
 CameraPose::~CameraPose()
 {}
+
+bool CameraPose::operator ==(CameraPose &rhs)
+{
+    return (this->get_orientation().x == rhs.get_orientation().x &&
+            this->get_orientation().y == rhs.get_orientation().y &&
+            this->get_orientation().z == rhs.get_orientation().z &&
+            this->get_orientation().w == rhs.get_orientation().w &&
+            this->get_position().x == rhs.get_position().x &&
+            this->get_position().y == rhs.get_position().y &&
+            this->get_position().z == rhs.get_position().z);
+}

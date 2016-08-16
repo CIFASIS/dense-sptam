@@ -29,6 +29,13 @@ public:
     typedef geometry_msgs::Point Position;
     typedef geometry_msgs::Quaternion Orientation;
 
+    inline Position get_position()
+    { return position_; }
+    inline Orientation get_orientation()
+    { return orientation_; }
+
+    bool operator ==(CameraPose& rhs);
+
     CameraPose(Position position, Orientation orientation);
     ~CameraPose();
 
