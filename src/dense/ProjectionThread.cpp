@@ -16,7 +16,12 @@ void ProjectionThread::compute()
         /* Calls to pop() are blocking */
         DispRawImagePtr disp_raw_img = disp_images_->pop();
         PointCloudPtr cloud = processPoints(disp_raw_img);
-        point_clouds_->setCloud(disp_raw_img->first->header.seq, cloud);
+        PointCloudEntry::Ptr entry = point_clouds_->getEntry(disp_raw_img->first->header.seq);
+
+        entry->lock();
+        entry->set_cloud(cloud);
+        point_clouds_->schedule(entry);
+        entry->unlock();
     }
 }
 
