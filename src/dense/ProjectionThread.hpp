@@ -27,6 +27,7 @@ private:
     void compute();
 
     bool isValidPoint(const cv::Vec3f& pt);
+    void filterDisp(const DispRawImagePtr disp_raw_img, float min_disparity);
     PointCloudPtr processPoints(const DispRawImagePtr disp_raw_img);
 };
 

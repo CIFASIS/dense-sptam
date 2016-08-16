@@ -15,6 +15,7 @@ void ProjectionThread::compute()
     while(1) {
         /* Calls to pop() are blocking */
         DispRawImagePtr disp_raw_img = disp_images_->pop();
+        filterDisp(disp_raw_img, 30);
         PointCloudPtr cloud = processPoints(disp_raw_img);
         PointCloudEntry::Ptr entry = point_clouds_->getEntry(disp_raw_img->first->header.seq);
 
@@ -31,6 +32,18 @@ bool ProjectionThread::isValidPoint(const cv::Vec3f& pt)
     // and zero disparities (point mapped to infinity).
     return pt[2] != image_geometry::StereoCameraModel::MISSING_Z && !isinf(pt[2]);
 }
+
+void ProjectionThread::filterDisp(const DispRawImagePtr disp_raw_img, float min_disparity)
+{
+    ImagePtr raw_left_image = disp_raw_img->first;
+    DispImagePtr disp_img = disp_raw_img->second;
+
+    for (unsigned int i = 0; i < raw_left_image->height; i++)
+        for (unsigned int j = 0; j < raw_left_image->width; j++)
+            if (disp_img->at<float>(i, j) < min_disparity)
+                disp_img->at<float>(i, j) = 0;
+}
+
 
 PointCloudPtr ProjectionThread::processPoints(
     const DispRawImagePtr disp_raw_img
