@@ -73,9 +73,11 @@ public:
 
     size_t size();
     size_t sizeInitQueue();
+    size_t sizeRefineQueue();
 
     PointCloudEntry::Ptr getEntry(uint32_t seq_, bool force = true);
     PointCloudEntry::Ptr popInit(bool remove = true);
+    PointCloudEntry::Ptr popRefine(bool remove = true);
     void schedule(PointCloudEntry::Ptr entry);
 
 private:

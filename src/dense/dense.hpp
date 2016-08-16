@@ -5,6 +5,7 @@
 #include "../dense/DisparityCalcThread.hpp"
 #include "../dense/ProjectionThread.hpp"
 #include "../dense/TransformThread.hpp"
+#include "../dense/RefinementThread.hpp"
 #include "../dense/ImageQueue.hpp"
 
 class Dense
@@ -24,6 +25,7 @@ private:
     DisparityCalcThread *disparityCalcThread_;
     ProjectionThread *projectionThread_;
     TransformThread *transformThread_;
+    RefinementThread *refinementThread_;
 
 };
 

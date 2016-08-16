@@ -1,23 +1,24 @@
-#include "TransformThread.hpp"
+#include "RefinementThread.hpp"
 
-TransformThread::TransformThread(
+RefinementThread::RefinementThread(
     PointCloudQueue *point_clouds
 ) : point_clouds_(point_clouds)
-  , transformThread_(&TransformThread::compute, this)
+  , refinementThread_(&RefinementThread::compute, this)
 {}
 
-void TransformThread::compute()
+void RefinementThread::compute()
 {
     while(1) {
         /* Blocking call */
-        PointCloudEntry::Ptr entry = point_clouds_->popInit();
+        PointCloudEntry::Ptr entry = point_clouds_->popRefine();
 
         entry->lock();
         entry->set_current_pos(entry->get_update_pos());
         entry->set_update_pos(nullptr);
         entry->unlock();
 
-        //cameraToWorld(entry->get_current_pos())
+        //refinementwork()
+        //ROS_INFO("Refined seq = %u", entry->get_seq());
 
         entry->lock();
         entry->set_state(PointCloudEntry::IDLE);
@@ -25,5 +26,3 @@ void TransformThread::compute()
         entry->unlock();
     }
 }
-
-//void TransformThread::cameraTo

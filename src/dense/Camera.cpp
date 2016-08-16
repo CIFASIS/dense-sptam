@@ -1,6 +1,7 @@
 #include "Camera.hpp"
 
 #include <boost/smart_ptr.hpp>
+#include <ros/common.h>
 
 Camera::Camera(
     const sensor_msgs::CameraInfoConstPtr& left_info,

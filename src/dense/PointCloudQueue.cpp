@@ -47,6 +47,12 @@ size_t PointCloudQueue::sizeInitQueue()
     return init_queue_.size();
 }
 
+size_t PointCloudQueue::sizeRefineQueue()
+{
+    std::lock_guard<std::mutex> lock(refine_queue_lock_);
+    return refine_queue_.size();
+}
+
 PointCloudEntry::Ptr PointCloudQueue::popInit(bool remove)
 {
     std::mutex m;
@@ -66,6 +72,29 @@ PointCloudEntry::Ptr PointCloudQueue::popInit(bool remove)
         init_queue_.pop();
 
     init_queue_lock_.unlock();
+
+    return ret;
+}
+
+PointCloudEntry::Ptr PointCloudQueue::popRefine(bool remove)
+{
+    std::mutex m;
+    std::unique_lock<std::mutex> lock(m);
+
+    refine_queue_lock_.lock();
+
+    while (refine_queue_.empty()) {
+        refine_queue_lock_.unlock();
+        empty_refine_queue_cv.wait(lock);
+        refine_queue_lock_.lock();
+    }
+
+    PointCloudEntry::Ptr ret = refine_queue_.front();
+
+    if (remove)
+        refine_queue_.pop();
+
+    refine_queue_lock_.unlock();
 
     return ret;
 }

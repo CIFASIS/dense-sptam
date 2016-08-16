@@ -56,14 +56,16 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
         PointCloudEntry::Ptr entry = dense_->point_clouds->getEntry(it.header.seq);
 
         entry->lock();
-        entry->set_update_pos(pose);
-        dense_->point_clouds->schedule(entry);
+        if (!entry->get_current_pos() || !(*entry->get_current_pos() == *pose)) {
+            entry->set_update_pos(pose);
+            dense_->point_clouds->schedule(entry);
+        }
         entry->unlock();
     }
 
-    ROS_INFO("Path size = %lu, Raw size = %lu, Disp size = %lu, Clouds/init = (%lu, %lu)", path->poses.size(),
-             dense_->raw_left_images->size(), dense_->disp_images->size(), dense_->point_clouds->size(),
-             dense_->point_clouds->sizeInitQueue());
+    ROS_INFO("Path size = %lu, Raw size = %lu, Disp size = %lu, Clouds/init/refine = (%lu, %lu, %lu)",
+             path->poses.size(), dense_->raw_left_images->size(), dense_->disp_images->size(),
+             dense_->point_clouds->size(), dense_->point_clouds->sizeInitQueue(), dense_->point_clouds->sizeRefineQueue());
 }
 
 void dense::denseInterface::cb_images(

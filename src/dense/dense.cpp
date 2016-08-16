@@ -12,6 +12,7 @@ Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs
     disparityCalcThread_ = new DisparityCalcThread(raw_left_images, raw_right_images, disp_images);
     projectionThread_ = new ProjectionThread(disp_images, point_clouds, camera_);
     transformThread_ = new TransformThread(point_clouds);
+    refinementThread_ = new RefinementThread(point_clouds);
 }
 
 Dense::~Dense()
