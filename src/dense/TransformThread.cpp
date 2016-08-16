@@ -17,7 +17,7 @@ void TransformThread::compute()
         entry->set_update_pos(nullptr);
         entry->unlock();
 
-        //cameraToWorld(entry->get_current_pos())
+        cameraToWorld(entry);
 
         entry->lock();
         entry->set_state(PointCloudEntry::IDLE);
@@ -26,4 +26,6 @@ void TransformThread::compute()
     }
 }
 
-//void TransformThread::cameraTo
+void TransformThread::cameraToWorld(PointCloudEntry::Ptr entry)
+{
+}

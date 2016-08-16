@@ -20,6 +20,7 @@ private:
 
     std::thread transformThread_;
     void compute();
+    void cameraToWorld(PointCloudEntry::Ptr entry);
 
 };
 

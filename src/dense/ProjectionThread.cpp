@@ -44,7 +44,7 @@ PointCloudPtr ProjectionThread::processPoints(
     cv::Mat_<cv::Vec3f> dense_points_;
     pcl::PointXYZRGB new_pt3d;
 
-    camera_->getStereoModel()->projectDisparityImageTo3d(*disp_img, dense_points_, true);
+    camera_->getStereoModel().projectDisparityImageTo3d(*disp_img, dense_points_, true);
 
     for (int32_t u = 0; u < dense_points_.rows; ++u)
         for (int32_t v = 0; v < dense_points_.cols; ++v)
