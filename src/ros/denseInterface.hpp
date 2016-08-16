@@ -26,10 +26,14 @@ namespace dense
         void cb_images(const sensor_msgs::ImageConstPtr& img_msg_left, const sensor_msgs::CameraInfoConstPtr& left_info,
                        const sensor_msgs::ImageConstPtr& img_msg_right, const sensor_msgs::CameraInfoConstPtr& right_info);
 
+        /* Parameters */
+        std::string odom_frame_, base_frame_, camera_frame_, map_frame_;
+
         /* In/out topics */
         ros::Subscriber sub_path_;
         message_filters::Subscriber<sensor_msgs::Image> sub_img_l_, sub_img_r_;
         message_filters::Subscriber<sensor_msgs::CameraInfo> sub_info_l_, sub_info_r_;
+        ros::Publisher pub_map_;
 
         /*
          * From S-PTAM: Syncronizer for image messages. We don't know a priory which one

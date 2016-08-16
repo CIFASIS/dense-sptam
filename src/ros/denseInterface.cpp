@@ -17,6 +17,10 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     /* Parameters */
     bool use_approx_sync;
     nhp.param<bool>("approximate_sync", use_approx_sync, false);
+    nhp.param<std::string>("odom_frame", odom_frame_, "odom");
+    nhp.param<std::string>("base_link_frame", base_frame_, "base_link");
+    nhp.param<std::string>("camera_frame", camera_frame_, "camera");
+    nhp.param<std::string>("map_frame", map_frame_, "map");
 
     /* In/out topics */
     sub_path_ = nhp.subscribe("keyframes", 1, &denseInterface::cb_keyframes_path, this);
@@ -25,6 +29,8 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     sub_info_l_.subscribe(nhp, "/keyframe/left/camera_info", 1);
     sub_img_r_.subscribe(nhp, "/keyframe/right/image_rect", 1);
     sub_info_r_.subscribe(nhp, "/keyframe/right/camera_info", 1);
+
+    pub_map_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud", 100);
 
     if (use_approx_sync) {
         approximate_sync_.reset(new ApproximateSync(ApproximatePolicy(10),
@@ -61,6 +67,12 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
             dense_->point_clouds->schedule(entry);
         }
         entry->unlock();
+    }
+
+    PointCloudEntry::Ptr entry = dense_->point_clouds->back();
+    if (entry) {
+        entry->get_cloud()->header.frame_id = map_frame_;
+        pub_map_.publish(entry->get_cloud());
     }
 
     ROS_INFO("Path size = %lu, Raw size = %lu, Disp size = %lu, Clouds/init/refine = (%lu, %lu, %lu)",

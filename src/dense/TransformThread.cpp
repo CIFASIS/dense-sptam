@@ -28,4 +28,15 @@ void TransformThread::compute()
 
 void TransformThread::cameraToWorld(PointCloudEntry::Ptr entry)
 {
+    CameraPose::Position pos;
+
+    for (auto& it: *entry->get_cloud()) {
+        pos(0) = it.x;
+        pos(1) = it.y;
+        pos(2) = it.z;
+        pos = entry->get_current_pos()->ToWorld(pos);
+        it.x = pos(0);
+        it.y = pos(1);
+        it.z = pos(2);
+    }
 }

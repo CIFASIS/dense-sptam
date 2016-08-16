@@ -47,15 +47,18 @@ public:
 
     bool operator ==(CameraPose& rhs);
 
+    inline Position ToWorld(const Position& x) const
+    { return orientation_matrix_ * x + position_; }
+
     CameraPose(Position position, Orientation orientation);
     CameraPose(geometry_msgs::Point position, geometry_msgs::Quaternion orientation);
     ~CameraPose();
 
 private:
 
-    Eigen::Vector3d position_;
-    Eigen::Quaterniond orientation_;
-    Eigen::Matrix3d orientation_matrix_;
+    Position position_;
+    Orientation orientation_;
+    OrientationMatrix orientation_matrix_;
 
 };
 

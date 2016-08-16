@@ -8,8 +8,9 @@
 
 #include "Camera.hpp"
 
-typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud;
-typedef pcl::PointCloud<pcl::PointXYZRGB>::Ptr PointCloudPtr;
+typedef pcl::PointXYZRGB Point;
+typedef pcl::PointCloud<Point> PointCloud;
+typedef pcl::PointCloud<Point>::Ptr PointCloudPtr;
 
 class PointCloudEntry
 {
@@ -74,6 +75,8 @@ public:
     size_t size();
     size_t sizeInitQueue();
     size_t sizeRefineQueue();
+
+    PointCloudEntry::Ptr back();
 
     PointCloudEntry::Ptr getEntry(uint32_t seq_, bool force = true);
     PointCloudEntry::Ptr popInit(bool remove = true);
