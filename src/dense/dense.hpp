@@ -12,7 +12,10 @@ class Dense
 {
 public:
 
-    Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info);
+    Dense(
+        const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
+        double frustumNearPlaneDist, double frustumFarPlaneDist
+    );
     ~Dense();
 
     ImageQueue *raw_left_images, *raw_right_images;
@@ -21,7 +24,6 @@ public:
 
 private:
 
-    Camera *camera_;
     DisparityCalcThread *disparityCalcThread_;
     ProjectionThread *projectionThread_;
     TransformThread *transformThread_;

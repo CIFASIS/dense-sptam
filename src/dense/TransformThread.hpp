@@ -9,7 +9,7 @@ class TransformThread
 {
 public:
 
-    TransformThread(PointCloudQueue *point_clouds, Camera *camera);
+    TransformThread(PointCloudQueue *point_clouds, Camera::Ptr camera);
 
     inline void WaitUntilFinished()
     { transformThread_.join(); }
@@ -17,7 +17,7 @@ public:
 private:
 
     PointCloudQueue *point_clouds_;
-    Camera *camera_;
+    Camera::Ptr camera_;
 
     std::thread transformThread_;
     void compute();

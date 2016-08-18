@@ -21,6 +21,8 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     nhp.param<std::string>("base_link_frame", base_frame_, "base_link");
     nhp.param<std::string>("camera_frame", camera_frame_, "camera");
     nhp.param<std::string>("map_frame", map_frame_, "map");
+    nhp.param<double>("FrustumNearPlaneDist", frustumNearPlaneDist_, 0.1);
+    nhp.param<double>("FrustumFarPlaneDist", frustumFarPlaneDist_, 1000.0);
 
     /* In/out topics */
     sub_path_ = nhp.subscribe("keyframes", 1, &denseInterface::cb_keyframes_path, this);
@@ -85,7 +87,7 @@ void dense::denseInterface::cb_images(
     ROS_DEBUG("Images received.");
 
     if (!dense_)
-        dense_ = new Dense(left_info, right_info);
+        dense_ = new Dense(left_info, right_info, frustumNearPlaneDist_, frustumFarPlaneDist_);
 
     ImagePtr img_msg_left_copy = boost::make_shared<Image>(*img_msg_left);
     ImagePtr img_msg_right_copy = boost::make_shared<Image>(*img_msg_right);

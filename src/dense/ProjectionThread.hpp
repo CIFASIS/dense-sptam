@@ -12,7 +12,7 @@ class ProjectionThread
 {
 public:
 
-    ProjectionThread(DispImageQueue *disp_images, PointCloudQueue *point_clouds, Camera *camera);
+    ProjectionThread(DispImageQueue *disp_images, PointCloudQueue *point_clouds, Camera::Ptr camera);
 
     inline void WaitUntilFinished()
     { projectionThread_.join(); }
@@ -21,7 +21,7 @@ private:
 
     DispImageQueue *disp_images_;
     PointCloudQueue *point_clouds_;
-    Camera *camera_;
+    Camera::Ptr camera_;
 
     std::thread projectionThread_;
     void compute();

@@ -28,6 +28,7 @@ namespace dense
 
         /* Parameters */
         std::string odom_frame_, base_frame_, camera_frame_, map_frame_;
+        double frustumNearPlaneDist_, frustumFarPlaneDist_;
 
         /* In/out topics */
         ros::Subscriber sub_path_;

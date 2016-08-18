@@ -11,11 +11,29 @@ class Camera
 {
 public:
 
-    Camera(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info);
+    typedef boost::shared_ptr<Camera> Ptr;
+
+    Camera(
+        const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
+        double frustumNearPlaneDist, double frustumFarPlaneDist
+    );
     ~Camera();
 
     inline image_geometry::StereoCameraModel& getStereoModel()
     { return stereoCameraModel_; }
+
+    inline double getNearPlaneDist()
+    { return frustumNearPlaneDist_; }
+    inline double getFarPlaneDist()
+    { return frustumFarPlaneDist_; }
+    inline double GetFOV_LH()
+    { return left_horizontal_FOV; }
+    inline double GetFOV_LV()
+    { return left_vertical_FOV; }
+    inline double GetFOV_RH()
+    { return right_horizontal_FOV; }
+    inline double GetFOV_RV ()
+    { return right_vertical_FOV; }
 
 private:
 
@@ -25,6 +43,7 @@ private:
 
     image_geometry::StereoCameraModel stereoCameraModel_;
     cv::Matx33d intrinsic_;
+    double frustumNearPlaneDist_, frustumFarPlaneDist_;
     double left_horizontal_FOV, left_vertical_FOV, right_horizontal_FOV, right_vertical_FOV;
 
 };

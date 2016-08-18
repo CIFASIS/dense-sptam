@@ -1,7 +1,7 @@
 #include "ProjectionThread.hpp"
 
 ProjectionThread::ProjectionThread(
-    DispImageQueue *disp_images, PointCloudQueue *point_clouds, Camera *camera
+    DispImageQueue *disp_images, PointCloudQueue *point_clouds, Camera::Ptr camera
 ) : disp_images_(disp_images)
   , point_clouds_(point_clouds)
   , camera_(camera)

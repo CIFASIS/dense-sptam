@@ -5,8 +5,12 @@
 
 Camera::Camera(
     const sensor_msgs::CameraInfoConstPtr& left_info,
-    const sensor_msgs::CameraInfoConstPtr& right_info
-) {
+    const sensor_msgs::CameraInfoConstPtr& right_info,
+    double frustumNearPlaneDist,
+    double frustumFarPlaneDist
+) : frustumNearPlaneDist_(frustumNearPlaneDist)
+  , frustumFarPlaneDist_(frustumFarPlaneDist)
+{
     /* Set frame id so both camera info msgs share the same one */
     sensor_msgs::CameraInfoPtr left_info_copy = boost::make_shared<sensor_msgs::CameraInfo>(*left_info);
     sensor_msgs::CameraInfoPtr right_info_copy = boost::make_shared<sensor_msgs::CameraInfo>(*right_info);
