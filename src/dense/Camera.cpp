@@ -58,7 +58,7 @@ CameraPose::CameraPose(geometry_msgs::Point position, geometry_msgs::Quaternion 
 CameraPose::~CameraPose()
 {}
 
-bool CameraPose::operator ==(CameraPose &rhs)
+bool CameraPose::operator ==(CameraPose& rhs)
 {
     return (this->get_orientation().w() == rhs.get_orientation().w() &&
             this->get_orientation().x() == rhs.get_orientation().x() &&

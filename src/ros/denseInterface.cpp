@@ -75,9 +75,7 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
         pub_map_.publish(entry->get_cloud());
     }
 
-    ROS_INFO("Path size = %lu, Raw size = %lu, Disp size = %lu, Clouds/init/refine = (%lu, %lu, %lu)",
-             path->poses.size(), dense_->raw_left_images->size(), dense_->disp_images->size(),
-             dense_->point_clouds->size(), dense_->point_clouds->sizeInitQueue(), dense_->point_clouds->sizeRefineQueue());
+    ROS_INFO("Received path size = %lu", path->poses.size());
 }
 
 void dense::denseInterface::cb_images(

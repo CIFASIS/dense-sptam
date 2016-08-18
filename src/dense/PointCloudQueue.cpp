@@ -4,6 +4,8 @@ PointCloudEntry::PointCloudEntry(uint32_t seq)
   : seq_(seq)
   , current_pos_(nullptr)
   , update_pos_(nullptr)
+  , disp_raw_img_(nullptr)
+  , points_mat_(nullptr)
   , cloud_(nullptr)
   , state_(CREATED)
 {
@@ -12,8 +14,10 @@ PointCloudEntry::PointCloudEntry(uint32_t seq)
 PointCloudEntry::~PointCloudEntry()
 {}
 
-PointCloudQueue::PointCloudQueue()
-{}
+PointCloudQueue::PointCloudQueue(
+) : last_init_(nullptr)
+{
+}
 
 PointCloudQueue::~PointCloudQueue()
 {}
@@ -114,7 +118,7 @@ void PointCloudQueue::schedule(PointCloudEntry::Ptr entry)
 {
     switch(entry->get_state()) {
     case PointCloudEntry::CREATED:
-        if (entry->get_cloud() && entry->get_update_pos()) {
+        if (entry->get_points_mat() && entry->get_update_pos()) {
             entry->set_state(PointCloudEntry::INIT_QUEUE);
             init_queue_.push(entry);
             empty_init_queue_cv.notify_all();

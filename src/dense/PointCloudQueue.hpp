@@ -7,10 +7,14 @@
 #include <pcl_ros/point_cloud.h>
 
 #include "Camera.hpp"
+#include "DispImageQueue.hpp"
 
 typedef pcl::PointXYZRGB Point;
 typedef pcl::PointCloud<Point> PointCloud;
 typedef pcl::PointCloud<Point>::Ptr PointCloudPtr;
+
+typedef cv::Mat_<cv::Vec3f> MatVec3f;
+typedef boost::shared_ptr<MatVec3f> MatVec3fPtr;
 
 class PointCloudEntry
 {
@@ -28,21 +32,29 @@ public:
     PointCloudEntry(uint32_t seq);
     ~PointCloudEntry();
 
-    uint32_t get_seq()
+    inline uint32_t get_seq()
     { return seq_; }
-    CameraPose::Ptr get_current_pos()
+    inline CameraPose::Ptr get_current_pos()
     { return current_pos_; }
-    CameraPose::Ptr get_update_pos()
+    inline CameraPose::Ptr get_update_pos()
     { return update_pos_; }
-    PointCloudPtr get_cloud()
+    inline DispRawImagePtr get_disp_raw_img()
+    { return disp_raw_img_; }
+    inline MatVec3fPtr get_points_mat()
+    { return points_mat_; }
+    inline PointCloudPtr get_cloud()
     { return cloud_; }
-    EntryState get_state()
+    inline EntryState get_state()
     { return state_; }
 
     inline void set_current_pos(CameraPose::Ptr current_pos)
     { current_pos_ = current_pos; }
     inline void set_update_pos(CameraPose::Ptr update_pos)
     { update_pos_ = update_pos; }
+    inline void set_disp_raw_img(DispRawImagePtr disp_raw_img)
+    { disp_raw_img_ = disp_raw_img; }
+    inline void set_points_mat(MatVec3fPtr points_mat)
+    { points_mat_ = points_mat; }
     inline void set_cloud(PointCloudPtr cloud)
     { cloud_ = cloud; }
     inline void set_state(EntryState state)
@@ -58,7 +70,11 @@ private:
     uint32_t seq_;
     CameraPose::Ptr current_pos_;
     CameraPose::Ptr update_pos_;
+
+    DispRawImagePtr disp_raw_img_;
+    MatVec3fPtr points_mat_;
     PointCloudPtr cloud_;
+
     EntryState state_;
 
     std::mutex entry_lock_;
@@ -78,6 +94,11 @@ public:
 
     PointCloudEntry::Ptr back();
 
+    inline void set_last_init(PointCloudEntry::Ptr entry)
+    { last_init_ = entry; }
+    PointCloudEntry::Ptr get_last_init()
+    { return last_init_; }
+
     PointCloudEntry::Ptr getEntry(uint32_t seq_, bool force = true);
     PointCloudEntry::Ptr popInit(bool remove = true);
     PointCloudEntry::Ptr popRefine(bool remove = true);
@@ -91,6 +112,8 @@ private:
     /* TODO: Please, use something more efficient here! HINT: a HASH table. */
     std::vector<PointCloudEntry::Ptr> entries_;
     std::queue<PointCloudEntry::Ptr> init_queue_, refine_queue_;
+
+    PointCloudEntry::Ptr last_init_;
 
 private:
 

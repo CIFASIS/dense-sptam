@@ -49,7 +49,7 @@
   <!-- DENSE node -->
   <node pkg="nodelet" type="nodelet" name="dense" args="load dense/denseNodelet nodelet_manager" output="screen" clear_params="true">
 
-    <remap from="/dense/keyframes" to="/sptam/keyframes"/>
+    <remap from="/dense/keyframes" to="/sptam/last_keyframes"/>
 
   </node>
 

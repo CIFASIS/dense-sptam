@@ -24,5 +24,8 @@ void RefinementThread::compute()
         entry->set_state(PointCloudEntry::IDLE);
         point_clouds_->schedule(entry);
         entry->unlock();
+
+        ROS_INFO("RefinementThread::computed seq = %u (queued = %lu)",
+                 entry->get_seq(), point_clouds_->sizeRefineQueue());
     }
 }
