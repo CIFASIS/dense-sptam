@@ -68,6 +68,8 @@ public:
 
     inline Position ToWorld(const Position& x) const
     { return orientation_matrix_ * x + position_; }
+    inline Position ToCamera(const Position& x) const
+    { return orientation_matrix_.transpose() * (x - position_); }
 
     CameraPose(Position position, Orientation orientation);
     CameraPose(geometry_msgs::Point position, geometry_msgs::Quaternion orientation);
