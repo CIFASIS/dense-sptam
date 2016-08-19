@@ -16,8 +16,7 @@ public:
 
     DisparityCalcThread(
             const sensor_msgs::CameraInfoConstPtr &left_info, const sensor_msgs::CameraInfoConstPtr &right_info,
-            ImageQueue *raw_left_images, ImageQueue *raw_right_images, DispImageQueue *disp_images,
-            std::string disp_calc_method
+            ImageQueue *raw_image_pairs, DispImageQueue *disp_images, std::string disp_calc_method
     );
 
     inline void WaitUntilFinished()
@@ -26,7 +25,7 @@ public:
 private:
     
     const sensor_msgs::CameraInfoConstPtr left_info_, right_info_;
-    ImageQueue *raw_left_images_, *raw_right_images_;
+    ImageQueue *raw_image_pairs_;
     DispImageQueue *disp_images_;
     std::string disp_calc_method_;
     std::thread disparityCalcThread_;

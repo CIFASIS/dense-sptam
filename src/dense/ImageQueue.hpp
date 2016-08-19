@@ -9,6 +9,9 @@
 typedef sensor_msgs::Image Image;
 typedef boost::shared_ptr<Image> ImagePtr;
 
+typedef std::pair<ImagePtr, ImagePtr> ImagePair;
+typedef boost::shared_ptr<ImagePair> ImagePairPtr;
+
 class ImageQueue
 {
 public:
@@ -16,15 +19,15 @@ public:
     ImageQueue();
     ~ImageQueue();
 
-    void push(ImagePtr image);
-    ImagePtr pop(bool remove = true);
+    void push(ImagePairPtr image);
+    ImagePairPtr pop(bool remove = true);
     size_t size();
 
 private:
 
     std::mutex image_queue_lock_;
     std::condition_variable empty_queue_cv;
-    std::queue<ImagePtr> images_;
+    std::queue<ImagePairPtr> images_;
 };
 
 #endif /* __IMAGE_QUEUE_H */

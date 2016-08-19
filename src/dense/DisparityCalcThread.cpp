@@ -12,12 +12,10 @@
 
 DisparityCalcThread::DisparityCalcThread(
         const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
-        ImageQueue *raw_left_images, ImageQueue *raw_right_images, DispImageQueue *disp_images,
-        std::string disp_calc_method
+        ImageQueue *raw_image_pairs, DispImageQueue *disp_images, std::string disp_calc_method
 ) : left_info_(left_info)
   , right_info_(right_info)
-  , raw_left_images_(raw_left_images)
-  , raw_right_images_(raw_right_images)
+  , raw_image_pairs_(raw_image_pairs)
   , disp_images_(disp_images)
   , disp_calc_method_(disp_calc_method)
   , disparityCalcThread_(&DisparityCalcThread::compute, this)
@@ -36,6 +34,7 @@ void DisparityCalcThread::compute()
 void DisparityCalcThread::computeCV()
 {
     cv::StereoBM stereo(cv::StereoBM::BASIC_PRESET);
+    ImagePairPtr raw_image_pair;
     ImagePtr raw_left_image, raw_right_image;
     cv::Mat image_left, image_right, dmat;
     DispRawImagePtr disp_raw_img;
@@ -43,8 +42,9 @@ void DisparityCalcThread::computeCV()
 
     while(1) {
         /* Calls to pop() are blocking */
-        raw_left_image = raw_left_images_->pop();
-        raw_right_image = raw_right_images_->pop();
+        raw_image_pair = raw_image_pairs_->pop();
+        raw_left_image = raw_image_pair->first;
+        raw_right_image = raw_image_pair->second;
 
         image_left = cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::TYPE_8UC1)->image;
         image_right = cv_bridge::toCvCopy(raw_right_image, sensor_msgs::image_encodings::TYPE_8UC1)->image;
@@ -59,6 +59,7 @@ void DisparityCalcThread::computeCV()
 
 void DisparityCalcThread::computeELAS()
 {
+    ImagePairPtr raw_image_pair;
     ImagePtr raw_left_image, raw_right_image;
     cv::Mat image_left, image_right;
     DispRawImagePtr disp_raw_img;
@@ -76,8 +77,9 @@ void DisparityCalcThread::computeELAS()
 
     while(1) {
         /* Calls to pop() are blocking */
-        raw_left_image = raw_left_images_->pop();
-        raw_right_image = raw_right_images_->pop();
+        raw_image_pair = raw_image_pairs_->pop();
+        raw_left_image = raw_image_pair->first;
+        raw_right_image = raw_image_pair->second;
 
         image_left = cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::TYPE_8UC1)->image;
         image_right = cv_bridge::toCvCopy(raw_right_image, sensor_msgs::image_encodings::TYPE_8UC1)->image;
@@ -87,5 +89,8 @@ void DisparityCalcThread::computeELAS()
         disp_img = boost::make_shared<DispImage>(dmat);
         disp_raw_img = boost::make_shared<DispRawImage>(raw_left_image, disp_img);
         disp_images_->push(disp_raw_img);
+
+        ROS_INFO("DisparityCalcThread::computed seq = %u (queued = %lu)",
+                 raw_left_image->header.seq, raw_image_pairs_->size());
     }
 }

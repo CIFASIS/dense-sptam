@@ -17,13 +17,13 @@ public:
     );
     ~Dense();
 
-    ImageQueue *raw_left_images, *raw_right_images;
+    ImageQueue *raw_image_pairs;
     DispImageQueue  *disp_images;
     PointCloudQueue *point_clouds;
 
 private:
 
-    DisparityCalcThread *disparityCalcThread_;
+    DisparityCalcThread *disparityCalcThread;
     ProjectionThread *projectionThread_;
     TransformThread *transformThread_;
     RefinementThread *refinementThread_;

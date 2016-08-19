@@ -96,6 +96,6 @@ void dense::denseInterface::cb_images(
     ImagePtr img_msg_left_copy = boost::make_shared<Image>(*img_msg_left);
     ImagePtr img_msg_right_copy = boost::make_shared<Image>(*img_msg_right);
 
-    dense_->raw_left_images->push(img_msg_left_copy);
-    dense_->raw_right_images->push(img_msg_right_copy);
+    ImagePairPtr new_img_pair = boost::make_shared<ImagePair>(img_msg_left_copy, img_msg_right_copy);
+    dense_->raw_image_pairs->push(new_img_pair);
 }
