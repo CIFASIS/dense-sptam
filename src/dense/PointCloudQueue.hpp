@@ -92,8 +92,6 @@ public:
     size_t sizeInitQueue();
     size_t sizeRefineQueue();
 
-    PointCloudEntry::Ptr back();
-
     inline void set_last_init(PointCloudEntry::Ptr entry)
     { last_init_ = entry; }
     PointCloudEntry::Ptr get_last_init()

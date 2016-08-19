@@ -16,6 +16,7 @@ void TransformThread::compute()
     while(1) {
         /* Blocking call */
         PointCloudEntry::Ptr entry = point_clouds_->popInit();
+        PointCloudEntry::Ptr last_entry = point_clouds_->get_last_init();
 
         entry->lock();
         CameraPose::Ptr pose = entry->get_update_pos();
@@ -35,8 +36,8 @@ void TransformThread::compute()
         point_clouds_->schedule(entry);
         entry->unlock();
 
-        ROS_INFO("TransformThread::computed seq = %u (queued = %lu)",
-                 entry->get_seq(), point_clouds_->sizeInitQueue());
+        ROS_INFO("TransformThread::computed seq = %u (cloud_size = %lu) (queued = %lu)",
+                 entry->get_seq(), cloud->size(), point_clouds_->sizeInitQueue());
     }
 }
 

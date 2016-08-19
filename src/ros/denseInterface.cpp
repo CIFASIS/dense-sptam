@@ -56,6 +56,8 @@ dense::denseInterface::~denseInterface()
 
 void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path)
 {
+    ROS_INFO("Received path size = %lu", path->poses.size());
+
     if (!dense_)
         return;
 
@@ -71,13 +73,14 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
         entry->unlock();
     }
 
-    PointCloudEntry::Ptr entry = dense_->point_clouds->back();
-    if (entry) {
-        entry->get_cloud()->header.frame_id = map_frame_;
-        pub_map_.publish(entry->get_cloud());
+    if (pub_map_.getNumSubscribers() > 0) {
+        PointCloudEntry::Ptr entry = dense_->point_clouds->get_last_init();
+        if (entry) {
+            entry->get_cloud()->header.frame_id = map_frame_;
+            pub_map_.publish(entry->get_cloud());
+            ROS_INFO("Published seq = %u, size = %lu", entry->get_seq(), entry->get_cloud()->size());
+        }
     }
-
-    ROS_INFO("Received path size = %lu", path->poses.size());
 }
 
 void dense::denseInterface::cb_images(

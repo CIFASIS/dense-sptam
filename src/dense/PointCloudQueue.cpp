@@ -57,17 +57,6 @@ size_t PointCloudQueue::sizeRefineQueue()
     return refine_queue_.size();
 }
 
-PointCloudEntry::Ptr PointCloudQueue::back()
-{
-    std::lock_guard<std::mutex> lock(vector_lock_);
-
-    for (auto& it: entries_)
-        if (it->get_cloud())
-            return it;
-
-    return nullptr;
-}
-
 PointCloudEntry::Ptr PointCloudQueue::popInit(bool remove)
 {
     std::mutex m;
