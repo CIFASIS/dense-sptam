@@ -18,4 +18,4 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 # Build the sptam library
 FILE(GLOB DENSE_SRCS *.cpp)
 add_library(dense ${DENSE_SRCS})
-target_link_libraries(dense ${OpenCV_LIBRARIES} ${DLD_LIBRARIES} ${OPENGV_LIBRARY})
+target_link_libraries(dense ${OpenCV_LIBRARIES} ${DLD_LIBRARIES} ${OPENGV_LIBRARY} elas)

@@ -74,3 +74,6 @@ set(DENSE_LIBRARIES
 
 # Build the dense node
 add_subdirectory(src/ros)
+
+# Build the libelas library
+add_subdirectory(src/libelas)

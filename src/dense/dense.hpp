@@ -12,9 +12,8 @@ class Dense
 {
 public:
 
-    Dense(
-        const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
-        double frustumNearPlaneDist, double frustumFarPlaneDist
+    Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
+          double frustumNearPlaneDist, double frustumFarPlaneDist, std::string disp_calc_method
     );
     ~Dense();
 
