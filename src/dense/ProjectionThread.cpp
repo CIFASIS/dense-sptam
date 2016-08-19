@@ -13,7 +13,7 @@ void ProjectionThread::compute()
     while(1) {
         /* Calls to pop() are blocking */
         DispRawImagePtr disp_raw_img = disp_images_->pop();
-        filterDisp(disp_raw_img, 30);
+        filterDisp(disp_raw_img, MIN_DISPARITY_THRESHOLD);
         MatVec3fPtr points_mat = processPoints(disp_raw_img);
         PointCloudEntry::Ptr entry = point_clouds_->getEntry(disp_raw_img->first->header.seq);
 

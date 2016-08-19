@@ -8,6 +8,8 @@
 #include "DispImageQueue.hpp"
 #include "PointCloudQueue.hpp"
 
+#define MIN_DISPARITY_THRESHOLD 20
+
 class ProjectionThread
 {
 public:
