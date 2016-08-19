@@ -18,5 +18,5 @@ FILE(GLOB LIBELAS_SRC_FILES "src/*.cpp")
 set(CMAKE_BUILD_TYPE Release)
 
 # build demo program
-add_executable(elas ${LIBELAS_SRC_FILES})
+add_library(elas ${LIBELAS_SRC_FILES})
 
