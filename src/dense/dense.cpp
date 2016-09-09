@@ -16,7 +16,7 @@ Dense::Dense(
 
     disparityCalcThread = new DisparityCalcThread(this);
     projectionThread_ = new ProjectionThread(this);
-    refinementThread_ = new RefinementThread(point_clouds_);
+    refinementThread_ = new RefinementThread(this);
 }
 
 Dense::~Dense()

@@ -1,8 +1,9 @@
 #include "RefinementThread.hpp"
 
-RefinementThread::RefinementThread(
-    PointCloudQueue *point_clouds
-) : point_clouds_(point_clouds)
+#include "dense.hpp"
+
+RefinementThread::RefinementThread(Dense *dense)
+  : dense_(dense)
   , refinementThread_(&RefinementThread::compute, this)
 {}
 
@@ -10,7 +11,7 @@ void RefinementThread::compute()
 {
     while(1) {
         /* Blocking call */
-        PointCloudEntry::Ptr entry = point_clouds_->popRefine();
+        PointCloudEntry::Ptr entry = dense_->point_clouds_->popRefine();
 
         entry->lock();
         entry->set_current_pos(entry->get_update_pos());
@@ -22,10 +23,10 @@ void RefinementThread::compute()
 
         entry->lock();
         entry->set_state(PointCloudEntry::IDLE);
-        point_clouds_->schedule(entry);
+        dense_->point_clouds_->schedule(entry);
         entry->unlock();
 
         ROS_DEBUG("RefinementThread::computed seq = %u (queued = %lu)",
-                 entry->get_seq(), point_clouds_->sizeRefineQueue());
+                 entry->get_seq(), dense_->point_clouds_->sizeRefineQueue());
     }
 }

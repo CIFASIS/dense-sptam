@@ -5,18 +5,20 @@
 
 #include "PointCloudQueue.hpp"
 
+class Dense;
+
 class RefinementThread
 {
 public:
 
-    RefinementThread(PointCloudQueue *point_clouds);
+    RefinementThread(Dense *dense);
 
     inline void WaitUntilFinished()
     { refinementThread_.join(); }
 
 private:
 
-    PointCloudQueue *point_clouds_;
+    Dense *dense_;
 
     std::thread refinementThread_;
     void compute();
