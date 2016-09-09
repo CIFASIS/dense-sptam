@@ -59,10 +59,12 @@
   <node pkg="tf2_ros" type="static_transform_publisher" name="camera_broadcaster" args="-0.301772 0 0 0 0 0 camera_0 camera_1"/>
 
   <!-- S-PTAM path publisher. Transforms poses into path. -->
+  <!--
   <node pkg="ros_utils" type="pose_to_path" name="sptam_path">
     <remap from="pose" to="sptam/robot/pose" />
     <remap from="path" to="sptam/robot/path" />
   </node>
+  -->
 
 
   <!-- Clean S-PTAM parameters -->
@@ -70,9 +72,6 @@
 
   <!-- Read S-PTAM parameters file -->
   <rosparam command="load" ns="sptam" file="$(find sptam)/configurationFiles/level7.yaml" />
-
-   <!-- Nodelet Manager -->
-  <node pkg="nodelet" type="nodelet" name="nodelet_manager"  args="manager" output="screen" clear_params="true"/>
 
   <!-- SPTAM Nodelet -->
   <node pkg="nodelet" type="nodelet" name="sptam" args="load sptam/SPTAMNodelet nodelet_manager" output="screen" clear_params="true" >
@@ -93,7 +92,16 @@
 
   </node>
 
+  <!-- DENSE node -->
+  <node pkg="nodelet" type="nodelet" name="dense" args="load dense/denseNodelet nodelet_manager" output="screen" clear_params="true">
 
+    <param name="disp_calc_method" value="libelas"/>
+    <remap from="/dense/keyframes" to="/sptam/keyframes"/>
+
+  </node>
+
+  <!-- Nodelet Manager -->
+  <node pkg="nodelet" type="nodelet" name="nodelet_manager"  args="manager" output="screen" clear_params="true"/>
 
   <!--<node pkg="sptam" type="sptam_node" name="sptam" output="screen" clear_params="true">-->
 
