@@ -18,9 +18,6 @@ void ProjectionThread::compute()
         PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(disp_raw_img->first->header.seq);
         PointCloudEntry::Ptr last_entry = dense_->point_clouds_->get_last_init();
 
-        filterDisp(disp_raw_img, MIN_DISPARITY_THRESHOLD);
-        MatVec3fPtr points_mat = processPoints(disp_raw_img);
-
         entry->lock();
         CameraPose::Ptr pose = entry->get_update_pos();
         entry->set_current_pos(pose);
@@ -28,7 +25,9 @@ void ProjectionThread::compute()
         entry->unlock();
 
         assert(pose != nullptr);
-        PointCloudPtr cloud = generateCloud(entry, points_mat, disp_raw_img->first);
+
+        filterDisp(disp_raw_img, MIN_DISPARITY_THRESHOLD);
+        PointCloudPtr cloud = generateCloud(disp_raw_img);
         cameraToWorld(cloud, pose);
 
         entry->lock();
@@ -54,18 +53,6 @@ void ProjectionThread::filterDisp(const DispRawImagePtr disp_raw_img, float min_
                 disp_img->at<float>(i, j) = 0;
 }
 
-
-MatVec3fPtr ProjectionThread::processPoints(const DispRawImagePtr disp_raw_img)
-{
-    DispImagePtr disp_img = disp_raw_img->second;
-    MatVec3fPtr dense_points_(new MatVec3f);
-
-    dense_->camera_ ->getStereoModel().projectDisparityImageTo3d(*disp_img, *dense_points_, true);
-
-    return dense_points_;
-}
-
-
 bool ProjectionThread::isValidPoint(const cv::Vec3f& pt)
 {
     /*
@@ -75,13 +62,17 @@ bool ProjectionThread::isValidPoint(const cv::Vec3f& pt)
     return pt[2] != image_geometry::StereoCameraModel::MISSING_Z && !isinf(pt[2]);
 }
 
-PointCloudPtr ProjectionThread::generateCloud(PointCloudEntry::Ptr entry, MatVec3fPtr dense_points_,
-                                              ImagePtr raw_left_image)
+PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
 {
-    cv::Mat image_left(cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::TYPE_8UC1)->image);
-
+    ImagePtr raw_left_image = disp_raw_img->first;
+    DispImagePtr disp_img = disp_raw_img->second;
+    MatVec3fPtr dense_points_(new MatVec3f);
     PointCloudPtr cloud(new PointCloud);
     pcl::PointXYZRGB new_pt3d;
+
+    cv::Mat image_left(cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::TYPE_8UC1)->image);
+
+    dense_->camera_ ->getStereoModel().projectDisparityImageTo3d(*disp_img, *dense_points_, true);
 
     for (int32_t u = 0; u < dense_points_->rows; ++u)
         for (int32_t v = 0; v < dense_points_->cols; ++v)
