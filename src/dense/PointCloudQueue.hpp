@@ -103,6 +103,8 @@ public:
     PointCloudEntry::Ptr popRefine(bool remove = true);
     void schedule(PointCloudEntry::Ptr entry);
 
+    PointCloudPtr get_global_cloud();
+
 private:
 
     std::mutex vector_lock_, init_queue_lock_, refine_queue_lock_;

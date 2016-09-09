@@ -119,3 +119,15 @@ void PointCloudQueue::schedule(PointCloudEntry::Ptr entry)
         break;
     }
 }
+
+PointCloudPtr PointCloudQueue::get_global_cloud()
+{
+    PointCloudPtr ret(new PointCloud);
+
+    for (auto& it : entries_) {
+        if (it.second->get_cloud() != nullptr)
+            *ret += *it.second->get_cloud();
+    }
+
+    return ret;
+}
