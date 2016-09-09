@@ -4,6 +4,7 @@
 #include <mutex>
 #include <queue>
 #include <condition_variable>
+#include <unordered_map>
 #include <pcl_ros/point_cloud.h>
 
 #include "Camera.hpp"
@@ -107,8 +108,7 @@ private:
     std::mutex vector_lock_, init_queue_lock_, refine_queue_lock_;
     std::condition_variable empty_init_queue_cv, empty_refine_queue_cv;
 
-    /* TODO: Please, use something more efficient here! HINT: a HASH table. */
-    std::vector<PointCloudEntry::Ptr> entries_;
+    std::unordered_map<uint32_t, PointCloudEntry::Ptr> entries_;
     std::queue<PointCloudEntry::Ptr> init_queue_, refine_queue_;
 
     PointCloudEntry::Ptr last_init_;

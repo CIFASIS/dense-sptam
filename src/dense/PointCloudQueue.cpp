@@ -25,18 +25,12 @@ PointCloudQueue::~PointCloudQueue()
 PointCloudEntry::Ptr PointCloudQueue::getEntry(uint32_t seq, bool force)
 {
     std::lock_guard<std::mutex> lock(vector_lock_);
+    PointCloudEntry::Ptr& ret = entries_[seq];
 
-    for (auto& it: entries_)
-        if (it->get_seq() == seq)
-            return it;
+    if (force && ret == nullptr)
+        ret = boost::make_shared<PointCloudEntry>(seq);
 
-    if (force) {
-        PointCloudEntry::Ptr entry(new PointCloudEntry(seq));
-        entries_.push_back(entry);
-        return entries_.back();
-    }
-
-    return nullptr;
+    return ret;
 }
 
 size_t PointCloudQueue::size()
