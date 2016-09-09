@@ -24,6 +24,7 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     nhp.param<double>("FrustumNearPlaneDist", frustumNearPlaneDist_, 0.1);
     nhp.param<double>("FrustumFarPlaneDist", frustumFarPlaneDist_, 1000.0);
     nhp.param<std::string>("disp_calc_method", disp_calc_method_, "opencv");
+    nhp.param<double>("VoxelLeafSize", voxelLeafSize_, 0);
 
     /* In/out topics */
     sub_path_ = nhp.subscribe("keyframes", 1, &denseInterface::cb_keyframes_path, this);
@@ -91,7 +92,8 @@ void dense::denseInterface::cb_images(
     ROS_DEBUG("Images received.");
 
     if (!dense_)
-        dense_ = new Dense(left_info, right_info, frustumNearPlaneDist_, frustumFarPlaneDist_, disp_calc_method_);
+        dense_ = new Dense(left_info, right_info, frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_,
+                           disp_calc_method_);
 
     ImagePtr img_msg_left_copy = boost::make_shared<Image>(*img_msg_left);
     ImagePtr img_msg_right_copy = boost::make_shared<Image>(*img_msg_right);

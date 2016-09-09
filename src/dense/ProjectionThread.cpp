@@ -1,6 +1,8 @@
 #include "ProjectionThread.hpp"
 
 #include <cv_bridge/cv_bridge.h>
+#include <pcl/point_types.h>
+#include <pcl/filters/voxel_grid.h>
 
 #include "dense.hpp"
 
@@ -29,6 +31,7 @@ void ProjectionThread::compute()
         filterDisp(disp_raw_img, MIN_DISPARITY_THRESHOLD);
         PointCloudPtr cloud = generateCloud(disp_raw_img);
         cameraToWorld(cloud, pose);
+        downsampleCloud(cloud, dense_->voxelLeafSize_);
 
         entry->lock();
         entry->set_cloud(cloud);
@@ -110,4 +113,20 @@ void ProjectionThread::cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr curren
         it.y = pos(1);
         it.z = pos(2);
     }
+}
+
+void ProjectionThread::downsampleCloud(PointCloudPtr cloud, double voxelLeafSize)
+{
+    if (!voxelLeafSize)
+        return;
+
+    pcl::PCLPointCloud2::Ptr cloud2(new pcl::PCLPointCloud2());
+    pcl::PCLPointCloud2::Ptr cloud2_filtered(new pcl::PCLPointCloud2());
+    pcl::VoxelGrid<pcl::PCLPointCloud2> vgrid;
+
+    pcl::toPCLPointCloud2(*cloud, *cloud2);
+    vgrid.setInputCloud(cloud2);
+    vgrid.setLeafSize(voxelLeafSize, voxelLeafSize, voxelLeafSize);
+    vgrid.filter(*cloud2_filtered);
+    pcl::fromPCLPointCloud2(*cloud2_filtered, *cloud);
 }

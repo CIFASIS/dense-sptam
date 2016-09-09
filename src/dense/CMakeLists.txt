@@ -15,7 +15,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O4")
 FIND_PACKAGE(OpenCV 2 REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
+# Find PCL library
+find_package(PCL 1.8 REQUIRED)
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
 # Build the sptam library
 FILE(GLOB DENSE_SRCS *.cpp)
 add_library(dense ${DENSE_SRCS})
-target_link_libraries(dense ${OpenCV_LIBRARIES} ${DLD_LIBRARIES} ${OPENGV_LIBRARY} elas)
+target_link_libraries(dense ${OpenCV_LIBRARIES} ${PCL_LIBRARIES} ${DLD_LIBRARIES} ${OPENGV_LIBRARY} elas)

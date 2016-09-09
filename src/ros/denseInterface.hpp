@@ -28,7 +28,7 @@ namespace dense
 
         /* Parameters */
         std::string odom_frame_, base_frame_, camera_frame_, map_frame_;
-        double frustumNearPlaneDist_, frustumFarPlaneDist_;
+        double frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_;
         std::string disp_calc_method_;
 
         /* In/out topics */

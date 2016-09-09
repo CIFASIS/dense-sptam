@@ -31,6 +31,7 @@ private:
     bool isValidPoint(const cv::Vec3f& pt);
     PointCloudPtr generateCloud(const DispRawImagePtr disp_raw_img);
     void cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos);
+    void downsampleCloud(PointCloudPtr cloud, double voxelLeafSize);
 };
 
 #endif /* __PROJECTIONTHREAD_H */

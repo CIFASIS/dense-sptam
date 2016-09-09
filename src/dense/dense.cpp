@@ -1,12 +1,12 @@
 #include "dense.hpp"
 
-Dense::Dense(
-    const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
-    double frustumNearPlaneDist, double frustumFarPlaneDist, std::string disp_calc_method
-) : left_info_(left_info)
+Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
+             double frustumNearPlaneDist, double frustumFarPlaneDist, double voxelLeafSize, std::string disp_calc_method)
+  : left_info_(left_info)
   , right_info_(right_info)
   , frustumNearPlaneDist_(frustumNearPlaneDist)
   , frustumFarPlaneDist_(frustumFarPlaneDist)
+  , voxelLeafSize_(voxelLeafSize)
   , disp_calc_method_(disp_calc_method)
 {
     camera_ = new Camera(left_info_, right_info_, frustumNearPlaneDist_, frustumFarPlaneDist_);
