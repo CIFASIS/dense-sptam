@@ -22,14 +22,13 @@ public:
     ~DispImageQueue();
 
     void push(DispRawImagePtr image);
-    DispRawImagePtr pop(bool remove = true);
-    size_t size();
+    DispRawImagePtr pop();
 
 private:
 
     std::mutex image_queue_lock_;
     std::condition_variable empty_queue_cv;
-    std::queue<DispRawImagePtr> images_;
+    DispRawImagePtr image_;
 
 };
 

@@ -23,8 +23,7 @@ void ProjectionThread::compute()
         point_clouds_->schedule(entry);
         entry->unlock();
 
-        ROS_DEBUG("ProjectionThread::computed seq = %u (queued = %lu)",
-                 entry->get_seq(), disp_images_->size());
+        ROS_INFO("ProjectionThread::computed seq = %u", entry->get_seq());
     }
 }
 

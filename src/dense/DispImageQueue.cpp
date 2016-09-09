@@ -9,35 +9,26 @@ DispImageQueue::~DispImageQueue()
 void DispImageQueue::push(DispRawImagePtr image)
 {
     std::lock_guard<std::mutex> lock(image_queue_lock_);
-    images_.push(image);
+    image_ = image;
     empty_queue_cv.notify_all();
 }
 
-DispRawImagePtr DispImageQueue::pop(bool remove)
+DispRawImagePtr DispImageQueue::pop()
 {
     std::mutex m;
     std::unique_lock<std::mutex> lock(m);
 
     image_queue_lock_.lock();
 
-    while (images_.empty()) {
+    while (image_ == nullptr) {
         image_queue_lock_.unlock();
         empty_queue_cv.wait(lock);
         image_queue_lock_.lock();
     }
 
-    DispRawImagePtr ret = images_.front();
-
-    if (remove)
-        images_.pop();
-
+    DispRawImagePtr ret = image_;
+    image_ = nullptr;
     image_queue_lock_.unlock();
 
     return ret;
-}
-
-size_t DispImageQueue::size()
-{
-    std::lock_guard<std::mutex> lock(image_queue_lock_);
-    return images_.size();
 }
