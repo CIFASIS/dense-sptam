@@ -36,7 +36,7 @@ void TransformThread::compute()
         point_clouds_->schedule(entry);
         entry->unlock();
 
-        ROS_INFO("TransformThread::computed seq = %u (cloud_size = %lu) (queued = %lu)",
+        ROS_DEBUG("TransformThread::computed seq = %u (cloud_size = %lu) (queued = %lu)",
                  entry->get_seq(), cloud->size(), point_clouds_->sizeInitQueue());
     }
 }

@@ -25,7 +25,7 @@ void RefinementThread::compute()
         point_clouds_->schedule(entry);
         entry->unlock();
 
-        ROS_INFO("RefinementThread::computed seq = %u (queued = %lu)",
+        ROS_DEBUG("RefinementThread::computed seq = %u (queued = %lu)",
                  entry->get_seq(), point_clouds_->sizeRefineQueue());
     }
 }

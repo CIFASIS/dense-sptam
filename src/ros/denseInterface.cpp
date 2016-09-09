@@ -57,7 +57,7 @@ dense::denseInterface::~denseInterface()
 
 void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path)
 {
-    ROS_INFO("Received path size = %lu", path->poses.size());
+    ROS_DEBUG("Received path size = %lu", path->poses.size());
 
     if (!dense_)
         return;
@@ -79,7 +79,7 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
         if (entry) {
             entry->get_cloud()->header.frame_id = map_frame_;
             pub_map_.publish(entry->get_cloud());
-            ROS_INFO("Published seq = %u, size = %lu", entry->get_seq(), entry->get_cloud()->size());
+            ROS_DEBUG("Published seq = %u, size = %lu", entry->get_seq(), entry->get_cloud()->size());
         }
     }
 }

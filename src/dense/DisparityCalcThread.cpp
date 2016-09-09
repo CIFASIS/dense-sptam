@@ -90,7 +90,7 @@ void DisparityCalcThread::computeELAS()
         disp_raw_img = boost::make_shared<DispRawImage>(raw_left_image, disp_img);
         disp_images_->push(disp_raw_img);
 
-        ROS_INFO("DisparityCalcThread::computed seq = %u (queued = %lu)",
+        ROS_DEBUG("DisparityCalcThread::computed seq = %u (queued = %lu)",
                  raw_left_image->header.seq, raw_image_pairs_->size());
     }
 }
