@@ -19,7 +19,7 @@ public:
     ImageQueue();
     ~ImageQueue();
 
-    void push(ImagePairPtr image);
+    int push(ImagePairPtr image);
     ImagePairPtr pop();
 
 private:

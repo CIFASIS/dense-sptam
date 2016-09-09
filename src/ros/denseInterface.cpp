@@ -97,5 +97,6 @@ void dense::denseInterface::cb_images(
     ImagePtr img_msg_right_copy = boost::make_shared<Image>(*img_msg_right);
 
     ImagePairPtr new_img_pair = boost::make_shared<ImagePair>(img_msg_left_copy, img_msg_right_copy);
-    dense_->raw_image_pairs_->push(new_img_pair);
+    if (dense_->raw_image_pairs_->push(new_img_pair) < 0)
+        ROS_INFO("##### WARNING: Keyframe omitted! #####");
 }

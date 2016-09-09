@@ -6,11 +6,18 @@ ImageQueue::ImageQueue()
 ImageQueue::~ImageQueue()
 {}
 
-void ImageQueue::push(ImagePairPtr imagepair)
+int ImageQueue::push(ImagePairPtr imagepair)
 {
+    int ret = 0;
     std::lock_guard<std::mutex> lock(image_queue_lock_);
+
+    if (image_ != nullptr)
+        ret = -1;
+
     image_ = imagepair;
     empty_queue_cv.notify_all();
+
+    return ret;
 }
 
 ImagePairPtr ImageQueue::pop()
