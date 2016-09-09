@@ -4,7 +4,6 @@
 #include "../dense/Camera.hpp"
 #include "../dense/DisparityCalcThread.hpp"
 #include "../dense/ProjectionThread.hpp"
-#include "../dense/TransformThread.hpp"
 #include "../dense/RefinementThread.hpp"
 #include "../dense/ImageQueue.hpp"
 
@@ -30,7 +29,6 @@ private:
 
     DisparityCalcThread *disparityCalcThread;
     ProjectionThread *projectionThread_;
-    TransformThread *transformThread_;
     RefinementThread *refinementThread_;
 
 };
