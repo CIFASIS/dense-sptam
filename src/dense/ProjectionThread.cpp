@@ -6,6 +6,7 @@
 #include <pcl/filters/statistical_outlier_removal.h>
 
 #include "dense.hpp"
+#include "../../../sptam/src/sptam/utils/Time.hpp"
 
 ProjectionThread::ProjectionThread(Dense *dense)
   : dense_(dense)
@@ -14,12 +15,17 @@ ProjectionThread::ProjectionThread(Dense *dense)
 
 void ProjectionThread::compute()
 {
+    uint32_t cloud_size[10];
+
     while(1) {
         /* Calls to pop() are blocking */
         DispRawImagePtr disp_raw_img = dense_->disp_images_->pop();
 
+        double time_t[10];
+        time_t[0] = GetSeg();
+
         PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(disp_raw_img->first->header.seq);
-        PointCloudEntry::Ptr last_entry = dense_->point_clouds_->get_last_init();
+        //PointCloudEntry::Ptr last_entry = dense_->point_clouds_->get_last_init();
 
         entry->lock();
         CameraPose::Ptr pose = entry->get_update_pos();
@@ -27,13 +33,24 @@ void ProjectionThread::compute()
         entry->set_update_pos(nullptr);
         entry->unlock();
 
-        assert(pose != nullptr);
+        if (pose == nullptr) {
+            ROS_INFO("##### WARNING: Keyframe %u omitted, no pose! #####", entry->get_seq());
+            continue;
+        }
 
         filterDisp(disp_raw_img, MIN_DISPARITY_THRESHOLD);
         PointCloudPtr cloud = generateCloud(disp_raw_img);
         cameraToWorld(cloud, pose);
+        time_t[1] = GetSeg();
+        cloud_size[0] = cloud->size();
+
         downsampleCloud(cloud, dense_->voxelLeafSize_);
+        time_t[2] = GetSeg();
+        cloud_size[1] = cloud->size();
+
         filterCloud(cloud, dense_->filter_meanK_, dense_->filter_stddev_);
+        time_t[3] = GetSeg();
+        cloud_size[2] = cloud->size();
 
         entry->lock();
         entry->set_cloud(cloud);
@@ -42,8 +59,8 @@ void ProjectionThread::compute()
         dense_->point_clouds_->schedule(entry);
         entry->unlock();
 
-        ROS_INFO("ProjectionThread::computed seq = %u (cloud_size = %lu) (queued = %lu)",
-                 entry->get_seq(), cloud->size(), dense_->point_clouds_->sizeInitQueue());
+        ROS_INFO("Projection seq %u (cloud_size = (%u, %u, %u)", entry->get_seq(), cloud_size[0], cloud_size[1], cloud_size[2]);
+        ROS_INFO("                  (%f, %f, %f) secs", time_t[1] - time_t[0], time_t[2] - time_t[1], time_t[3] - time_t[2]);
     }
 }
 

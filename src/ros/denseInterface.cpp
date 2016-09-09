@@ -1,5 +1,8 @@
 #include <boost/smart_ptr.hpp>
 
+#include <pcl/io/pcd_io.h>
+#include <pcl/io/ply_io.h>
+
 #include "denseInterface.hpp"
 
 namespace std
@@ -80,9 +83,10 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
     if (pub_map_.getNumSubscribers() > 0) {
         PointCloudEntry::Ptr entry = dense_->point_clouds_->get_last_init();
         if (entry) {
+            dense_->point_clouds_->set_last_init(nullptr);
             entry->get_cloud()->header.frame_id = map_frame_;
             pub_map_.publish(entry->get_cloud());
-            ROS_DEBUG("Published seq = %u, size = %lu", entry->get_seq(), entry->get_cloud()->size());
+            ROS_INFO("Published seq = %u, size = %lu", entry->get_seq(), entry->get_cloud()->size());
         }
     }
 }
@@ -93,6 +97,13 @@ void dense::denseInterface::cb_images(
 ) {
     ROS_DEBUG("Images received.");
 
+    if (false && img_msg_left->header.seq > 400) {
+        ROS_INFO("Saving pointcloud.");
+        pcl::io::savePCDFileBinary("test_pcd.pcd", *dense_->point_clouds_->get_global_cloud());
+        ROS_INFO("DONE: Saved pointcloud.");
+        while(1);
+    }
+
     if (!dense_)
         dense_ = new Dense(left_info, right_info, frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_,
                            filter_meanK_, filter_stddev_, disp_calc_method_);
@@ -102,5 +113,5 @@ void dense::denseInterface::cb_images(
 
     ImagePairPtr new_img_pair = boost::make_shared<ImagePair>(img_msg_left_copy, img_msg_right_copy);
     if (dense_->raw_image_pairs_->push(new_img_pair) < 0)
-        ROS_INFO("##### WARNING: Keyframe omitted! #####");
+        ROS_INFO("##### WARNING: Keyframe %u omitted, too busy! #####", img_msg_left->header.seq);
 }

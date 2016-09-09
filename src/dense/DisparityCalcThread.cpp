@@ -10,6 +10,7 @@
 #include "../libelas/src/elas.h"
 #include "../libelas/src/image.h"
 #include "dense.hpp"
+#include "../../../sptam/src/sptam/utils/Time.hpp"
 
 DisparityCalcThread::DisparityCalcThread(Dense *dense)
   : dense_(dense)
@@ -73,6 +74,10 @@ void DisparityCalcThread::computeELAS()
     while(1) {
         /* Calls to pop() are blocking */
         raw_image_pair = dense_->raw_image_pairs_->pop();
+
+        double start_t, end_t;
+        start_t = GetSeg();
+
         raw_left_image = raw_image_pair->first;
         raw_right_image = raw_image_pair->second;
 
@@ -85,6 +90,7 @@ void DisparityCalcThread::computeELAS()
         disp_raw_img = boost::make_shared<DispRawImage>(raw_left_image, disp_img);
         dense_->disp_images_->push(disp_raw_img);
 
-        ROS_INFO("DisparityCalcThread::computed seq = %u", raw_left_image->header.seq);
+        end_t = GetSeg();
+        ROS_INFO("Disparity  seq = %u (%f secs)", raw_left_image->header.seq, end_t - start_t);
     }
 }
