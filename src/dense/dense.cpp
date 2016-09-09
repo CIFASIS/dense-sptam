@@ -3,18 +3,22 @@
 Dense::Dense(
     const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
     double frustumNearPlaneDist, double frustumFarPlaneDist, std::string disp_calc_method
-) {
-    Camera::Ptr camera(new Camera(left_info, right_info, frustumNearPlaneDist, frustumFarPlaneDist));
+) : left_info_(left_info)
+  , right_info_(right_info)
+  , frustumNearPlaneDist_(frustumNearPlaneDist)
+  , frustumFarPlaneDist_(frustumFarPlaneDist)
+  , disp_calc_method_(disp_calc_method)
+{
+    Camera::Ptr camera(new Camera(left_info_, right_info_, frustumNearPlaneDist_, frustumFarPlaneDist_));
 
-    raw_image_pairs = new ImageQueue();
-    disp_images = new DispImageQueue();
-    point_clouds = new PointCloudQueue();
+    raw_image_pairs_ = new ImageQueue();
+    disp_images_ = new DispImageQueue();
+    point_clouds_ = new PointCloudQueue();
 
-    disparityCalcThread = new DisparityCalcThread(left_info, right_info, raw_image_pairs,
-                                                  disp_images, disp_calc_method);
-    projectionThread_ = new ProjectionThread(disp_images, point_clouds, camera);
-    transformThread_ = new TransformThread(point_clouds, camera);
-    refinementThread_ = new RefinementThread(point_clouds);
+    disparityCalcThread = new DisparityCalcThread(this);
+    projectionThread_ = new ProjectionThread(disp_images_, point_clouds_, camera);
+    transformThread_ = new TransformThread(point_clouds_, camera);
+    refinementThread_ = new RefinementThread(point_clouds_);
 }
 
 Dense::~Dense()

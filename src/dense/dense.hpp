@@ -17,9 +17,13 @@ public:
     );
     ~Dense();
 
-    ImageQueue *raw_image_pairs;
-    DispImageQueue  *disp_images;
-    PointCloudQueue *point_clouds;
+    const sensor_msgs::CameraInfoConstPtr left_info_, right_info_;
+    double frustumNearPlaneDist_, frustumFarPlaneDist_;
+    std::string disp_calc_method_;
+
+    ImageQueue *raw_image_pairs_;
+    DispImageQueue  *disp_images_;
+    PointCloudQueue *point_clouds_;
 
 private:
 
@@ -29,5 +33,7 @@ private:
     RefinementThread *refinementThread_;
 
 };
+
+typedef boost::shared_ptr<Dense> DensePtr;
 
 #endif /* DENSE_H */

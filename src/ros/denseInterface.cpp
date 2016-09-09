@@ -64,18 +64,18 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
 
     for (auto& it: path->poses) {
         CameraPose::Ptr pose(new CameraPose(it.pose.position, it.pose.orientation));
-        PointCloudEntry::Ptr entry = dense_->point_clouds->getEntry(it.header.seq);
+        PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(it.header.seq);
 
         entry->lock();
         if (!entry->get_current_pos() || !(*entry->get_current_pos() == *pose)) {
             entry->set_update_pos(pose);
-            dense_->point_clouds->schedule(entry);
+            dense_->point_clouds_->schedule(entry);
         }
         entry->unlock();
     }
 
     if (pub_map_.getNumSubscribers() > 0) {
-        PointCloudEntry::Ptr entry = dense_->point_clouds->get_last_init();
+        PointCloudEntry::Ptr entry = dense_->point_clouds_->get_last_init();
         if (entry) {
             entry->get_cloud()->header.frame_id = map_frame_;
             pub_map_.publish(entry->get_cloud());
@@ -97,5 +97,5 @@ void dense::denseInterface::cb_images(
     ImagePtr img_msg_right_copy = boost::make_shared<Image>(*img_msg_right);
 
     ImagePairPtr new_img_pair = boost::make_shared<ImagePair>(img_msg_left_copy, img_msg_right_copy);
-    dense_->raw_image_pairs->push(new_img_pair);
+    dense_->raw_image_pairs_->push(new_img_pair);
 }

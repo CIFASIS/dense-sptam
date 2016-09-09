@@ -9,25 +9,20 @@
 
 #include "../libelas/src/elas.h"
 #include "../libelas/src/image.h"
+#include "dense.hpp"
 
-DisparityCalcThread::DisparityCalcThread(
-        const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
-        ImageQueue *raw_image_pairs, DispImageQueue *disp_images, std::string disp_calc_method
-) : left_info_(left_info)
-  , right_info_(right_info)
-  , raw_image_pairs_(raw_image_pairs)
-  , disp_images_(disp_images)
-  , disp_calc_method_(disp_calc_method)
+DisparityCalcThread::DisparityCalcThread(Dense *dense)
+  : dense_(dense)
   , disparityCalcThread_(&DisparityCalcThread::compute, this)
 {}
 
 void DisparityCalcThread::compute()
 {
-    ROS_INFO("Selected disparity method: %s", disp_calc_method_.c_str());
+    ROS_INFO("Selected disparity method: %s", dense_->disp_calc_method_.c_str());
 
-    if (disp_calc_method_ == DISP_METHOD_OPENCV)
+    if (dense_->disp_calc_method_ == DISP_METHOD_OPENCV)
         computeCV();
-    else if (disp_calc_method_ == DISP_METHOD_LIBELAS)
+    else if (dense_->disp_calc_method_ == DISP_METHOD_LIBELAS)
         computeELAS();
 }
 
@@ -42,7 +37,7 @@ void DisparityCalcThread::computeCV()
 
     while(1) {
         /* Calls to pop() are blocking */
-        raw_image_pair = raw_image_pairs_->pop();
+        raw_image_pair = dense_->raw_image_pairs_->pop();
         raw_left_image = raw_image_pair->first;
         raw_right_image = raw_image_pair->second;
 
@@ -53,7 +48,7 @@ void DisparityCalcThread::computeCV()
 
         disp_img = boost::make_shared<DispImage>(dmat);
         disp_raw_img = boost::make_shared<DispRawImage>(raw_left_image, disp_img);
-        disp_images_->push(disp_raw_img);
+        dense_->disp_images_->push(disp_raw_img);
     }
 }
 
@@ -66,18 +61,18 @@ void DisparityCalcThread::computeELAS()
     DispImagePtr disp_img;
     int32_t dims[3];
 
-    float *D1_data = (float*)malloc(left_info_->width * left_info_->height * sizeof(float));
-    float *D2_data = (float*)malloc(right_info_->width * right_info_->height * sizeof(float));
-    cv::Mat_<float> *dmat = new cv::Mat_<float>(left_info_->height, left_info_->width, D1_data);
+    float *D1_data = (float*)malloc(dense_->left_info_->width * dense_->left_info_->height * sizeof(float));
+    float *D2_data = (float*)malloc(dense_->right_info_->width * dense_->right_info_->height * sizeof(float));
+    cv::Mat_<float> *dmat = new cv::Mat_<float>(dense_->left_info_->height, dense_->left_info_->width, D1_data);
 
     Elas::parameters param(Elas::ROBOTICS);
     Elas *elas = new Elas(param);
-    dims[2] = dims[0] = left_info_->width;
-    dims[1] = left_info_->height;
+    dims[2] = dims[0] = dense_->left_info_->width;
+    dims[1] = dense_->left_info_->height;
 
     while(1) {
         /* Calls to pop() are blocking */
-        raw_image_pair = raw_image_pairs_->pop();
+        raw_image_pair = dense_->raw_image_pairs_->pop();
         raw_left_image = raw_image_pair->first;
         raw_right_image = raw_image_pair->second;
 
@@ -88,7 +83,7 @@ void DisparityCalcThread::computeELAS()
 
         disp_img = boost::make_shared<DispImage>(dmat);
         disp_raw_img = boost::make_shared<DispRawImage>(raw_left_image, disp_img);
-        disp_images_->push(disp_raw_img);
+        dense_->disp_images_->push(disp_raw_img);
 
         ROS_INFO("DisparityCalcThread::computed seq = %u", raw_left_image->header.seq);
     }

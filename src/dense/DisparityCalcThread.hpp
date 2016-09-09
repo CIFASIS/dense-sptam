@@ -10,24 +10,20 @@
 #define DISP_METHOD_OPENCV  "opencv"
 #define DISP_METHOD_LIBELAS "libelas"
 
+class Dense;
+
 class DisparityCalcThread
 {
 public:
 
-    DisparityCalcThread(
-            const sensor_msgs::CameraInfoConstPtr &left_info, const sensor_msgs::CameraInfoConstPtr &right_info,
-            ImageQueue *raw_image_pairs, DispImageQueue *disp_images, std::string disp_calc_method
-    );
+    DisparityCalcThread(Dense *dense);
 
     inline void WaitUntilFinished()
     { disparityCalcThread_.join(); }
 
 private:
-    
-    const sensor_msgs::CameraInfoConstPtr left_info_, right_info_;
-    ImageQueue *raw_image_pairs_;
-    DispImageQueue *disp_images_;
-    std::string disp_calc_method_;
+
+    Dense *dense_;
     std::thread disparityCalcThread_;
 
     void compute();
