@@ -1,5 +1,7 @@
 #include "ProjectionThread.hpp"
 
+#include <cv_bridge/cv_bridge.h>
+
 #include "dense.hpp"
 
 ProjectionThread::ProjectionThread(Dense *dense)
@@ -12,17 +14,32 @@ void ProjectionThread::compute()
     while(1) {
         /* Calls to pop() are blocking */
         DispRawImagePtr disp_raw_img = dense_->disp_images_->pop();
+
+        PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(disp_raw_img->first->header.seq);
+        PointCloudEntry::Ptr last_entry = dense_->point_clouds_->get_last_init();
+
         filterDisp(disp_raw_img, MIN_DISPARITY_THRESHOLD);
         MatVec3fPtr points_mat = processPoints(disp_raw_img);
-        PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(disp_raw_img->first->header.seq);
 
         entry->lock();
-        entry->set_disp_raw_img(disp_raw_img);
-        entry->set_points_mat(points_mat);
+        CameraPose::Ptr pose = entry->get_update_pos();
+        entry->set_current_pos(pose);
+        entry->set_update_pos(nullptr);
+        entry->unlock();
+
+        assert(pose != nullptr);
+        PointCloudPtr cloud = generateCloud(entry, points_mat, disp_raw_img->first);
+        cameraToWorld(cloud, pose);
+
+        entry->lock();
+        entry->set_cloud(cloud);
+        entry->set_state(PointCloudEntry::IDLE);
+        dense_->point_clouds_->set_last_init(entry);
         dense_->point_clouds_->schedule(entry);
         entry->unlock();
 
-        ROS_INFO("ProjectionThread::computed seq = %u", entry->get_seq());
+        ROS_INFO("ProjectionThread::computed seq = %u (cloud_size = %lu) (queued = %lu)",
+                 entry->get_seq(), cloud->size(), dense_->point_clouds_->sizeInitQueue());
     }
 }
 
@@ -46,4 +63,60 @@ MatVec3fPtr ProjectionThread::processPoints(const DispRawImagePtr disp_raw_img)
     dense_->camera_ ->getStereoModel().projectDisparityImageTo3d(*disp_img, *dense_points_, true);
 
     return dense_points_;
+}
+
+
+bool ProjectionThread::isValidPoint(const cv::Vec3f& pt)
+{
+    /*
+     * Check both for disparities explicitly marked as invalid (where OpenCV maps pt.z to MISSING_Z)
+     * and zero disparities (point mapped to infinity).
+     */
+    return pt[2] != image_geometry::StereoCameraModel::MISSING_Z && !isinf(pt[2]);
+}
+
+PointCloudPtr ProjectionThread::generateCloud(PointCloudEntry::Ptr entry, MatVec3fPtr dense_points_,
+                                              ImagePtr raw_left_image)
+{
+    cv::Mat image_left(cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::TYPE_8UC1)->image);
+
+    PointCloudPtr cloud(new PointCloud);
+    pcl::PointXYZRGB new_pt3d;
+
+    for (int32_t u = 0; u < dense_points_->rows; ++u)
+        for (int32_t v = 0; v < dense_points_->cols; ++v)
+            if (isValidPoint((*dense_points_)(u,v))) {
+                memcpy(&new_pt3d.x, &(*dense_points_)(u,v)[0], sizeof (float));
+                memcpy(&new_pt3d.y, &(*dense_points_)(u,v)[1], sizeof (float));
+                memcpy(&new_pt3d.z, &(*dense_points_)(u,v)[2], sizeof (float));
+                uint8_t g = image_left.at<uint8_t>(u,v);
+                int32_t rgb = (g << 16) | (g << 8) | g;
+                memcpy(&new_pt3d.rgb, &rgb, sizeof (int32_t));
+
+                cloud->push_back(new_pt3d);
+            }
+
+    return cloud;
+}
+
+void ProjectionThread::cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos)
+{
+    CameraPose::Position pos;
+
+    /*
+     * Last point cloud
+     * Filter with this camera -> Frustum culling
+     * Reproject filtered point cloud to disparity
+     * Compare with actual disparity
+     */
+
+    for (auto& it: *cloud) {
+        pos(0) = it.x;
+        pos(1) = it.y;
+        pos(2) = it.z;
+        pos = current_pos->ToWorld(pos);
+        it.x = pos(0);
+        it.y = pos(1);
+        it.z = pos(2);
+    }
 }

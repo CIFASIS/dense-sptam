@@ -29,6 +29,9 @@ private:
 
     void filterDisp(const DispRawImagePtr disp_raw_img, float min_disparity);
     MatVec3fPtr processPoints(const DispRawImagePtr disp_raw_img);
+    bool isValidPoint(const cv::Vec3f& pt);
+    PointCloudPtr generateCloud(PointCloudEntry::Ptr entry, MatVec3fPtr dense_points_, ImagePtr raw_left_image);
+    void cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos);
 };
 
 #endif /* __PROJECTIONTHREAD_H */
