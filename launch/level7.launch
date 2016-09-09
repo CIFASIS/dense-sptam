@@ -96,6 +96,7 @@
   <node pkg="nodelet" type="nodelet" name="dense" args="load dense/denseNodelet nodelet_manager" output="screen" clear_params="true">
 
     <param name="disp_calc_method" value="libelas"/>
+    <param name="VoxelLeafSize" value="0.03"/>
     <remap from="/dense/keyframes" to="/sptam/keyframes"/>
 
   </node>
