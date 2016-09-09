@@ -9,15 +9,14 @@ Dense::Dense(
   , frustumFarPlaneDist_(frustumFarPlaneDist)
   , disp_calc_method_(disp_calc_method)
 {
-    Camera::Ptr camera(new Camera(left_info_, right_info_, frustumNearPlaneDist_, frustumFarPlaneDist_));
-
+    camera_ = new Camera(left_info_, right_info_, frustumNearPlaneDist_, frustumFarPlaneDist_);
     raw_image_pairs_ = new ImageQueue();
     disp_images_ = new DispImageQueue();
     point_clouds_ = new PointCloudQueue();
 
     disparityCalcThread = new DisparityCalcThread(this);
-    projectionThread_ = new ProjectionThread(disp_images_, point_clouds_, camera);
-    transformThread_ = new TransformThread(point_clouds_, camera);
+    projectionThread_ = new ProjectionThread(disp_images_, point_clouds_, camera_);
+    transformThread_ = new TransformThread(point_clouds_, camera_);
     refinementThread_ = new RefinementThread(point_clouds_);
 }
 

@@ -14,7 +14,7 @@ class ProjectionThread
 {
 public:
 
-    ProjectionThread(DispImageQueue *disp_images, PointCloudQueue *point_clouds, Camera::Ptr camera);
+    ProjectionThread(DispImageQueue *disp_images, PointCloudQueue *point_clouds, Camera *camera);
 
     inline void WaitUntilFinished()
     { projectionThread_.join(); }

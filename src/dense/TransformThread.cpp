@@ -4,9 +4,8 @@
 
 #include "FrustumCulling.hpp"
 
-TransformThread::TransformThread(
-    PointCloudQueue *point_clouds, Camera::Ptr camera
-) : point_clouds_(point_clouds)
+TransformThread::TransformThread(PointCloudQueue *point_clouds, Camera *camera)
+  : point_clouds_(point_clouds)
   , camera_(camera)
   , transformThread_(&TransformThread::compute, this)
 {}

@@ -21,6 +21,7 @@ public:
     double frustumNearPlaneDist_, frustumFarPlaneDist_;
     std::string disp_calc_method_;
 
+    Camera *camera_;
     ImageQueue *raw_image_pairs_;
     DispImageQueue  *disp_images_;
     PointCloudQueue *point_clouds_;

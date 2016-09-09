@@ -9,7 +9,7 @@ class TransformThread
 {
 public:
 
-    TransformThread(PointCloudQueue *point_clouds, Camera::Ptr camera);
+    TransformThread(PointCloudQueue *point_clouds, Camera *camera);
 
     inline void WaitUntilFinished()
     { transformThread_.join(); }
