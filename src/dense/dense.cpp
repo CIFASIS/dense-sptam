@@ -15,7 +15,7 @@ Dense::Dense(
     point_clouds_ = new PointCloudQueue();
 
     disparityCalcThread = new DisparityCalcThread(this);
-    projectionThread_ = new ProjectionThread(disp_images_, point_clouds_, camera_);
+    projectionThread_ = new ProjectionThread(this);
     transformThread_ = new TransformThread(point_clouds_, camera_);
     refinementThread_ = new RefinementThread(point_clouds_);
 }

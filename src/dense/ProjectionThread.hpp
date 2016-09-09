@@ -10,21 +10,20 @@
 
 #define MIN_DISPARITY_THRESHOLD 20
 
+class Dense;
+
 class ProjectionThread
 {
 public:
 
-    ProjectionThread(DispImageQueue *disp_images, PointCloudQueue *point_clouds, Camera *camera);
+    ProjectionThread(Dense *dense);
 
     inline void WaitUntilFinished()
     { projectionThread_.join(); }
 
 private:
 
-    DispImageQueue *disp_images_;
-    PointCloudQueue *point_clouds_;
-    Camera::Ptr camera_;
-
+    Dense *dense_;
     std::thread projectionThread_;
     void compute();
 

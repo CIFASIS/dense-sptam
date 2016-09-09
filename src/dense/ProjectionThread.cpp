@@ -1,10 +1,9 @@
 #include "ProjectionThread.hpp"
 
-ProjectionThread::ProjectionThread(
-    DispImageQueue *disp_images, PointCloudQueue *point_clouds, Camera *camera
-) : disp_images_(disp_images)
-  , point_clouds_(point_clouds)
-  , camera_(camera)
+#include "dense.hpp"
+
+ProjectionThread::ProjectionThread(Dense *dense)
+  : dense_(dense)
   , projectionThread_(&ProjectionThread::compute, this)
 {}
 
@@ -12,15 +11,15 @@ void ProjectionThread::compute()
 {
     while(1) {
         /* Calls to pop() are blocking */
-        DispRawImagePtr disp_raw_img = disp_images_->pop();
+        DispRawImagePtr disp_raw_img = dense_->disp_images_->pop();
         filterDisp(disp_raw_img, MIN_DISPARITY_THRESHOLD);
         MatVec3fPtr points_mat = processPoints(disp_raw_img);
-        PointCloudEntry::Ptr entry = point_clouds_->getEntry(disp_raw_img->first->header.seq);
+        PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(disp_raw_img->first->header.seq);
 
         entry->lock();
         entry->set_disp_raw_img(disp_raw_img);
         entry->set_points_mat(points_mat);
-        point_clouds_->schedule(entry);
+        dense_->point_clouds_->schedule(entry);
         entry->unlock();
 
         ROS_INFO("ProjectionThread::computed seq = %u", entry->get_seq());
@@ -44,7 +43,7 @@ MatVec3fPtr ProjectionThread::processPoints(const DispRawImagePtr disp_raw_img)
     DispImagePtr disp_img = disp_raw_img->second;
     MatVec3fPtr dense_points_(new MatVec3f);
 
-    camera_->getStereoModel().projectDisparityImageTo3d(*disp_img, *dense_points_, true);
+    dense_->camera_ ->getStereoModel().projectDisparityImageTo3d(*disp_img, *dense_points_, true);
 
     return dense_points_;
 }
