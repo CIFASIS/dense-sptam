@@ -9,35 +9,26 @@ ImageQueue::~ImageQueue()
 void ImageQueue::push(ImagePairPtr imagepair)
 {
     std::lock_guard<std::mutex> lock(image_queue_lock_);
-    images_.push(imagepair);
+    image_ = imagepair;
     empty_queue_cv.notify_all();
 }
 
-ImagePairPtr ImageQueue::pop(bool remove)
+ImagePairPtr ImageQueue::pop()
 {
     std::mutex m;
     std::unique_lock<std::mutex> lock(m);
 
     image_queue_lock_.lock();
 
-    while (images_.empty()) {
+    while (image_ == nullptr) {
         image_queue_lock_.unlock();
         empty_queue_cv.wait(lock);
         image_queue_lock_.lock();
     }
 
-    ImagePairPtr ret = images_.front();
-
-    if (remove)
-        images_.pop();
-
+    ImagePairPtr ret = image_;
+    image_ = nullptr;
     image_queue_lock_.unlock();
 
     return ret;
-}
-
-size_t ImageQueue::size()
-{
-    std::lock_guard<std::mutex> lock(image_queue_lock_);
-    return images_.size();
 }

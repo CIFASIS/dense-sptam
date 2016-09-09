@@ -20,14 +20,13 @@ public:
     ~ImageQueue();
 
     void push(ImagePairPtr image);
-    ImagePairPtr pop(bool remove = true);
-    size_t size();
+    ImagePairPtr pop();
 
 private:
 
     std::mutex image_queue_lock_;
     std::condition_variable empty_queue_cv;
-    std::queue<ImagePairPtr> images_;
+    ImagePairPtr image_;
 };
 
 #endif /* __IMAGE_QUEUE_H */
