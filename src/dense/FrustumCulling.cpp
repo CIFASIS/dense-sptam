@@ -6,33 +6,11 @@ inline Eigen::Vector4d toHomo(const Eigen::Vector3d& p)
 }
 
 FrustumCulling::FrustumCulling(
-    const CameraPose& cameraPose,
-    double horizontalFOV, double verticalFOV,
-    double nearPlaneDist, double farPlaneDist
-) : cameraPose_(cameraPose)
-{
-    ComputeFrustum(horizontalFOV, verticalFOV, nearPlaneDist, farPlaneDist);
-}
-
-bool FrustumCulling::Contains(const Eigen::Vector3d& point)
-{
-    Eigen::Vector4d pointHomo = toHomo(point);
-
-    return (pointHomo.dot(leftPlane_) <= 0) &&
-           (pointHomo.dot(rightPlane_) <= 0) &&
-           (pointHomo.dot(topPlane_) <= 0) &&
-           (pointHomo.dot(bottomPlane_) <= 0) &&
-           (pointHomo.dot(nearPlane_) <= 0) &&
-           (pointHomo.dot(farPlane_) <= 0);
-}
-
-void FrustumCulling::ComputeFrustum(
+    const Eigen::Vector3d& position,
+    const Eigen::Matrix3d& orientation,
     double horizontalFOV, double verticalFOV,
     double nearPlaneDist, double farPlaneDist
 ) {
-    const Eigen::Vector3d& position = cameraPose_.get_position();
-    const Eigen::Matrix3d& orientation = cameraPose_.get_orientation_matrix();
-
     /* view vector for the camera  - third column of the orientation matrix */
     Eigen::Vector3d view = orientation.col(2);
     /* up vector for the camera  - second column of the orientation matix */
@@ -109,4 +87,16 @@ void FrustumCulling::ComputeFrustum(
     Eigen::Vector3d bottomPlane_normal = a.cross(b);
     bottomPlane_.head(3) = bottomPlane_normal;
     bottomPlane_[3] = -position.dot(bottomPlane_normal);
+}
+
+bool FrustumCulling::Contains(const Eigen::Vector3d& point)
+{
+    Eigen::Vector4d pointHomo = toHomo(point);
+
+    return (pointHomo.dot(leftPlane_) <= 0) &&
+           (pointHomo.dot(rightPlane_) <= 0) &&
+           (pointHomo.dot(topPlane_) <= 0) &&
+           (pointHomo.dot(bottomPlane_) <= 0) &&
+           (pointHomo.dot(nearPlane_) <= 0) &&
+           (pointHomo.dot(farPlane_) <= 0);
 }
