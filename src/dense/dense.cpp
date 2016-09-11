@@ -1,12 +1,15 @@
 #include "dense.hpp"
 
 Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
-             double frustumNearPlaneDist, double frustumFarPlaneDist, double voxelLeafSize, std::string disp_calc_method)
+             double frustumNearPlaneDist, double frustumFarPlaneDist, double voxelLeafSize,
+             double filter_meanK, double filter_stddev, std::string disp_calc_method)
   : left_info_(left_info)
   , right_info_(right_info)
   , frustumNearPlaneDist_(frustumNearPlaneDist)
   , frustumFarPlaneDist_(frustumFarPlaneDist)
   , voxelLeafSize_(voxelLeafSize)
+  , filter_meanK_(filter_meanK)
+  , filter_stddev_(filter_stddev)
   , disp_calc_method_(disp_calc_method)
 {
     camera_ = new Camera(left_info_, right_info_, frustumNearPlaneDist_, frustumFarPlaneDist_);

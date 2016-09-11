@@ -33,6 +33,7 @@ private:
     PointCloudPtr generateCloud(const DispRawImagePtr disp_raw_img);
     void cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos);
     void downsampleCloud(PointCloudPtr cloud, double voxelLeafSize);
+    void filterCloud(PointCloudPtr cloud, double filter_meanK, double filter_stddev);
 };
 
 #endif /* __PROJECTIONTHREAD_H */

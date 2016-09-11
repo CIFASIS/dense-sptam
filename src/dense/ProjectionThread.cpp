@@ -3,6 +3,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <pcl/point_types.h>
 #include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/statistical_outlier_removal.h>
 
 #include "dense.hpp"
 
@@ -32,6 +33,7 @@ void ProjectionThread::compute()
         PointCloudPtr cloud = generateCloud(disp_raw_img);
         cameraToWorld(cloud, pose);
         downsampleCloud(cloud, dense_->voxelLeafSize_);
+        filterCloud(cloud, dense_->filter_meanK_, dense_->filter_stddev_);
 
         entry->lock();
         entry->set_cloud(cloud);
@@ -129,4 +131,16 @@ void ProjectionThread::downsampleCloud(PointCloudPtr cloud, double voxelLeafSize
     vgrid.setLeafSize(voxelLeafSize, voxelLeafSize, voxelLeafSize);
     vgrid.filter(*cloud2_filtered);
     pcl::fromPCLPointCloud2(*cloud2_filtered, *cloud);
+}
+void ProjectionThread::filterCloud(PointCloudPtr cloud, double filter_meanK, double filter_stddev)
+{
+    if (!filter_meanK || !filter_stddev)
+        return;
+
+    pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor;
+
+    sor.setInputCloud(cloud);
+    sor.setMeanK(filter_meanK);
+    sor.setStddevMulThresh(filter_stddev);
+    sor.filter(*cloud);
 }
