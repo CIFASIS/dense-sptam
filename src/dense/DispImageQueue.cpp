@@ -6,11 +6,18 @@ DispImageQueue::DispImageQueue()
 DispImageQueue::~DispImageQueue()
 {}
 
-void DispImageQueue::push(DispRawImagePtr image)
+int DispImageQueue::push(DispRawImagePtr image)
 {
+    int ret = 0;
     std::lock_guard<std::mutex> lock(image_queue_lock_);
+
+    if (image_ != nullptr)
+        ret = -1;
+
     image_ = image;
     empty_queue_cv.notify_all();
+
+    return ret;
 }
 
 DispRawImagePtr DispImageQueue::pop()

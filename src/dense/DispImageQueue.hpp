@@ -21,7 +21,7 @@ public:
     DispImageQueue();
     ~DispImageQueue();
 
-    void push(DispRawImagePtr image);
+    int push(DispRawImagePtr image);
     DispRawImagePtr pop();
 
 private:
