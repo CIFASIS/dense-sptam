@@ -9,6 +9,7 @@
 #include "PointCloudQueue.hpp"
 
 #define MIN_DISPARITY_THRESHOLD 20
+#define MY_MISSING_Z    10000.0
 
 class Dense;
 

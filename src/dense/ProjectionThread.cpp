@@ -62,7 +62,7 @@ bool ProjectionThread::isValidPoint(const cv::Vec3f& pt)
      * Check both for disparities explicitly marked as invalid (where OpenCV maps pt.z to MISSING_Z)
      * and zero disparities (point mapped to infinity).
      */
-    return pt[2] != image_geometry::StereoCameraModel::MISSING_Z && !isinf(pt[2]);
+    return pt[2] != MY_MISSING_Z && !isinf(pt[2]);
 }
 
 PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
