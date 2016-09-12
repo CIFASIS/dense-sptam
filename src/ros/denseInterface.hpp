@@ -29,7 +29,8 @@ namespace dense
         /* Parameters */
         std::string odom_frame_, base_frame_, camera_frame_, map_frame_;
         double frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_;
-        double filter_meanK_, filter_stddev_;
+        double filter_meanK_, filter_stddev_, filter_radius_, filter_minneighbours_;
+        double min_disparity_;
         std::string disp_calc_method_;
 
         /* In/out topics */

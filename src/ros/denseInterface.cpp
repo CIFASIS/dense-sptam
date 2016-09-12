@@ -30,6 +30,9 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     nhp.param<double>("VoxelLeafSize", voxelLeafSize_, 0);
     nhp.param<double>("filter_meanK", filter_meanK_, 0);
     nhp.param<double>("filter_stddev", filter_stddev_, 0);
+    nhp.param<double>("filter_radius", filter_radius_, 0);
+    nhp.param<double>("filter_minneighbours", filter_minneighbours_, 0);
+    nhp.param<double>("min_disparity", min_disparity_, 0);
 
     /* In/out topics */
     sub_path_ = nhp.subscribe("keyframes", 1, &denseInterface::cb_keyframes_path, this);
@@ -106,7 +109,8 @@ void dense::denseInterface::cb_images(
 
     if (!dense_)
         dense_ = new Dense(left_info, right_info, frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_,
-                           filter_meanK_, filter_stddev_, disp_calc_method_);
+                           filter_meanK_, filter_stddev_, disp_calc_method_, filter_radius_, filter_minneighbours_,
+                           min_disparity_);
 
     ImagePtr img_msg_left_copy = boost::make_shared<Image>(*img_msg_left);
     ImagePtr img_msg_right_copy = boost::make_shared<Image>(*img_msg_right);

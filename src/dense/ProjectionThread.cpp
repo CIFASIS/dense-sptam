@@ -4,6 +4,8 @@
 #include <pcl/point_types.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/filters/radius_outlier_removal.h>
+#include <pcl/filters/conditional_removal.h>
 
 #include "dense.hpp"
 #include "../../../sptam/src/sptam/utils/Time.hpp"
@@ -38,7 +40,7 @@ void ProjectionThread::compute()
             continue;
         }
 
-        filterDisp(disp_raw_img, MIN_DISPARITY_THRESHOLD);
+        filterDisp(disp_raw_img, dense_->min_disparity_);
         PointCloudPtr cloud = generateCloud(disp_raw_img);
         cameraToWorld(cloud, pose);
         time_t[1] = GetSeg();
@@ -48,7 +50,8 @@ void ProjectionThread::compute()
         time_t[2] = GetSeg();
         cloud_size[1] = cloud->size();
 
-        filterCloud(cloud, dense_->filter_meanK_, dense_->filter_stddev_);
+        //statisticalFilterCloud(cloud, dense_->filter_meanK_, dense_->filter_stddev_);
+        radiusFilterCloud(cloud, dense_->filter_radius_, dense_->filter_minneighbours_);
         time_t[3] = GetSeg();
         cloud_size[2] = cloud->size();
 
@@ -149,7 +152,8 @@ void ProjectionThread::downsampleCloud(PointCloudPtr cloud, double voxelLeafSize
     vgrid.filter(*cloud2_filtered);
     pcl::fromPCLPointCloud2(*cloud2_filtered, *cloud);
 }
-void ProjectionThread::filterCloud(PointCloudPtr cloud, double filter_meanK, double filter_stddev)
+
+void ProjectionThread::statisticalFilterCloud(PointCloudPtr cloud, double filter_meanK, double filter_stddev)
 {
     if (!filter_meanK || !filter_stddev)
         return;
@@ -160,4 +164,17 @@ void ProjectionThread::filterCloud(PointCloudPtr cloud, double filter_meanK, dou
     sor.setMeanK(filter_meanK);
     sor.setStddevMulThresh(filter_stddev);
     sor.filter(*cloud);
+}
+
+void ProjectionThread::radiusFilterCloud(PointCloudPtr cloud, double filter_radius, double filter_minneighbours)
+{
+    if (!filter_radius || !filter_minneighbours)
+        return;
+
+    pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem;
+    outrem.setInputCloud(cloud);
+    outrem.setRadiusSearch(filter_radius);
+    outrem.setMinNeighborsInRadius(filter_minneighbours);
+    outrem.filter(*cloud);
+
 }

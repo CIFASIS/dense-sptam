@@ -8,7 +8,6 @@
 #include "DispImageQueue.hpp"
 #include "PointCloudQueue.hpp"
 
-#define MIN_DISPARITY_THRESHOLD 20
 #define MY_MISSING_Z    10000.0
 
 class Dense;
@@ -33,7 +32,8 @@ private:
     PointCloudPtr generateCloud(const DispRawImagePtr disp_raw_img);
     void cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos);
     void downsampleCloud(PointCloudPtr cloud, double voxelLeafSize);
-    void filterCloud(PointCloudPtr cloud, double filter_meanK, double filter_stddev);
+    void statisticalFilterCloud(PointCloudPtr cloud, double filter_meanK, double filter_stddev);
+    void radiusFilterCloud(PointCloudPtr cloud, double filter_radius, double filter_minneighbours);
 };
 
 #endif /* __PROJECTIONTHREAD_H */

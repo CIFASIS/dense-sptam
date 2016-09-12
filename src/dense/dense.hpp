@@ -13,7 +13,8 @@ public:
 
     Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
           double frustumNearPlaneDist, double frustumFarPlaneDist, double voxelLeafSize,
-          double filter_meanK, double filter_stddev, std::string disp_calc_method
+          double filter_meanK, double filter_stddev, std::string disp_calc_method,
+          double filter_radius, double filter_minneighbours, double min_disparity
     );
     ~Dense();
 
@@ -21,6 +22,8 @@ public:
     double frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_;
     double filter_meanK_, filter_stddev_;
     std::string disp_calc_method_;
+    double filter_radius_, filter_minneighbours_;
+    double min_disparity_;
 
     Camera *camera_;
     ImageQueue *raw_image_pairs_;
