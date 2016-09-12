@@ -88,7 +88,8 @@ void DisparityCalcThread::computeELAS()
 
         disp_img = boost::make_shared<DispImage>(dmat);
         disp_raw_img = boost::make_shared<DispRawImage>(raw_left_image, disp_img);
-        dense_->disp_images_->push(disp_raw_img);
+        if (dense_->disp_images_->push(disp_raw_img) < 0)
+            ROS_INFO("##### WARNING: Keyframe %u omitted, projectionThread busy! #####", raw_left_image->header.seq);
 
         end_t = GetSeg();
         ROS_INFO("Disparity  seq = %u (%f secs)", raw_left_image->header.seq, end_t - start_t);
