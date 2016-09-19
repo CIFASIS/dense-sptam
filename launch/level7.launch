@@ -95,9 +95,25 @@
   <!-- DENSE node -->
   <node pkg="nodelet" type="nodelet" name="dense" args="load dense/denseNodelet nodelet_manager" output="screen" clear_params="true">
 
+    <param name="approximate_sync" value="false" />
+    <param name="camera_frame" value="camera_1"/>  <!-- set left camera frame -->
+
     <param name="disp_calc_method" value="libelas"/>
-    <param name="VoxelLeafSize" value="0.03"/>
+	<param name="min_disparity" value="30"/>
+    <param name="VoxelLeafSize" value="0.005"/>
+	<param name="stereoscan_threshold" value="3"/>
+	<param name="FrustumNearPlaneDist" value="0.0001"/>
+	<param name="libelas_ipol_gap" value="100"/>
+
+	<param name="local_area_size" value="10"/>
+	<param name="refinement_linear_threshold" value="0.01"/>
+	<param name="refinement_angular_threshold" value="0.001"/>
+
     <remap from="/dense/keyframes" to="/sptam/keyframes"/>
+
+  <!--
+	<param name="single_cloud_path" value="/home/adalessandro/.ros/clouds"/>
+  -->
 
   </node>
 

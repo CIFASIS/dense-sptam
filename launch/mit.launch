@@ -23,11 +23,12 @@
   </group>
 
   <!-- path publisher. Transforms poses into path. -->
+  <!--
   <node pkg="ros_utils" type="pose_to_path" name="sptam_path">
     <remap from="pose" to="sptam/robot/pose" />
     <remap from="path" to="sptam/robot/path" />
   </node>
-
+  -->
 
    <!-- Nodelet Manager -->
   <node pkg="nodelet" type="nodelet" name="nodelet_manager"  args="manager" output="screen" clear_params="true"/>
@@ -48,6 +49,24 @@
 
     <!-- Remap Odometry message -->
     <remap from="robot/pose"  to="odom"/>
+
+  </node>
+
+  <!-- DENSE node -->
+  <node pkg="nodelet" type="nodelet" name="dense" args="load dense/denseNodelet nodelet_manager" output="screen" clear_params="true">
+    <param name="disp_calc_method" value="libelas"/>
+	<param name="min_disparity" value="10"/>
+    <param name="VoxelLeafSize" value="0.03"/>
+	<param name="stereoscan_threshold" value="1"/>
+	<param name="FrustumNearPlaneDist" value="0.0001"/>
+
+	<param name="sigma" value="0.7"/>
+	<param name="add_corners" value="false"/>
+	<param name="libelas_ipol_gap" value="5000"/>
+
+	<param name="local_area_size" value="10"/>
+
+    <remap from="/dense/keyframes" to="/sptam/keyframes"/>
 
   </node>
 
