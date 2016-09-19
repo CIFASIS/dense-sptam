@@ -44,6 +44,13 @@ Camera::Camera(
 Camera::~Camera()
 {}
 
+CameraPose Camera::ComputeRightCameraPose(CameraPose& leftCameraPose)
+{
+    return CameraPose(leftCameraPose.ToWorld(Eigen::Vector3d(stereoCameraModel_.baseline(), 0, 0)),
+                      leftCameraPose.get_orientation());
+}
+
+
 CameraPose::CameraPose(
     Position position, Orientation orientation
 ) : position_(position)

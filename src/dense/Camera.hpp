@@ -7,6 +7,8 @@
 #include <sensor_msgs/CameraInfo.h>
 #include <nav_msgs/Path.h>
 
+class CameraPose;
+
 class Camera
 {
 public:
@@ -35,6 +37,8 @@ public:
     inline double GetFOV_RV ()
     { return right_vertical_FOV; }
 
+    CameraPose ComputeRightCameraPose(CameraPose &leftCameraPose);
+
 private:
 
     /* Compute Field Of View angle for a dimention of the camera */
@@ -59,12 +63,17 @@ public:
 
     inline Position get_position()
     { return position_; }
+    inline cv::Point3d get_cvposition()
+    { cv::Point3d cvpos(position_(0), position_(1), position_(2)); return cvpos; }
     inline Orientation get_orientation()
     { return orientation_; }
     inline OrientationMatrix get_orientation_matrix()
     { return orientation_matrix_; }
 
     bool operator ==(CameraPose& rhs);
+
+    inline double distance(CameraPose& pose)
+    { return (this->get_position() - pose.get_position()).norm(); }
 
     inline Position ToWorld(const Position& x) const
     { return orientation_matrix_ * x + position_; }
