@@ -42,8 +42,8 @@ void DisparityCalcThread::computeCV()
         raw_left_image = raw_image_pair->first;
         raw_right_image = raw_image_pair->second;
 
-        image_left = cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::TYPE_8UC1)->image;
-        image_right = cv_bridge::toCvCopy(raw_right_image, sensor_msgs::image_encodings::TYPE_8UC1)->image;
+        image_left = cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::MONO8)->image;
+        image_right = cv_bridge::toCvCopy(raw_right_image, sensor_msgs::image_encodings::MONO8)->image;
 
         stereo(image_left, image_right, dmat, CV_32F);
 
@@ -81,8 +81,8 @@ void DisparityCalcThread::computeELAS()
         raw_left_image = raw_image_pair->first;
         raw_right_image = raw_image_pair->second;
 
-        image_left = cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::TYPE_8UC1)->image;
-        image_right = cv_bridge::toCvCopy(raw_right_image, sensor_msgs::image_encodings::TYPE_8UC1)->image;
+        image_left = cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::MONO8)->image;
+        image_right = cv_bridge::toCvCopy(raw_right_image, sensor_msgs::image_encodings::MONO8)->image;
 
         elas->process(image_left.data, image_right.data, D1_data, D2_data, dims);
 

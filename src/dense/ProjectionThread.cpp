@@ -95,7 +95,7 @@ PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
     PointCloudPtr cloud(new PointCloud);
     pcl::PointXYZRGB new_pt3d;
 
-    cv::Mat image_left(cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::TYPE_8UC1)->image);
+    cv::Mat image_left(cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::MONO8)->image);
 
     dense_->camera_ ->getStereoModel().projectDisparityImageTo3d(*disp_img, *dense_points_, true);
 
