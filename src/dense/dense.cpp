@@ -5,7 +5,7 @@ Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs
              double filter_meanK, double filter_stddev, std::string disp_calc_method,
              double filter_radius, double filter_minneighbours, double min_disparity, double stereoscan_threshold,
              int local_area_size, int libelas_ipol_gap, bool add_corners, double sigma,
-             double refinement_dist_threshold)
+             double refinement_linear_threshold, double refinement_angular_threshold)
   : left_info_(left_info)
   , right_info_(right_info)
   , frustumNearPlaneDist_(frustumNearPlaneDist)
@@ -22,7 +22,8 @@ Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs
   , libelas_ipol_gap_(libelas_ipol_gap)
   , add_corners_(add_corners)
   , sigma_(sigma)
-  , refinement_dist_threshold_(refinement_dist_threshold)
+  , refinement_linear_threshold_(refinement_linear_threshold)
+  , refinement_angular_threshold_(refinement_angular_threshold)
 {
     camera_ = new Camera(left_info_, right_info_, frustumNearPlaneDist_, frustumFarPlaneDist_);
     raw_image_pairs_ = new ImageQueue();

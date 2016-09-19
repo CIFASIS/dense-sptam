@@ -27,18 +27,27 @@ void ProjectionThread::compute()
         PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(disp_raw_img->first->header.seq);
 
         entry->lock();
-        CameraPose::Ptr pose_left = entry->get_update_pos();
-        entry->set_current_pos(pose_left);
-        entry->set_update_pos(nullptr);
-        entry->unlock();
 
-        /* Indeed, an assertion may be too harsh. However, we don't want this to happen */
-        if(pose_left == nullptr) {
+        CameraPose::Ptr current_pose = entry->get_update_pos();
+        if(!current_pose) {
             ROS_INFO("##### WARNING: Keyframe %u omitted, no pose! #####", entry->get_seq());
+            entry->unlock();
             continue;
         }
 
-        CameraPose::Ptr pose_right = boost::make_shared<CameraPose>(dense_->camera_->ComputeRightCameraPose(*pose_left));
+        entry->set_current_pos(current_pose);
+        entry->set_update_pos(nullptr);
+        /* Check this with Taihú */
+        /*
+        CameraPose::Ptr pose_left =
+                boost::make_shared<CameraPose>(current_pose->applyTransform(entry->get_transform()));
+        */
+        CameraPose::Ptr pose_left = current_pose;
+
+        entry->unlock();
+
+        CameraPose::Ptr pose_right =
+                boost::make_shared<CameraPose>(dense_->camera_->ComputeRightCameraPose(*pose_left));
 
         FrustumCulling frustum_left(pose_left->get_position(), pose_left->get_orientation_matrix(),
                                     dense_->camera_->GetFOV_LH(), dense_->camera_->GetFOV_LV(),
@@ -297,7 +306,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
             it.z = new_pos(2);
             it.a++;
             new_last_cloud->push_back(it);
-            disp_img->at<float>(pixel.y, pixel.x) = -10;
+            disp_img->at<float>(pixel.y, pixel.x) = PIXEL_DISP_INVALID;
             match++;
             continue;
         }
@@ -313,7 +322,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
         }
     }
 
-    ROS_INFO("invisible/corner = %u/%u,\tmatch = %u,\tunmatch/outlier = %u/%u",
+    ROS_DEBUG("invisible/corner = %u/%u,\tmatch = %u,\tunmatch/outlier = %u/%u",
              invisible, corner, match, unmatch, outlier);
     return new_last_cloud;
 }

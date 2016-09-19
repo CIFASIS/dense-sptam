@@ -16,7 +16,7 @@ public:
           double filter_meanK, double filter_stddev, std::string disp_calc_method,
           double filter_radius, double filter_minneighbours, double min_disparity,
           double stereoscan_threshold, int local_area_size, int libelas_ipol_gap,
-          bool add_corners, double sigma, double refinement_dist_threshold
+          bool add_corners, double sigma, double refinement_linear_threshold, double refinement_angular_threshold
     );
     ~Dense();
 
@@ -29,7 +29,8 @@ public:
     int local_area_size_;
     int libelas_ipol_gap_;
     bool add_corners_;
-    double sigma_, refinement_dist_threshold_;
+    double sigma_;
+    double refinement_linear_threshold_, refinement_angular_threshold_;
 
     Camera *camera_;
     ImageQueue *raw_image_pairs_;

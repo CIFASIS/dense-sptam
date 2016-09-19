@@ -6,6 +6,7 @@
 #include <image_geometry/stereo_camera_model.h>
 #include <sensor_msgs/CameraInfo.h>
 #include <nav_msgs/Path.h>
+#include <robot_localization/ros_filter.h>
 
 class CameraPose;
 
@@ -61,6 +62,9 @@ public:
     typedef Eigen::Quaterniond Orientation;
     typedef Eigen::Matrix3d OrientationMatrix;
 
+    typedef tf2::Transform Transform;
+    typedef boost::shared_ptr<Transform> TransformPtr;
+
     inline Position get_position()
     { return position_; }
     inline cv::Point3d get_cvposition()
@@ -71,6 +75,7 @@ public:
     { return orientation_matrix_; }
 
     bool operator ==(CameraPose& rhs);
+    CameraPose applyTransform(TransformPtr base_to_camera);
 
     inline double distance(CameraPose& pose)
     { return (this->get_position() - pose.get_position()).norm(); }

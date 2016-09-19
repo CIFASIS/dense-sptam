@@ -9,7 +9,11 @@
 #include <ros/ros.h>
 #include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/Image.h>
+
 #include <tf2_ros/transform_listener.h>
+#include <robot_localization/ros_filter.h>
+
+
 #include "../dense/dense.hpp"
 
 namespace dense
@@ -39,7 +43,7 @@ namespace dense
         int local_area_size_, libelas_ipol_gap_;
         bool add_corners_;
         std::string single_cloud_path_;
-        double refinement_dist_threshold_;
+        double refinement_linear_threshold_, refinement_angular_threshold_;
 
         /* In/out topics */
         ros::Subscriber sub_path_, sub_save_cloud_;
@@ -63,6 +67,10 @@ namespace dense
             <sensor_msgs::Image, sensor_msgs::CameraInfo, sensor_msgs::Image, sensor_msgs::CameraInfo> ApproximatePolicy;
         typedef message_filters::Synchronizer<ApproximatePolicy> ApproximateSync;
         boost::shared_ptr<ApproximateSync> approximate_sync_;
+
+        /* Transform */
+        tf2_ros::Buffer tfBuffer_;
+        tf2_ros::TransformListener transform_listener_;
 
         /* DENSE */
         Dense *dense_;

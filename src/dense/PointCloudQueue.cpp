@@ -20,7 +20,7 @@ int PointCloudEntry::save_cloud()
     if (this->get_cloud() == nullptr || this->get_cloud()->size() == 0)
         return -1;
 
-    sprintf(filename, "cloud_%05u.pcd", this->get_seq());
+    sprintf(filename, "clouds/cloud_%05u.pcd", this->get_seq());
     pcl::io::savePCDFileBinary(filename, *this->get_cloud());
     this->set_cloud(nullptr);
     return 0;
@@ -31,7 +31,7 @@ int PointCloudEntry::load_cloud()
     PointCloudPtr cloud(new PointCloud);
     char filename[128];
 
-    sprintf(filename, "cloud_%05u.pcd", this->get_seq());
+    sprintf(filename, "clouds/cloud_%05u.pcd", this->get_seq());
     if (pcl::io::loadPCDFile(filename, *cloud) < 0)
         return -1;
 
@@ -98,7 +98,9 @@ PointCloudPtr PointCloudQueue::get_local_area_cloud()
 void PointCloudQueue::push_local_area(PointCloudEntry::Ptr entry)
 {
     if (local_area_queue_.size() > max_local_area_size_) {
-        local_area_queue_.front()->set_state(PointCloudEntry::GLOBAL_MAP_RAM);
+        PointCloudEntry::Ptr entry = local_area_queue_.front();
+        entry->set_state(PointCloudEntry::GLOBAL_MAP_RAM);
+
         local_area_queue_.erase(local_area_queue_.begin());
     }
 

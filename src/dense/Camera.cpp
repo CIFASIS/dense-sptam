@@ -79,3 +79,18 @@ bool CameraPose::operator ==(CameraPose& rhs)
             this->get_position()(1) == rhs.get_position()(1) &&
             this->get_position()(2) == rhs.get_position()(2));
 }
+
+CameraPose CameraPose::applyTransform(TransformPtr base_to_camera)
+{
+    tf2::Vector3 tf_position = base_to_camera->getOrigin();
+    tf2::Quaternion tf_orientation = base_to_camera->getRotation();
+
+    CameraPose::Position position(tf_position.x(), tf_position.y(), tf_position.z());
+    CameraPose::Orientation orientation(tf_orientation.w(), tf_orientation.x(),
+                                        tf_orientation.y(), tf_orientation.z());
+
+    position = position + position_;
+    orientation = orientation.inverse() * orientation_;
+
+    return CameraPose(position, orientation_);
+}

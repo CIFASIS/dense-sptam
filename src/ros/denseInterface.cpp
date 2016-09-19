@@ -17,7 +17,8 @@ namespace std
 }
 
 dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
-  : last_publish_seq_(0)
+  : transform_listener_(tfBuffer_)
+  , last_publish_seq_(0)
 {
     /* Parameters */
     bool use_approx_sync;
@@ -42,7 +43,8 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     nhp.param<bool>("add_corners", add_corners_, false);
     nhp.param<double>("sigma", sigma_, 0);
 
-    nhp.param<double>("refinement_dist_threshold", refinement_dist_threshold_, 0);
+    nhp.param<double>("refinement_linear_threshold", refinement_linear_threshold_, 0);
+    nhp.param<double>("refinement_angular_threshold", refinement_angular_threshold_, 0);
 
     /* Single mode: Load and publish pointcloud, then exit */
     nhp.param<std::string>("single_cloud_path", single_cloud_path_, "");
@@ -142,7 +144,20 @@ void dense::denseInterface::cb_images(
         dense_ = new Dense(left_info, right_info, frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_,
                            filter_meanK_, filter_stddev_, disp_calc_method_, filter_radius_, filter_minneighbours_,
                            min_disparity_, stereoscan_threshold_, local_area_size_, libelas_ipol_gap_, add_corners_,
-                           sigma_, refinement_dist_threshold_);
+                           sigma_, refinement_linear_threshold_, refinement_angular_threshold_);
+
+    /* Get the transformation between the base_frame and the camera_frame */
+    ros::Time currentTime = img_msg_left->header.stamp;
+    CameraPose::TransformPtr base_to_camera(new CameraPose::Transform);
+
+    if (!RobotLocalization::RosFilterUtilities::lookupTransformSafe(
+                tfBuffer_, camera_frame_, base_frame_, currentTime, *base_to_camera)) {
+        ROS_INFO("##### WARNING: Keyframe %u omitted, no cameratobase transform! #####", img_msg_left->header.seq);
+        return;
+    }
+
+    PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(img_msg_left->header.seq);
+    entry->set_transform(base_to_camera);
 
     ImagePtr img_msg_left_copy = boost::make_shared<Image>(*img_msg_left);
     ImagePtr img_msg_right_copy = boost::make_shared<Image>(*img_msg_right);

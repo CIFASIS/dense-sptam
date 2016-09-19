@@ -49,6 +49,8 @@ public:
     { return cloud_; }
     inline EntryState get_state()
     { return state_; }
+    inline CameraPose::TransformPtr get_transform()
+    { return base_to_camera_; }
 
     inline void set_current_pos(CameraPose::Ptr current_pos)
     { current_pos_ = current_pos; }
@@ -62,6 +64,8 @@ public:
     { cloud_ = cloud; }
     inline void set_state(EntryState state)
     { state_ = state; }
+    inline void set_transform(CameraPose::TransformPtr base_to_camera)
+    { base_to_camera_ = base_to_camera; }
 
     inline void lock()
     { entry_lock_.lock(); }
@@ -73,6 +77,8 @@ private:
     uint32_t seq_;
     CameraPose::Ptr current_pos_;
     CameraPose::Ptr update_pos_;
+
+    CameraPose::TransformPtr base_to_camera_;
 
     DispRawImagePtr disp_raw_img_;
     MatVec3fPtr points_mat_;

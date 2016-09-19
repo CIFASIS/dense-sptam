@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
 	tf2_geometry_msgs
 	tf2_ros
 	image_transport
+	robot_localization
 )
 include_directories(${catkin_INCLUDE_DIRS})
 
@@ -53,7 +54,7 @@ add_definitions(${PCL_DEFINITIONS})
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES dense
-   CATKIN_DEPENDS roscpp std_msgs sensor_msgs geometry_msgs cv_bridge message_filters image_geometry pcl_ros nav_msgs tf2 tf2_geometry_msgs tf2_ros
+   CATKIN_DEPENDS roscpp std_msgs sensor_msgs geometry_msgs cv_bridge message_filters image_geometry pcl_ros nav_msgs tf2 tf2_geometry_msgs tf2_ros robot_localization
 #  DEPENDS system_lib
 )
 
