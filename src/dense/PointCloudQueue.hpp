@@ -33,6 +33,9 @@ public:
     PointCloudEntry(uint32_t seq);
     ~PointCloudEntry();
 
+    int save_cloud();
+    int load_cloud();
+
     inline uint32_t get_seq()
     { return seq_; }
     inline CameraPose::Ptr get_current_pos()

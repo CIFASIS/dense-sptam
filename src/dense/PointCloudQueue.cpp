@@ -14,6 +14,33 @@ PointCloudEntry::PointCloudEntry(uint32_t seq)
 PointCloudEntry::~PointCloudEntry()
 {}
 
+int PointCloudEntry::save_cloud()
+{
+    char filename[128];
+
+    if (this->get_cloud() == nullptr || this->get_cloud()->size() == 0)
+        return -1;
+
+    sprintf(filename, "cloud_%05u.pcd", this->get_seq());
+    pcl::io::savePCDFileBinary(filename, *this->get_cloud());
+    this->set_cloud(nullptr);
+    return 0;
+}
+
+int PointCloudEntry::load_cloud()
+{
+    PointCloudPtr cloud(new PointCloud);
+    char filename[128];
+
+    sprintf(filename, "cloud_%05u.pcd", this->get_seq());
+    if (pcl::io::loadPCDFile(filename, *cloud) < 0)
+        return -1;
+
+    this->set_cloud(cloud);
+
+    return 0;
+}
+
 PointCloudQueue::PointCloudQueue(
 ) : last_init_(nullptr)
 {
