@@ -7,9 +7,8 @@ PointCloudEntry::PointCloudEntry(uint32_t seq)
   , disp_raw_img_(nullptr)
   , points_mat_(nullptr)
   , cloud_(nullptr)
-  , state_(CREATED)
-{
-}
+  , state_(LOCAL_MAP)
+{}
 
 PointCloudEntry::~PointCloudEntry()
 {}
@@ -41,10 +40,9 @@ int PointCloudEntry::load_cloud()
     return 0;
 }
 
-PointCloudQueue::PointCloudQueue(
-) : last_init_(nullptr)
-{
-}
+PointCloudQueue::PointCloudQueue(unsigned max_local_area_size)
+  : max_local_area_size_(max_local_area_size)
+{}
 
 PointCloudQueue::~PointCloudQueue()
 {}
@@ -66,95 +64,43 @@ size_t PointCloudQueue::size()
     return entries_.size();
 }
 
-size_t PointCloudQueue::sizeInitQueue()
+uint32_t PointCloudQueue::get_local_area_seq()
 {
-    std::lock_guard<std::mutex> lock(init_queue_lock_);
-    return init_queue_.size();
+    if (local_area_queue_.size() > 0)
+        return local_area_queue_.back()->get_seq();
+    else
+        return 0;
 }
 
-size_t PointCloudQueue::sizeRefineQueue()
+void PointCloudQueue::save_all()
 {
-    std::lock_guard<std::mutex> lock(refine_queue_lock_);
-    return refine_queue_.size();
-}
-
-PointCloudEntry::Ptr PointCloudQueue::popInit(bool remove)
-{
-    std::mutex m;
-    std::unique_lock<std::mutex> lock(m);
-
-    init_queue_lock_.lock();
-
-    while (init_queue_.empty()) {
-        init_queue_lock_.unlock();
-        empty_init_queue_cv.wait(lock);
-        init_queue_lock_.lock();
-    }
-
-    PointCloudEntry::Ptr ret = init_queue_.front();
-
-    if (remove)
-        init_queue_.pop();
-
-    init_queue_lock_.unlock();
-
-    return ret;
-}
-
-PointCloudEntry::Ptr PointCloudQueue::popRefine(bool remove)
-{
-    std::mutex m;
-    std::unique_lock<std::mutex> lock(m);
-
-    refine_queue_lock_.lock();
-
-    while (refine_queue_.empty()) {
-        refine_queue_lock_.unlock();
-        empty_refine_queue_cv.wait(lock);
-        refine_queue_lock_.lock();
-    }
-
-    PointCloudEntry::Ptr ret = refine_queue_.front();
-
-    if (remove)
-        refine_queue_.pop();
-
-    refine_queue_lock_.unlock();
-
-    return ret;
-}
-
-void PointCloudQueue::schedule(PointCloudEntry::Ptr entry)
-{
-    switch(entry->get_state()) {
-    case PointCloudEntry::CREATED:
-        if (entry->get_points_mat() && entry->get_update_pos()) {
-            entry->set_state(PointCloudEntry::INIT_QUEUE);
-            init_queue_.push(entry);
-            empty_init_queue_cv.notify_all();
-        }
-        break;
-    case PointCloudEntry::IDLE:
-        if (entry->get_update_pos()) {
-            entry->set_state(PointCloudEntry::REFINE_QUEUE);
-            refine_queue_.push(entry);
-            empty_refine_queue_cv.notify_all();
-        }
-        break;
-    case PointCloudEntry::INIT_QUEUE:
-    case PointCloudEntry::REFINE_QUEUE:
-        break;
+    for (auto& it : entries_) {
+        if (it.second != nullptr && it.second->save_cloud() == 0)
+            ROS_INFO("Saved cloud seq %05u", it.second->get_seq());
     }
 }
 
-PointCloudPtr PointCloudQueue::get_global_cloud()
+PointCloudPtr PointCloudQueue::get_local_area_cloud()
 {
     PointCloudPtr ret(new PointCloud);
 
-    for (auto& it : entries_) {
-        if (it.second->get_cloud() != nullptr)
-            *ret += *it.second->get_cloud();
+    ret->header.seq = 0;
+    for (auto& it : local_area_queue_) {
+        if (it->get_cloud() != nullptr) {
+            *ret += *it->get_cloud();
+            ret->header.seq = it->get_seq();
+        }
     }
 
     return ret;
+}
+
+void PointCloudQueue::push_local_area(PointCloudEntry::Ptr entry)
+{
+    if (local_area_queue_.size() > max_local_area_size_) {
+        local_area_queue_.front()->set_state(PointCloudEntry::GLOBAL_MAP_RAM);
+        local_area_queue_.erase(local_area_queue_.begin());
+    }
+
+    local_area_queue_.push_back(entry);
 }

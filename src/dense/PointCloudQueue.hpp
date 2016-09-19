@@ -12,7 +12,7 @@
 
 typedef pcl::PointXYZRGB Point;
 typedef pcl::PointCloud<Point> PointCloud;
-typedef pcl::PointCloud<Point>::Ptr PointCloudPtr;
+typedef PointCloud::Ptr PointCloudPtr;
 
 typedef cv::Mat_<cv::Vec3f> MatVec3f;
 typedef boost::shared_ptr<MatVec3f> MatVec3fPtr;
@@ -22,10 +22,9 @@ class PointCloudEntry
 public:
 
     typedef enum EntryState_e {
-        CREATED,
-        INIT_QUEUE,
-        IDLE,
-        REFINE_QUEUE
+        LOCAL_MAP,
+        GLOBAL_MAP_RAM,
+        GLOBAL_MAP_SWAP
     } EntryState;
 
     typedef boost::shared_ptr<PointCloudEntry> Ptr;
@@ -89,36 +88,25 @@ class PointCloudQueue
 {
 public:
 
-    PointCloudQueue();
+    PointCloudQueue(unsigned max_local_area_size);
     ~PointCloudQueue();
 
     size_t size();
-    size_t sizeInitQueue();
-    size_t sizeRefineQueue();
 
-    inline void set_last_init(PointCloudEntry::Ptr entry)
-    { last_init_ = entry; }
-    PointCloudEntry::Ptr get_last_init()
-    { return last_init_; }
-
-    PointCloudEntry::Ptr getEntry(uint32_t seq_, bool force = true);
-    PointCloudEntry::Ptr popInit(bool remove = true);
-    PointCloudEntry::Ptr popRefine(bool remove = true);
-    void schedule(PointCloudEntry::Ptr entry);
-
-    PointCloudPtr get_global_cloud();
-
-private:
-
-    std::mutex vector_lock_, init_queue_lock_, refine_queue_lock_;
-    std::condition_variable empty_init_queue_cv, empty_refine_queue_cv;
+    void save_all();
+    void push_local_area(PointCloudEntry::Ptr entry);
+    uint32_t get_local_area_seq();
+    PointCloudPtr get_local_area_cloud();
 
     std::unordered_map<uint32_t, PointCloudEntry::Ptr> entries_;
-    std::queue<PointCloudEntry::Ptr> init_queue_, refine_queue_;
 
-    PointCloudEntry::Ptr last_init_;
+    PointCloudEntry::Ptr getEntry(uint32_t seq_, bool force = true);
+    std::vector<PointCloudEntry::Ptr> local_area_queue_;
 
 private:
+
+    std::mutex vector_lock_;
+    unsigned max_local_area_size_;
 
 };
 
