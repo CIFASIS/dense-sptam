@@ -1195,7 +1195,44 @@ void Elas::gapInterpolation(float* D) {
           break;
         }
       }
+    } else {
+      int32_t u, u2;
+
+      // extrapolate to the left
+      for (u=0; u<D_width; u++) {
+
+        // get address of this location
+        addr = getAddressOffsetImage(u,v,D_width);
+
+        // if disparity valid
+        if (*(D+addr)>=0)
+          break;
+      }
+
+      if (u == D_width)
+        u--;
+
+      for (u2=max(u-D_ipol_gap_width,0); u2<u; u2++)
+        *(D+getAddressOffsetImage(u2,v,D_width)) = -11;
+
+      // extrapolate to the right
+      for (u=D_width-1; u>=0; u--) {
+
+        // get address of this location
+        addr = getAddressOffsetImage(u,v,D_width);
+
+        // if disparity valid
+        if (*(D+addr)>=0)
+          break;
+      }
+
+      if (u < 0)
+        u++;
+
+      for (u2=u; u2<=min(u+D_ipol_gap_width,D_width-1); u2++)
+        *(D+getAddressOffsetImage(u2,v,D_width)) = -11;
     }
+
   }
 
   // 2. Column-wise:
