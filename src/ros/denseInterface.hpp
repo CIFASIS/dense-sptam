@@ -22,6 +22,10 @@ namespace dense
         ~denseInterface();
 
     private:
+
+        void mySigusr1Handler(int sig);
+
+        void cb_save_cloud(const std_msgs::Empty& dummy);
         void cb_keyframes_path(const nav_msgs::PathConstPtr& path);
         void cb_images(const sensor_msgs::ImageConstPtr& img_msg_left, const sensor_msgs::CameraInfoConstPtr& left_info,
                        const sensor_msgs::ImageConstPtr& img_msg_right, const sensor_msgs::CameraInfoConstPtr& right_info);
@@ -30,11 +34,15 @@ namespace dense
         std::string odom_frame_, base_frame_, camera_frame_, map_frame_;
         double frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_;
         double filter_meanK_, filter_stddev_, filter_radius_, filter_minneighbours_;
-        double min_disparity_;
+        double min_disparity_, stereoscan_threshold_, sigma_;
         std::string disp_calc_method_;
+        int local_area_size_, libelas_ipol_gap_;
+        bool add_corners_;
+        std::string single_cloud_path_;
+        double refinement_dist_threshold_;
 
         /* In/out topics */
-        ros::Subscriber sub_path_;
+        ros::Subscriber sub_path_, sub_save_cloud_;
         message_filters::Subscriber<sensor_msgs::Image> sub_img_l_, sub_img_r_;
         message_filters::Subscriber<sensor_msgs::CameraInfo> sub_info_l_, sub_info_r_;
         ros::Publisher pub_map_;
@@ -58,6 +66,8 @@ namespace dense
 
         /* DENSE */
         Dense *dense_;
+
+        uint32_t last_publish_seq_;
     };
 
 }

@@ -1,4 +1,5 @@
 #include <boost/smart_ptr.hpp>
+#include <boost/filesystem.hpp>
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
@@ -16,6 +17,7 @@ namespace std
 }
 
 dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
+  : last_publish_seq_(0)
 {
     /* Parameters */
     bool use_approx_sync;
@@ -33,16 +35,47 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     nhp.param<double>("filter_radius", filter_radius_, 0);
     nhp.param<double>("filter_minneighbours", filter_minneighbours_, 0);
     nhp.param<double>("min_disparity", min_disparity_, 0);
+    nhp.param<double>("stereoscan_threshold", stereoscan_threshold_, 0);
+    nhp.param<int>("local_area_size", local_area_size_, 1);
+
+    nhp.param<int>("libelas_ipol_gap", libelas_ipol_gap_, 0);
+    nhp.param<bool>("add_corners", add_corners_, false);
+    nhp.param<double>("sigma", sigma_, 0);
+
+    nhp.param<double>("refinement_dist_threshold", refinement_dist_threshold_, 0);
+
+    /* Single mode: Load and publish pointcloud, then exit */
+    nhp.param<std::string>("single_cloud_path", single_cloud_path_, "");
+
+    pub_map_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud", 100);
+
+    if (single_cloud_path_ != "") {
+        PointCloudPtr global_cloud(new PointCloud);
+        boost::filesystem::directory_iterator end_itr;
+        for (boost::filesystem::directory_iterator itr(single_cloud_path_); itr != end_itr; ++itr) {
+            PointCloudPtr cloud(new PointCloud);
+            char filename[256];
+            sprintf(filename, "%s/%s", single_cloud_path_.c_str(), itr->path().filename().c_str());
+            pcl::io::loadPCDFile(filename, *cloud);
+            downsampleCloud(cloud, voxelLeafSize_);
+            *global_cloud += *cloud;
+            ROS_INFO("Read cloud from file %s/%s", single_cloud_path_.c_str(), itr->path().filename().c_str());
+        }
+        global_cloud->header.frame_id = map_frame_;
+        pub_map_.publish(global_cloud);
+        ROS_INFO("Published single cloud size = %lu", global_cloud->size());
+
+        return;
+    }
 
     /* In/out topics */
     sub_path_ = nhp.subscribe("keyframes", 1, &denseInterface::cb_keyframes_path, this);
+    sub_save_cloud_ = nhp.subscribe("save_cloud", 1, &denseInterface::cb_save_cloud, this);
 
     sub_img_l_.subscribe(nhp, "/keyframe/left/image_rect", 1);
     sub_info_l_.subscribe(nhp, "/keyframe/left/camera_info", 1);
     sub_img_r_.subscribe(nhp, "/keyframe/right/image_rect", 1);
     sub_info_r_.subscribe(nhp, "/keyframe/right/camera_info", 1);
-
-    pub_map_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud", 100);
 
     if (use_approx_sync) {
         approximate_sync_.reset(new ApproximateSync(ApproximatePolicy(10),
@@ -64,6 +97,11 @@ dense::denseInterface::~denseInterface()
     ros::Duration(1.0).sleep();
 }
 
+void dense::denseInterface::cb_save_cloud(const std_msgs::Empty& dummy)
+{
+    dense_->point_clouds_->save_all();
+}
+
 void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path)
 {
     ROS_DEBUG("Received path size = %lu", path->poses.size());
@@ -76,20 +114,20 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
         PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(it.header.seq);
 
         entry->lock();
-        if (!entry->get_current_pos() || !(*entry->get_current_pos() == *pose)) {
-            entry->set_update_pos(pose);
-            dense_->point_clouds_->schedule(entry);
-        }
+        entry->set_update_pos(pose);
         entry->unlock();
     }
 
     if (pub_map_.getNumSubscribers() > 0) {
-        PointCloudEntry::Ptr entry = dense_->point_clouds_->get_last_init();
-        if (entry) {
-            dense_->point_clouds_->set_last_init(nullptr);
-            entry->get_cloud()->header.frame_id = map_frame_;
-            pub_map_.publish(entry->get_cloud());
-            ROS_INFO("Published seq = %u, size = %lu", entry->get_seq(), entry->get_cloud()->size());
+        if (dense_->point_clouds_->get_local_area_seq() > last_publish_seq_) {
+            last_publish_seq_ = dense_->point_clouds_->get_local_area_seq();
+
+            PointCloudPtr cloud = dense_->point_clouds_->get_local_area_cloud();
+            downsampleCloud(cloud, voxelLeafSize_);
+
+            cloud->header.frame_id = map_frame_;
+            pub_map_.publish(cloud);
+            ROS_INFO("Published seq = %u, size = %lu", cloud->header.seq, cloud->size());
         }
     }
 }
@@ -100,17 +138,11 @@ void dense::denseInterface::cb_images(
 ) {
     ROS_DEBUG("Images received.");
 
-    if (false && img_msg_left->header.seq > 400) {
-        ROS_INFO("Saving pointcloud.");
-        pcl::io::savePCDFileBinary("test_pcd.pcd", *dense_->point_clouds_->get_global_cloud());
-        ROS_INFO("DONE: Saved pointcloud.");
-        while(1);
-    }
-
     if (!dense_)
         dense_ = new Dense(left_info, right_info, frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_,
                            filter_meanK_, filter_stddev_, disp_calc_method_, filter_radius_, filter_minneighbours_,
-                           min_disparity_);
+                           min_disparity_, stereoscan_threshold_, local_area_size_, libelas_ipol_gap_, add_corners_,
+                           sigma_, refinement_dist_threshold_);
 
     ImagePtr img_msg_left_copy = boost::make_shared<Image>(*img_msg_left);
     ImagePtr img_msg_right_copy = boost::make_shared<Image>(*img_msg_right);

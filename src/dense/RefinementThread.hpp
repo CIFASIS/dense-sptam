@@ -5,6 +5,8 @@
 
 #include "PointCloudQueue.hpp"
 
+#define REFINEMENT_DELAY_US        10000
+
 class Dense;
 
 class RefinementThread
@@ -22,6 +24,7 @@ private:
 
     std::thread refinementThread_;
     void compute();
+    void do_refinement(PointCloudEntry::Ptr entry);
 
 };
 

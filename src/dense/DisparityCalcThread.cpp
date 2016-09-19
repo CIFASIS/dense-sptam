@@ -67,6 +67,13 @@ void DisparityCalcThread::computeELAS()
     cv::Mat_<float> *dmat = new cv::Mat_<float>(dense_->left_info_->height, dense_->left_info_->width, D1_data);
 
     Elas::parameters param(Elas::ROBOTICS);
+
+    if (dense_->sigma_)
+        param.sigma = dense_->sigma_;
+    param.add_corners = dense_->add_corners_;
+    if (dense_->libelas_ipol_gap_)
+        param.ipol_gap_width = dense_->libelas_ipol_gap_;
+
     Elas *elas = new Elas(param);
     dims[2] = dims[0] = dense_->left_info_->width;
     dims[1] = dense_->left_info_->height;

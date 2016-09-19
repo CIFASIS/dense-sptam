@@ -17,65 +17,94 @@ ProjectionThread::ProjectionThread(Dense *dense)
 
 void ProjectionThread::compute()
 {
-    uint32_t cloud_size[10];
-
     while(1) {
         /* Calls to pop() are blocking */
         DispRawImagePtr disp_raw_img = dense_->disp_images_->pop();
 
-        double time_t[10];
+        double time_t[2];
         time_t[0] = GetSeg();
 
         PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(disp_raw_img->first->header.seq);
-        //PointCloudEntry::Ptr last_entry = dense_->point_clouds_->get_last_init();
 
         entry->lock();
-        CameraPose::Ptr pose = entry->get_update_pos();
-        entry->set_current_pos(pose);
+        CameraPose::Ptr pose_left = entry->get_update_pos();
+        entry->set_current_pos(pose_left);
         entry->set_update_pos(nullptr);
         entry->unlock();
 
-        if (pose == nullptr) {
+        /* Indeed, an assertion may be too harsh. However, we don't want this to happen */
+        if(pose_left == nullptr) {
             ROS_INFO("##### WARNING: Keyframe %u omitted, no pose! #####", entry->get_seq());
             continue;
         }
 
-        filterDisp(disp_raw_img, dense_->min_disparity_);
-        PointCloudPtr cloud = generateCloud(disp_raw_img);
-        cameraToWorld(cloud, pose);
-        time_t[1] = GetSeg();
-        cloud_size[0] = cloud->size();
+        CameraPose::Ptr pose_right = boost::make_shared<CameraPose>(dense_->camera_->ComputeRightCameraPose(*pose_left));
 
-        downsampleCloud(cloud, dense_->voxelLeafSize_);
-        time_t[2] = GetSeg();
-        cloud_size[1] = cloud->size();
+        FrustumCulling frustum_left(pose_left->get_position(), pose_left->get_orientation_matrix(),
+                                    dense_->camera_->GetFOV_LH(), dense_->camera_->GetFOV_LV(),
+                                    dense_->camera_->getNearPlaneDist(), dense_->camera_->getFarPlaneDist());
 
+        FrustumCulling frustum_right(pose_right->get_position(), pose_right->get_orientation_matrix(),
+                                     dense_->camera_->GetFOV_LH(), dense_->camera_->GetFOV_LV(),
+                                     dense_->camera_->getNearPlaneDist(), dense_->camera_->getFarPlaneDist());
+
+        for (auto& local_area_entry : dense_->point_clouds_->local_area_queue_) {
+            /* No need to lock the entry as no one else will alter its current_pose or cloud */
+            PointCloudPtr last_cloud = doStereoscan(local_area_entry->get_cloud(), disp_raw_img->second,
+                                                    &frustum_left, &frustum_right,
+                                                    pose_left, dense_->stereoscan_threshold_);
+            if (last_cloud)
+                local_area_entry->set_cloud(last_cloud);
+        }
+
+        filterDisp(disp_raw_img);
+        PointCloudPtr cloud = my_generateCloud(disp_raw_img);
+        cameraToWorld(cloud, pose_left);
+
+        //downsampleCloud(cloud, dense_->voxelLeafSize_);
         //statisticalFilterCloud(cloud, dense_->filter_meanK_, dense_->filter_stddev_);
-        radiusFilterCloud(cloud, dense_->filter_radius_, dense_->filter_minneighbours_);
-        time_t[3] = GetSeg();
-        cloud_size[2] = cloud->size();
+        //radiusFilterCloud(cloud, dense_->filter_radius_, dense_->filter_minneighbours_);
 
         entry->lock();
         entry->set_cloud(cloud);
-        entry->set_state(PointCloudEntry::IDLE);
-        dense_->point_clouds_->set_last_init(entry);
-        dense_->point_clouds_->schedule(entry);
+        dense_->point_clouds_->push_local_area(entry);
         entry->unlock();
 
-        ROS_INFO("Projection seq %u (cloud_size = (%u, %u, %u)", entry->get_seq(), cloud_size[0], cloud_size[1], cloud_size[2]);
-        ROS_INFO("                  (%f, %f, %f) secs", time_t[1] - time_t[0], time_t[2] - time_t[1], time_t[3] - time_t[2]);
+        time_t[1] = GetSeg();
+
+        ROS_INFO("Projected seq %u (size = %lu, time = %f)", entry->get_seq(), cloud->size(), time_t[1] - time_t[0]);
     }
 }
 
-void ProjectionThread::filterDisp(const DispRawImagePtr disp_raw_img, float min_disparity)
+unsigned ProjectionThread::calculateValidDisp(const DispRawImagePtr disp_raw_img)
+{
+    ImagePtr raw_left_image = disp_raw_img->first;
+    DispImagePtr disp_img = disp_raw_img->second;
+    unsigned count = 0;
+
+    for (unsigned int i = 0; i < raw_left_image->height; i++)
+        for (unsigned int j = 0; j < raw_left_image->width; j++)
+            if (isValidDisparity(disp_img->at<float>(i, j)))
+                    count++;
+
+    return count;
+}
+
+void ProjectionThread::filterDisp(const DispRawImagePtr disp_raw_img)
 {
     ImagePtr raw_left_image = disp_raw_img->first;
     DispImagePtr disp_img = disp_raw_img->second;
 
     for (unsigned int i = 0; i < raw_left_image->height; i++)
         for (unsigned int j = 0; j < raw_left_image->width; j++)
-            if (disp_img->at<float>(i, j) < min_disparity)
-                disp_img->at<float>(i, j) = 0;
+            if (!isValidDisparity(disp_img->at<float>(i, j)))
+                disp_img->at<float>(i, j) = PIXEL_DISP_INVALID;
+}
+
+bool ProjectionThread::isValidDisparity(const float disp)
+{
+    assert(finite(disp));
+    return disp >= dense_->min_disparity_;
 }
 
 bool ProjectionThread::isValidPoint(const cv::Vec3f& pt)
@@ -87,13 +116,49 @@ bool ProjectionThread::isValidPoint(const cv::Vec3f& pt)
     return pt[2] != MY_MISSING_Z && !isinf(pt[2]);
 }
 
+PointCloudPtr ProjectionThread::my_generateCloud(DispRawImagePtr disp_raw_img)
+{
+    ImagePtr raw_left_image = disp_raw_img->first;
+    DispImagePtr disp_img = disp_raw_img->second;
+    PointCloudPtr cloud(new PointCloud);
+
+    cv::Mat image_left(cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::MONO8)->image);
+
+    for (unsigned int i = 0; i < raw_left_image->height; i++) {
+        for (unsigned int j = 0; j < raw_left_image->width; j++) {
+            if (!isValidDisparity(disp_img->at<float>(i, j)))
+                continue;
+
+            Point new_pt3d;
+            cv::Point3d point;
+            cv::Point2d pixel(j, i);
+
+            dense_->camera_->getStereoModel().projectDisparityTo3d(pixel, disp_img->at<float>(i, j), point);
+
+            new_pt3d.x = point.x;
+            new_pt3d.y = point.y;
+            new_pt3d.z = point.z;
+            new_pt3d.a = 1;
+
+            uint8_t g = image_left.at<uint8_t>(i, j);
+            int32_t rgb = (g << 16) | (g << 8) | g;
+            memcpy(&new_pt3d.rgb, &rgb, sizeof (int32_t));
+
+            cloud->push_back(new_pt3d);
+        }
+    }
+
+    return cloud;
+}
+
+
 PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
 {
     ImagePtr raw_left_image = disp_raw_img->first;
     DispImagePtr disp_img = disp_raw_img->second;
     MatVec3fPtr dense_points_(new MatVec3f);
     PointCloudPtr cloud(new PointCloud);
-    pcl::PointXYZRGB new_pt3d;
+    Point new_pt3d;
 
     cv::Mat image_left(cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::MONO8)->image);
 
@@ -105,6 +170,7 @@ PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
                 memcpy(&new_pt3d.x, &(*dense_points_)(u,v)[0], sizeof (float));
                 memcpy(&new_pt3d.y, &(*dense_points_)(u,v)[1], sizeof (float));
                 memcpy(&new_pt3d.z, &(*dense_points_)(u,v)[2], sizeof (float));
+                new_pt3d.a = 1;
                 uint8_t g = image_left.at<uint8_t>(u,v);
                 int32_t rgb = (g << 16) | (g << 8) | g;
                 memcpy(&new_pt3d.rgb, &rgb, sizeof (int32_t));
@@ -137,7 +203,122 @@ void ProjectionThread::cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr curren
     }
 }
 
-void ProjectionThread::downsampleCloud(PointCloudPtr cloud, double voxelLeafSize)
+void ProjectionThread::statisticalFilterCloud(PointCloudPtr cloud, double filter_meanK, double filter_stddev)
+{
+    if (!filter_meanK || !filter_stddev)
+        return;
+
+    pcl::StatisticalOutlierRemoval<Point> sor;
+
+    sor.setInputCloud(cloud);
+    sor.setMeanK(filter_meanK);
+    sor.setStddevMulThresh(filter_stddev);
+    sor.filter(*cloud);
+}
+
+void ProjectionThread::radiusFilterCloud(PointCloudPtr cloud, double filter_radius, double filter_minneighbours)
+{
+    if (!filter_radius || !filter_minneighbours)
+        return;
+
+    pcl::RadiusOutlierRemoval<Point> outrem;
+    outrem.setInputCloud(cloud);
+    outrem.setRadiusSearch(filter_radius);
+    outrem.setMinNeighborsInRadius(filter_minneighbours);
+    outrem.filter(*cloud);
+
+}
+
+PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImagePtr disp_img,
+                                             FrustumCulling *frustum_left, FrustumCulling *frustum_right,
+                                             CameraPose::Ptr current_pos, double stereoscan_threshold)
+{
+    if (!stereoscan_threshold)
+        return nullptr;
+
+    assert(frustum_left && frustum_right);
+
+    PointCloudPtr new_last_cloud(new PointCloud);
+
+    CameraPose::Position pos;
+    unsigned invisible = 0, corner = 0, match = 0, unmatch = 0, outlier = 0;
+
+    for (auto& it: *last_cloud) {
+        pos(0) = it.x;
+        pos(1) = it.y;
+        pos(2) = it.z;
+
+        /* Keep points outside current -stereo- frustum of view */
+        if (!frustum_left->Contains(pos) || !frustum_right->Contains(pos)) {
+            invisible++;
+            new_last_cloud->push_back(it);
+            continue;
+        }
+
+        pos = current_pos->ToCamera(pos);
+        cv::Point3d cvpos(pos(0), pos(1), pos(2));
+
+        double disp = dense_->camera_->getStereoModel().getDisparity(pos(2));
+        cv::Point2i pixel = dense_->camera_->getStereoModel().left().project3dToPixel(cvpos);
+
+        /* Why is this condition satisfied after FrustumCulling filtering? */
+        if (pixel.y < 0 || pixel.x < 0 || disp_img->rows < pixel.y || disp_img->cols < pixel.x) {
+            invisible++;
+            new_last_cloud->push_back(it);
+            continue;
+        }
+
+        /* Pixels marked as corners (not interpolated) are omitted */
+        if (disp_img->at<float>(pixel.y, pixel.x) == PIXEL_DISP_CORNER) {
+            corner++;
+            new_last_cloud->push_back(it);
+            continue;
+        }
+
+        /* Pixels marked as invalid disparity are  */
+        if (disp_img->at<float>(pixel.y, pixel.x) == PIXEL_DISP_INVALID) {
+            corner++;
+            new_last_cloud->push_back(it);
+            continue;
+        }
+
+        /* TODO: check on disparity validity */
+
+        /* StereoScan trick */
+        if (std::abs(disp_img->at<float>(pixel.y, pixel.x) - disp) < stereoscan_threshold) {
+            cv::Point3d new_cvpos;
+            float new_disp = (disp_img->at<float>(pixel.y, pixel.x) + disp) / 2;
+
+            dense_->camera_->getStereoModel().projectDisparityTo3d(pixel, new_disp, new_cvpos);
+            CameraPose::Position new_pos(new_cvpos.x, new_cvpos.y, new_cvpos.z);
+            new_pos = current_pos->ToWorld(new_pos);
+            it.x = new_pos(0);
+            it.y = new_pos(1);
+            it.z = new_pos(2);
+            it.a++;
+            new_last_cloud->push_back(it);
+            disp_img->at<float>(pixel.y, pixel.x) = -10;
+            match++;
+            continue;
+        }
+
+        /* Decrement point probability (just a simple counter) */
+        if (it.a > 1) {
+            it.a--;
+            new_last_cloud->push_back(it);
+            unmatch++;
+            continue;
+        } else {
+            outlier++;
+        }
+    }
+
+    ROS_INFO("invisible/corner = %u/%u,\tmatch = %u,\tunmatch/outlier = %u/%u",
+             invisible, corner, match, unmatch, outlier);
+    return new_last_cloud;
+}
+
+void downsampleCloud(PointCloudPtr cloud, double voxelLeafSize)
 {
     if (!voxelLeafSize)
         return;
@@ -151,30 +332,4 @@ void ProjectionThread::downsampleCloud(PointCloudPtr cloud, double voxelLeafSize
     vgrid.setLeafSize(voxelLeafSize, voxelLeafSize, voxelLeafSize);
     vgrid.filter(*cloud2_filtered);
     pcl::fromPCLPointCloud2(*cloud2_filtered, *cloud);
-}
-
-void ProjectionThread::statisticalFilterCloud(PointCloudPtr cloud, double filter_meanK, double filter_stddev)
-{
-    if (!filter_meanK || !filter_stddev)
-        return;
-
-    pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor;
-
-    sor.setInputCloud(cloud);
-    sor.setMeanK(filter_meanK);
-    sor.setStddevMulThresh(filter_stddev);
-    sor.filter(*cloud);
-}
-
-void ProjectionThread::radiusFilterCloud(PointCloudPtr cloud, double filter_radius, double filter_minneighbours)
-{
-    if (!filter_radius || !filter_minneighbours)
-        return;
-
-    pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem;
-    outrem.setInputCloud(cloud);
-    outrem.setRadiusSearch(filter_radius);
-    outrem.setMinNeighborsInRadius(filter_minneighbours);
-    outrem.filter(*cloud);
-
 }
