@@ -11,6 +11,9 @@ void RefinementThread::compute()
 {
     while(1) {
         for (auto& it : dense_->point_clouds_->entries_) {
+            if (!it.second)
+                continue;
+
             it.second->lock();
 
             CameraPose::Ptr current_pose = it.second->get_current_pos();
@@ -44,7 +47,8 @@ void RefinementThread::compute()
                         it.second->set_state(PointCloudEntry::GLOBAL_MAP_RAM);
                     }
 
-                    do_refinement(it.second);
+                    PointCloudPtr cloud = refine_cloud(it.second->get_cloud(), current_pose, update_pose);
+                    it.second->set_cloud(cloud);
 
                     ROS_INFO("Refinement seq = %u cloud REFINED (distance = %f, quaternion = %f)",
                              it.second->get_seq(), current_pose->distance(*update_pose),
@@ -66,5 +70,23 @@ void RefinementThread::compute()
     }
 }
 
-void RefinementThread::do_refinement(PointCloudEntry::Ptr entry)
-{}
+PointCloudPtr RefinementThread::refine_cloud(PointCloudPtr cloud, CameraPose::Ptr current_pose,
+                                             CameraPose::Ptr update_pose)
+{
+    PointCloudPtr new_cloud(new PointCloud);
+    CameraPose::Position pos;
+
+    for (auto& it: *cloud) {
+        pos(0) = it.x;
+        pos(1) = it.y;
+        pos(2) = it.z;
+        pos = current_pose->ToCamera(pos);
+        pos = update_pose->ToWorld(pos);
+        it.x = pos(0);
+        it.y = pos(1);
+        it.z = pos(2);
+        new_cloud->push_back(it);
+    }
+
+    return new_cloud;
+}

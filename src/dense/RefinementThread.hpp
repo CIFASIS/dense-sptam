@@ -24,7 +24,7 @@ private:
 
     std::thread refinementThread_;
     void compute();
-    void do_refinement(PointCloudEntry::Ptr entry);
+    PointCloudPtr refine_cloud(PointCloudPtr cloud, CameraPose::Ptr current_pose, CameraPose::Ptr update_pose);
 
 };
 

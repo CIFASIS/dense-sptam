@@ -25,6 +25,7 @@ void ProjectionThread::compute()
         time_t[0] = GetSeg();
 
         PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(disp_raw_img->first->header.seq);
+        assert(entry);
 
         entry->lock();
 

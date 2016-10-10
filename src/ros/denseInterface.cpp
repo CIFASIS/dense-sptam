@@ -114,6 +114,7 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
     for (auto& it: path->poses) {
         CameraPose::Ptr pose(new CameraPose(it.pose.position, it.pose.orientation));
         PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(it.header.seq);
+        assert(entry);
 
         entry->lock();
         entry->set_update_pos(pose);
@@ -157,6 +158,7 @@ void dense::denseInterface::cb_images(
     }
 
     PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(img_msg_left->header.seq);
+    assert(entry);
     entry->set_transform(base_to_camera);
 
     ImagePtr img_msg_left_copy = boost::make_shared<Image>(*img_msg_left);
