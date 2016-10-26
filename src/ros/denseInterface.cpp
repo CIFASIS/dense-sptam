@@ -51,22 +51,38 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     nhp.param<std::string>("single_cloud_path", single_cloud_path_, "");
 
     pub_map_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud", 100);
+    pub_map_bad_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud_bad", 100);
 
     if (single_cloud_path_ != "") {
-        PointCloudPtr global_cloud(new PointCloud);
+        PointCloudPtr global_cloud_good(new PointCloud);
+        PointCloudPtr global_cloud_bad(new PointCloud);
         boost::filesystem::directory_iterator end_itr;
         for (boost::filesystem::directory_iterator itr(single_cloud_path_); itr != end_itr; ++itr) {
             PointCloudPtr cloud(new PointCloud);
             char filename[256];
             sprintf(filename, "%s/%s", single_cloud_path_.c_str(), itr->path().filename().c_str());
             pcl::io::loadPCDFile(filename, *cloud);
-            downsampleCloud(cloud, voxelLeafSize_);
-            *global_cloud += *cloud;
+
+            for (auto& p : *cloud) {
+                if (p.a > pub_area_filter_min_)
+                    global_cloud_good->push_back(p);
+                else
+                    global_cloud_bad->push_back(p);
+            }
+
+            downsampleCloud(global_cloud_good, voxelLeafSize_);
+            downsampleCloud(global_cloud_bad, voxelLeafSize_);
             ROS_INFO("Read cloud from file %s/%s", single_cloud_path_.c_str(), itr->path().filename().c_str());
         }
-        global_cloud->header.frame_id = map_frame_;
-        pub_map_.publish(global_cloud);
-        ROS_INFO("Published single cloud size = %lu", global_cloud->size());
+        global_cloud_good->header.frame_id = map_frame_;
+        global_cloud_bad->header.frame_id = map_frame_;
+
+        if (pub_map_.getNumSubscribers() > 0)
+            pub_map_.publish(global_cloud_good);
+        if (pub_map_bad_.getNumSubscribers() > 0)
+            pub_map_bad_.publish(global_cloud_bad);
+        ROS_INFO("Published single cloud size (good, bad) = (%lu, %lu)",
+                 global_cloud_good->size(), global_cloud_bad->size());
 
         return;
     }
