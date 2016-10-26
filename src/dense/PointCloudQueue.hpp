@@ -102,7 +102,7 @@ public:
     void save_all();
     void push_local_area(PointCloudEntry::Ptr entry);
     uint32_t get_local_area_seq();
-    PointCloudPtr get_local_area_cloud();
+    PointCloudPtr get_local_area_cloud(double pub_area_filter_min);
 
     std::unordered_map<uint32_t, PointCloudEntry::Ptr> entries_;
 

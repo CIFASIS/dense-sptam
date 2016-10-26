@@ -44,6 +44,7 @@ namespace dense
         bool add_corners_;
         std::string single_cloud_path_;
         double refinement_linear_threshold_, refinement_angular_threshold_;
+        double pub_area_filter_min_;
 
         /* In/out topics */
         ros::Subscriber sub_path_, sub_save_cloud_;

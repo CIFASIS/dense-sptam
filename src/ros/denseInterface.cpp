@@ -38,6 +38,7 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     nhp.param<double>("min_disparity", min_disparity_, 0);
     nhp.param<double>("stereoscan_threshold", stereoscan_threshold_, 0);
     nhp.param<int>("local_area_size", local_area_size_, 1);
+    nhp.param<double>("pub_area_filter_min", pub_area_filter_min_, 0);
 
     nhp.param<int>("libelas_ipol_gap", libelas_ipol_gap_, 0);
     nhp.param<bool>("add_corners", add_corners_, false);
@@ -125,7 +126,7 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
         if (dense_->point_clouds_->get_local_area_seq() > last_publish_seq_) {
             last_publish_seq_ = dense_->point_clouds_->get_local_area_seq();
 
-            PointCloudPtr cloud = dense_->point_clouds_->get_local_area_cloud();
+            PointCloudPtr cloud = dense_->point_clouds_->get_local_area_cloud(pub_area_filter_min_);
             downsampleCloud(cloud, voxelLeafSize_);
 
             cloud->header.frame_id = map_frame_;

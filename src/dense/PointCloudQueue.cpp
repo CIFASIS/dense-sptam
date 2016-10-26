@@ -80,14 +80,17 @@ void PointCloudQueue::save_all()
     }
 }
 
-PointCloudPtr PointCloudQueue::get_local_area_cloud()
+PointCloudPtr PointCloudQueue::get_local_area_cloud(double pub_area_filter_min)
 {
     PointCloudPtr ret(new PointCloud);
 
     ret->header.seq = 0;
     for (auto& it : local_area_queue_) {
         if (it->get_cloud() != nullptr) {
-            *ret += *it->get_cloud();
+            for (auto& p : *it->get_cloud()) {
+                if (p.a > pub_area_filter_min)
+                ret->push_back(p);
+            }
             ret->header.seq = it->get_seq();
         }
     }

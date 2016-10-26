@@ -55,7 +55,7 @@
     <param name="camera_frame" value="left_camera"/>
 
     <param name="disp_calc_method" value="libelas"/>
-	<param name="min_disparity" value="20"/>
+	<param name="min_disparity" value="15"/>
     <param name="VoxelLeafSize" value="0.1"/>
 	<param name="filter_radius" value="0.0"/>
 	<param name="filter_minneighbours" value="0"/>
@@ -64,7 +64,9 @@
 	<param name="FrustumNearPlaneDist" value="0.0001"/>
 	<param name="libelas_ipol_gap" value="1000"/>
 
-	<param name="local_area_size" value="5"/>
+	<param name="local_area_size" value="10"/>
+	<param name="pub_area_filter_min" value="0"/>
+
 	<param name="refinement_linear_threshold" value="0.01"/>
 	<param name="refinement_angular_threshold" value="0.001"/>
 
