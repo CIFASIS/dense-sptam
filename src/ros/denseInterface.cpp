@@ -142,12 +142,20 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
         if (dense_->point_clouds_->get_local_area_seq() > last_publish_seq_) {
             last_publish_seq_ = dense_->point_clouds_->get_local_area_seq();
 
-            PointCloudPtr cloud = dense_->point_clouds_->get_local_area_cloud(pub_area_filter_min_);
-            downsampleCloud(cloud, voxelLeafSize_);
+            PointCloudPtr cloud_good(new PointCloud);
+            PointCloudPtr cloud_bad(new PointCloud);
+            dense_->point_clouds_->get_local_area_cloud(pub_area_filter_min_, cloud_good, cloud_bad);
+            downsampleCloud(cloud_good, voxelLeafSize_);
+            downsampleCloud(cloud_bad, voxelLeafSize_);
 
-            cloud->header.frame_id = map_frame_;
-            pub_map_.publish(cloud);
-            ROS_INFO("Published seq = %u, size = %lu", cloud->header.seq, cloud->size());
+            cloud_good->header.frame_id = cloud_bad->header.frame_id = map_frame_;
+            if (pub_map_.getNumSubscribers() > 0)
+                pub_map_.publish(cloud_good);
+            if (pub_map_bad_.getNumSubscribers() > 0)
+                pub_map_bad_.publish(cloud_bad);
+
+            ROS_INFO("Published seq = %u, cloud size (good, bad) = (%lu, %lu)",
+                     cloud_good->header.seq, cloud_good->size(), cloud_bad->size());
         }
     }
 }
