@@ -38,7 +38,7 @@ namespace dense
         std::string odom_frame_, base_frame_, camera_frame_, map_frame_;
         double frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_;
         double filter_meanK_, filter_stddev_, filter_radius_, filter_minneighbours_;
-        double min_disparity_, stereoscan_threshold_, sigma_;
+        double max_distance_, stereoscan_threshold_, sigma_;
         std::string disp_calc_method_;
         int local_area_size_, libelas_ipol_gap_;
         bool add_corners_;

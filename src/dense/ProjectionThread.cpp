@@ -113,8 +113,11 @@ void ProjectionThread::filterDisp(const DispRawImagePtr disp_raw_img)
 
 bool ProjectionThread::isValidDisparity(const float disp)
 {
-    assert(finite(disp));
-    return disp >= dense_->min_disparity_;
+    if (!finite(disp) || disp <= 0)
+        return false;
+    double dist = dense_->camera_->getStereoModel().getZ(disp);
+    assert(finite(dist));
+    return dist <= dense_->max_distance_;
 }
 
 bool ProjectionThread::isValidPoint(const cv::Vec3f& pt)
@@ -268,7 +271,6 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
         pos = current_pos->ToCamera(pos);
         cv::Point3d cvpos(pos(0), pos(1), pos(2));
 
-        double disp = dense_->camera_->getStereoModel().getDisparity(pos(2));
         cv::Point2i pixel = dense_->camera_->getStereoModel().left().project3dToPixel(cvpos);
 
         /* Why is this condition satisfied after FrustumCulling filtering? */
@@ -292,15 +294,20 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
             continue;
         }
 
+        if (!finite(disp_img->at<float>(pixel.y, pixel.x)) || disp_img->at<float>(pixel.y, pixel.x) <= 0) {
+            corner++;
+            new_last_cloud->push_back(it);
+            continue;
+        }
+
         /* TODO: check on disparity validity */
+        double dist = dense_->camera_->getStereoModel().getZ(disp_img->at<float>(pixel.y, pixel.x));
+        assert(finite(dist) && finite(cvpos.z));
 
         /* StereoScan trick */
-        if (std::abs(disp_img->at<float>(pixel.y, pixel.x) - disp) < stereoscan_threshold) {
-            cv::Point3d new_cvpos;
-            float new_disp = (disp_img->at<float>(pixel.y, pixel.x) + disp) / 2;
-
-            dense_->camera_->getStereoModel().projectDisparityTo3d(pixel, new_disp, new_cvpos);
-            CameraPose::Position new_pos(new_cvpos.x, new_cvpos.y, new_cvpos.z);
+        if (std::abs(dist - cvpos.z) < stereoscan_threshold) {
+            float new_dist = (dist + cvpos.z) / 2;
+            CameraPose::Position new_pos(pos(0), pos(1), new_dist);
             new_pos = current_pos->ToWorld(new_pos);
             it.x = new_pos(0);
             it.y = new_pos(1);

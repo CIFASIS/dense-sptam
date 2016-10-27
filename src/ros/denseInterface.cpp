@@ -35,7 +35,7 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     nhp.param<double>("filter_stddev", filter_stddev_, 0);
     nhp.param<double>("filter_radius", filter_radius_, 0);
     nhp.param<double>("filter_minneighbours", filter_minneighbours_, 0);
-    nhp.param<double>("min_disparity", min_disparity_, 0);
+    nhp.param<double>("max_distance", max_distance_, 0);
     nhp.param<double>("stereoscan_threshold", stereoscan_threshold_, 0);
     nhp.param<int>("local_area_size", local_area_size_, 1);
     nhp.param<double>("pub_area_filter_min", pub_area_filter_min_, 0);
@@ -169,7 +169,7 @@ void dense::denseInterface::cb_images(
     if (!dense_)
         dense_ = new Dense(left_info, right_info, frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_,
                            filter_meanK_, filter_stddev_, disp_calc_method_, filter_radius_, filter_minneighbours_,
-                           min_disparity_, stereoscan_threshold_, local_area_size_, libelas_ipol_gap_, add_corners_,
+                           max_distance_, stereoscan_threshold_, local_area_size_, libelas_ipol_gap_, add_corners_,
                            sigma_, refinement_linear_threshold_, refinement_angular_threshold_);
 
     /* Get the transformation between the base_frame and the camera_frame */
