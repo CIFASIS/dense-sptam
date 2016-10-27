@@ -26,11 +26,12 @@
 
 
   <!-- S-PTAM path publisher. Transforms poses into path. -->
+  <!--
   <node pkg="ros_utils" type="pose_to_path" name="sptam_path">
     <remap from="pose" to="sptam/robot/pose" />
     <remap from="path" to="sptam/robot/path" />
   </node>
-
+  -->
 
   <!-- Clean S-PTAM parameters -->
   <rosparam command="delete" ns="sptam"/>
@@ -60,5 +61,33 @@
 
   </node>
 
+  <!-- DENSE node -->
+  <!--
+  -->
+  <node pkg="nodelet" type="nodelet" name="dense" args="load dense/denseNodelet nodelet_manager" output="screen" clear_params="true">
+
+    <param name="approximate_sync" value="false" />
+    <param name="camera_frame" value="cam0"/>
+
+    <param name="disp_calc_method" value="libelas"/>
+	<param name="max_distance" value="8"/>
+    <param name="VoxelLeafSize" value="0.0"/>
+
+	<param name="stereoscan_threshold" value="0.25"/>
+	<param name="FrustumNearPlaneDist" value="0.0001"/>
+	<param name="libelas_ipol_gap" value="1000"/>
+
+	<param name="local_area_size" value="10"/>
+	<param name="pub_area_filter_min" value="1"/>
+
+	<param name="refinement_linear_threshold" value="0.01"/>
+	<param name="refinement_angular_threshold" value="0.001"/>
+
+    <remap from="/dense/keyframes" to="/sptam/keyframes"/>
+
+  </node>
+  <!--
+	<param name="single_cloud_path" value="/home/adalessandro/.ros/clouds"/>
+  -->
 
 </launch>
