@@ -78,3 +78,6 @@ add_subdirectory(src/ros)
 
 # Build the libelas library
 add_subdirectory(src/libelas)
+
+# Build utils
+add_subdirectory(src/utils)
