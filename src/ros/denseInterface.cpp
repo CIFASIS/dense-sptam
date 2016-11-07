@@ -64,7 +64,7 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
             pcl::io::loadPCDFile(filename, *cloud);
 
             for (auto& p : *cloud) {
-                if (p.a > pub_area_filter_min_)
+                if (p.a >= pub_area_filter_min_)
                     global_cloud_good->push_back(p);
                 else
                     global_cloud_bad->push_back(p);
@@ -77,12 +77,15 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
         global_cloud_good->header.frame_id = map_frame_;
         global_cloud_bad->header.frame_id = map_frame_;
 
-        if (pub_map_.getNumSubscribers() > 0)
+        if (pub_map_.getNumSubscribers() > 0) {
+            ROS_INFO("Published single cloud size good = %lu", global_cloud_good->size());
             pub_map_.publish(global_cloud_good);
-        if (pub_map_bad_.getNumSubscribers() > 0)
+        }
+
+        if (pub_map_bad_.getNumSubscribers() > 0) {
+            ROS_INFO("Published single cloud size bad = %lu", global_cloud_bad->size());
             pub_map_bad_.publish(global_cloud_bad);
-        ROS_INFO("Published single cloud size (good, bad) = (%lu, %lu)",
-                 global_cloud_good->size(), global_cloud_bad->size());
+        }
 
         return;
     }
