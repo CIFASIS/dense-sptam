@@ -42,7 +42,7 @@ namespace dense
         std::string disp_calc_method_;
         int local_area_size_, libelas_ipol_gap_;
         bool add_corners_;
-        std::string single_cloud_path_;
+        std::string single_cloud_path_, single_depth_map_clouds_, single_depth_map_poses_;
         double refinement_linear_threshold_, refinement_angular_threshold_;
         double pub_area_filter_min_;
 

@@ -29,8 +29,9 @@ private:
     void compute();
     void computeCV();
     void computeELAS();
-
-    void showDispImage(float *disp_data, int img_height, int img_width, const char *filename);
 };
+
+void showDispImage(float *disp_data, int img_height, int img_width, const char *filename);
+void showDepthImage(float *disp_data, int img_height, int img_width, const char *filename);
 
 #endif /* __DISPARITYCALCTHREAD_H */

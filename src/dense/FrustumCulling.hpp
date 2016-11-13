@@ -2,7 +2,6 @@
 #define FRUSTUM_CULLING_H
 
 #include <eigen3/Eigen/Geometry>
-#include "Camera.hpp"
 
 class FrustumCulling
 {

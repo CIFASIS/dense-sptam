@@ -5,6 +5,7 @@
 #include <pcl/io/ply_io.h>
 
 #include "denseInterface.hpp"
+#include "../dense/kitti_ground_truth.hpp"
 
 namespace std
 {
@@ -50,6 +51,10 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     /* Single mode: Load and publish pointcloud, then exit */
     nhp.param<std::string>("single_cloud_path", single_cloud_path_, "");
 
+    /* Single mode: Load clouds/poses, generate depth maps, then exit */
+    nhp.param<std::string>("single_depth_map_clouds", single_depth_map_clouds_, "");
+    nhp.param<std::string>("single_depth_map_poses", single_depth_map_poses_, "");
+
     pub_map_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud", 100);
     pub_map_bad_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud_bad", 100);
 
@@ -63,6 +68,8 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
             sprintf(filename, "%s/%s", single_cloud_path_.c_str(), itr->path().filename().c_str());
             pcl::io::loadPCDFile(filename, *cloud);
 
+            downsampleCloud(cloud, voxelLeafSize_);
+
             for (auto& p : *cloud) {
                 if (p.a >= pub_area_filter_min_)
                     global_cloud_good->push_back(p);
@@ -70,10 +77,13 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
                     global_cloud_bad->push_back(p);
             }
 
-            downsampleCloud(global_cloud_good, voxelLeafSize_);
-            downsampleCloud(global_cloud_bad, voxelLeafSize_);
+            //downsampleCloud(global_cloud_good, voxelLeafSize_);
+            //downsampleCloud(global_cloud_bad, voxelLeafSize_);
             ROS_INFO("Read cloud from file %s/%s", single_cloud_path_.c_str(), itr->path().filename().c_str());
         }
+
+        ROS_INFO("Total cloud read size = %lu/%lu", global_cloud_good->size(), global_cloud_bad->size());
+
         global_cloud_good->header.frame_id = map_frame_;
         global_cloud_bad->header.frame_id = map_frame_;
 
@@ -174,6 +184,13 @@ void dense::denseInterface::cb_images(
                            filter_meanK_, filter_stddev_, disp_calc_method_, filter_radius_, filter_minneighbours_,
                            max_distance_, stereoscan_threshold_, local_area_size_, libelas_ipol_gap_, add_corners_,
                            sigma_, refinement_linear_threshold_, refinement_angular_threshold_);
+
+    /* Single mode: Load clouds/poses, generate depth maps, then exit */
+    if (single_depth_map_clouds_ != "" && single_depth_map_poses_ != "") {
+        //generate_depth_maps_global(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(), NULL, dense_);
+        generate_depth_maps_local(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(), NULL, dense_);
+        assert(false);
+    }
 
     /* Get the transformation between the base_frame and the camera_frame */
     ros::Time currentTime = img_msg_left->header.stamp;

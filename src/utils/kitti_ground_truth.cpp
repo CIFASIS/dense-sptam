@@ -27,6 +27,7 @@ pair<Eigen::Matrix3d, Eigen::Vector3d> load_calib(const char *filename)
         }
     }
     if (feof(fp)) {
+        cout << "Calib not found!" << endl;
         exit(1);
     }
     fclose(fp);
@@ -105,10 +106,45 @@ PointCloudPtr load_velodyne(const char *filename, pair<Eigen::Matrix3d, Eigen::V
 
 namespace fs = boost::filesystem;
 
+int generate_clouds(const char *in_path, const char *out_path,
+                    pair<Eigen::Matrix3d, Eigen::Vector3d> calib,
+                    vector<pair<Eigen::Matrix3d, Eigen::Vector3d>> poses)
+{
+    unsigned int count = 0, i;
+    char cloud_path[256];
+    fs::path full_path(fs::initial_path<fs::path>());
+
+    full_path = fs::system_complete(fs::path(in_path));
+
+    if (!fs::exists(full_path) || !fs::is_directory(full_path)) {
+        std::cout << "\nDir not found: " << full_path.filename().c_str() << std::endl;
+        return 1;
+    }
+
+    for (i = 0; i < poses.size(); i++) {
+        sprintf(cloud_path, "%s/%06d.bin", in_path, i);
+        std::cout << "Processing: " << cloud_path << "\n";
+        assert(fs::is_regular_file(cloud_path));
+
+        Eigen::Matrix3d orientation = poses.at(count).first;
+        Eigen::Vector3d position = poses.at(count).second;
+        PointCloudPtr cloud = load_velodyne(cloud_path, calib, orientation, position);
+
+        sprintf(cloud_path, "%s/%06d.pcd", out_path, i);
+        string filename(cloud_path);
+        pcl::io::savePCDFileBinary(filename, *cloud);
+        count++;
+        std::cout << "    saved in: " << filename.c_str() << "\n";
+    }
+
+    cout << "TOTAL: " << count << " clouds" << endl;
+
+    return 0;
+}
+
 int main(int argc, char* argv[])
 {
-    unsigned int count = 0;
-    fs::path full_path(fs::initial_path<fs::path>());
+    int ret = 0;
 
     if (argc < 5) {
         std::cout << "\nusage: " << argv[0] <<
@@ -118,28 +154,12 @@ int main(int argc, char* argv[])
 
     pair<Eigen::Matrix3d, Eigen::Vector3d> calib = load_calib(argv[1]);
     vector<pair<Eigen::Matrix3d, Eigen::Vector3d>> poses = load_poses(argv[2]);
-    full_path = fs::system_complete(fs::path(argv[3]));
 
-    if (!fs::exists(full_path) || !fs::is_directory(full_path)) {
-        std::cout << "\nDir not found: " << full_path.filename().c_str() << std::endl;
-        return 1;
+    ret = generate_clouds(argv[3], argv[4], calib, poses);
+    if (ret) {
+        cout << "Failed to generate clouds" << endl;
+        exit(1);
     }
 
-    fs::directory_iterator end_iter;
-    for (fs::directory_iterator dir_itr(full_path); dir_itr != end_iter; ++dir_itr) {
-        if (fs::is_regular_file(dir_itr->status())) {
-            Eigen::Matrix3d orientation = poses.at(count).first;
-            Eigen::Vector3d position = poses.at(count).second;
-            PointCloudPtr cloud = load_velodyne(dir_itr->path().c_str(), calib, orientation, position);
-            string filename(argv[4]);
-            filename = filename + dir_itr->path().filename().c_str() + ".pcd";
-            pcl::io::savePCDFileBinary(filename, *cloud);
-            count++;
-            std::cout << "Processed: " << dir_itr->path() << "\n";
-            std::cout << "    saved in: " << filename.c_str() << "\n";
-        };
-    }
-
-    cout << "TOTAL: " << count << " clouds" << endl;
     return 0;
 }
