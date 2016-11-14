@@ -100,6 +100,7 @@ PointCloudPtr load_velodyne(const char *filename, pair<Eigen::Matrix3d, Eigen::V
     }
 
     fclose(stream);
+    free(data);
 
     return ret;
 }
@@ -124,7 +125,10 @@ int generate_clouds(const char *in_path, const char *out_path,
     for (i = 0; i < poses.size(); i++) {
         sprintf(cloud_path, "%s/%06d.bin", in_path, i);
         std::cout << "Processing: " << cloud_path << "\n";
-        assert(fs::is_regular_file(cloud_path));
+        if (!fs::is_regular_file(cloud_path)) {
+            std::cout << "    NOT FOUND: " << cloud_path << "\n";
+            continue;
+        }
 
         Eigen::Matrix3d orientation = poses.at(count).first;
         Eigen::Vector3d position = poses.at(count).second;

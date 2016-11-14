@@ -104,7 +104,7 @@ int CameraPose::save(const char *filename)
         return -1;
     }
 
-    fprintf(f, "%f %f %f %f %f %f %f %f %f %f %f %f",
+    fprintf(f, "%f %f %f %f %f %f %f %f %f %f %f %f\n",
             orientation_matrix_.row(0)(0), orientation_matrix_.row(0)(1), orientation_matrix_.row(0)(2), position_(0),
             orientation_matrix_.row(1)(0), orientation_matrix_.row(1)(1), orientation_matrix_.row(1)(2), position_(1),
             orientation_matrix_.row(2)(0), orientation_matrix_.row(2)(1), orientation_matrix_.row(2)(2), position_(2));

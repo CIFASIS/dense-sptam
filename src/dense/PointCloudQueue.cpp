@@ -20,11 +20,11 @@ int PointCloudEntry::save_cloud()
     if (this->get_cloud() == nullptr || this->get_cloud()->size() == 0)
         return -1;
 
-    sprintf(filename, "clouds/cloud_%05u.pcd", this->get_seq());
+    sprintf(filename, "clouds/cloud_%06u.pcd", this->get_seq());
     pcl::io::savePCDFileBinary(filename, *this->get_cloud());
     this->set_cloud(nullptr);
 
-    sprintf(filename, "clouds/cloud_%05u.txt", this->get_seq());
+    sprintf(filename, "clouds/cloud_%06u.txt", this->get_seq());
     CameraPose::Ptr current_pose = this->get_current_pos();
     if (current_pose->save(filename) < 0)
         return -1;
@@ -37,7 +37,7 @@ int PointCloudEntry::load_cloud()
     PointCloudPtr cloud(new PointCloud);
     char filename[128];
 
-    sprintf(filename, "clouds/cloud_%05u.pcd", this->get_seq());
+    sprintf(filename, "clouds/cloud_%06u.pcd", this->get_seq());
     if (pcl::io::loadPCDFile(filename, *cloud) < 0)
         return -1;
 

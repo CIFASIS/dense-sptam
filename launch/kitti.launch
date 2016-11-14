@@ -62,7 +62,7 @@
 
 	<param name="stereoscan_threshold" value="2"/>
 	<param name="FrustumNearPlaneDist" value="0.0001"/>
-	<param name="FrustumFarPlaneDist" value="20"/>
+	<param name="FrustumFarPlaneDist" value="50"/>
 	<param name="libelas_ipol_gap" value="1000"/>
 
 	<param name="local_area_size" value="10"/>
@@ -73,10 +73,10 @@
 
     <remap from="/dense/keyframes" to="/sptam/keyframes"/>
 
+	<param name="single_depth_map_clouds" value="/BACKUP/tesina/datasets/kitti/sequences/00/dense_clouds/"/>
+	<param name="single_depth_map_poses" value="/BACKUP/tesina/datasets/kitti/sequences/00/dense_clouds/poses.txt"/>
   </node>
   <!--
-	<param name="single_depth_map_clouds" value="/BACKUP/tesina/datasets/kitti/sequences/04/velo_clouds"/>
-	<param name="single_depth_map_poses" value="/BACKUP/tesina/datasets/kitti/poses/04.txt"/>
 	<param name="single_cloud_path" value="/home/adalessandro/.ros/velo"/>
 	<param name="single_cloud_path" value="/home/adalessandro/.ros/clouds"/>
   -->

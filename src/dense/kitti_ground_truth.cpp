@@ -33,7 +33,7 @@ vector<pair<Eigen::Matrix3d, Eigen::Vector3d>> load_poses(const char *filename)
 namespace fs = boost::filesystem;
 
 int generate_depth_maps_global(const char *in_poses_path, const char *in_clouds_path,
-                               const char *out_path, Dense *dense_)
+                               const char *out_path, double pub_area_filter_min, Dense *dense_)
 {
     std::vector<std::pair<Eigen::Matrix3d, Eigen::Vector3d>> poses = load_poses(in_poses_path);
 
@@ -57,6 +57,11 @@ int generate_depth_maps_global(const char *in_poses_path, const char *in_clouds_
             }
         }
 
+        sprintf(cloud_path, "%s/%06d.pcd", in_clouds_path, i);
+        std::cout << "Processing: " << cloud_path << "\n";
+        if (!fs::is_regular_file(cloud_path))
+            continue;
+
         Eigen::Matrix3d orientation = poses.at(i).first;
         Eigen::Vector3d position = poses.at(i).second;
         FrustumCulling frustum_left(position, orientation,
@@ -64,10 +69,10 @@ int generate_depth_maps_global(const char *in_poses_path, const char *in_clouds_
                                     dense_->camera_->getNearPlaneDist(), dense_->camera_->getFarPlaneDist());
         PointCloudPtr global(new PointCloud);
 
-        for (j = 0; j < poses.size(); j++) {
+        for (i >= 30 ? j = i - 30 : j = 0; j < poses.size() && j <= i + 30; j++) {
             sprintf(cloud_path, "%s/%06d.pcd", in_clouds_path, j);
-            std::cout << "Processing: " << cloud_path << "\n";
-            assert(fs::is_regular_file(cloud_path));
+            if (!fs::is_regular_file(cloud_path))
+                continue;
 
             PointCloudPtr cloud(new PointCloud);
             pcl::io::loadPCDFile(cloud_path, *cloud);
@@ -76,7 +81,7 @@ int generate_depth_maps_global(const char *in_poses_path, const char *in_clouds_
                 pos(0) = p.x;
                 pos(1) = p.y;
                 pos(2) = p.z;
-                if (frustum_left.Contains(pos))
+                if (frustum_left.Contains(pos) && p.a >= pub_area_filter_min)
                     global->push_back(p);
             }
         }
@@ -89,23 +94,27 @@ int generate_depth_maps_global(const char *in_poses_path, const char *in_clouds_
             pos(2) = p.z;
 
             pos = orientation.transpose() * (pos - position);
-            assert(pos(2) > 0);
+            if (pos(2) <= 0)
+                continue;
+
             cv::Point3d cvpos(pos(0), pos(1), pos(2));
 
             cv::Point2i pixel = dense_->camera_->getStereoModel().left().project3dToPixel(cvpos);
             if (pixel.y < 0 || pixel.x < 0 || image.rows < pixel.y || image.cols < pixel.x)
                 continue;
-            image.at<float>(pixel.y, pixel.x) = pos(2);
+            if (image.at<float>(pixel.y, pixel.x) == -1 || image.at<float>(pixel.y, pixel.x) > pos(2))
+                image.at<float>(pixel.y, pixel.x) = pos(2);
         }
 
-        showDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, NULL);
+        sprintf(cloud_path, "%s/%06d.png", out_path, i);
+        showDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
     }
 
     return 0;
 }
 
 int generate_depth_maps_local(const char *in_poses_path, const char *in_clouds_path,
-                              const char *out_path, Dense *dense_)
+                              const char *out_path, double pub_area_filter_min, Dense *dense_)
 {
     std::vector<std::pair<Eigen::Matrix3d, Eigen::Vector3d>> poses = load_poses(in_poses_path);
 
@@ -124,7 +133,8 @@ int generate_depth_maps_local(const char *in_poses_path, const char *in_clouds_p
     for (i = 0; i < poses.size(); i++) {
         sprintf(cloud_path, "%s/%06d.pcd", in_clouds_path, i);
         std::cout << "Processing: " << cloud_path << "\n";
-        assert(fs::is_regular_file(cloud_path));
+        if (!fs::is_regular_file(cloud_path))
+            continue;
 
         cv::Mat_<float> image(dense_->left_info_->height, dense_->left_info_->width);
         for (r = 0; r < image.rows; r++) {
@@ -147,20 +157,24 @@ int generate_depth_maps_local(const char *in_poses_path, const char *in_clouds_p
             pos(0) = p.x;
             pos(1) = p.y;
             pos(2) = p.z;
-            if (!frustum_left.Contains(pos))
+            if (!frustum_left.Contains(pos) || p.a < pub_area_filter_min)
                 continue;
 
             pos = orientation.transpose() * (pos - position);
-            assert(pos(2) > 0);
+            if (pos(2) <= 0)
+                continue;
+
             cv::Point3d cvpos(pos(0), pos(1), pos(2));
 
             cv::Point2i pixel = dense_->camera_->getStereoModel().left().project3dToPixel(cvpos);
             if (pixel.y < 0 || pixel.x < 0 || image.rows < pixel.y || image.cols < pixel.x)
                 continue;
-            image.at<float>(pixel.y, pixel.x) = pos(2);
+            if (image.at<float>(pixel.y, pixel.x) == -1 || image.at<float>(pixel.y, pixel.x) > pos(2))
+                image.at<float>(pixel.y, pixel.x) = pos(2);
         }
 
-        showDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, NULL);
+        sprintf(cloud_path, "%s/%06d.png", out_path, i);
+        showDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
     }
 
     return 0;
