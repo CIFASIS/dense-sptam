@@ -23,6 +23,12 @@ int PointCloudEntry::save_cloud()
     sprintf(filename, "clouds/cloud_%05u.pcd", this->get_seq());
     pcl::io::savePCDFileBinary(filename, *this->get_cloud());
     this->set_cloud(nullptr);
+
+    sprintf(filename, "clouds/cloud_%05u.txt", this->get_seq());
+    CameraPose::Ptr current_pose = this->get_current_pos();
+    if (current_pose->save(filename) < 0)
+        return -1;
+
     return 0;
 }
 

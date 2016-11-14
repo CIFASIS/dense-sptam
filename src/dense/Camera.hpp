@@ -85,6 +85,8 @@ public:
     inline Position ToCamera(const Position& x) const
     { return orientation_matrix_.transpose() * (x - position_); }
 
+    int save(const char *filename);
+
     CameraPose(Position position, Orientation orientation);
     CameraPose(geometry_msgs::Point position, geometry_msgs::Quaternion orientation);
     ~CameraPose();

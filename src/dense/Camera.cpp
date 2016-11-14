@@ -94,3 +94,21 @@ CameraPose CameraPose::applyTransform(TransformPtr base_to_camera)
 
     return CameraPose(position, orientation_);
 }
+
+int CameraPose::save(const char *filename)
+{
+    FILE *f;
+    f = fopen(filename, "w+");
+    if (!f) {
+        ROS_INFO("%m");
+        return -1;
+    }
+
+    fprintf(f, "%f %f %f %f %f %f %f %f %f %f %f %f",
+            orientation_matrix_.row(0)(0), orientation_matrix_.row(0)(1), orientation_matrix_.row(0)(2), position_(0),
+            orientation_matrix_.row(1)(0), orientation_matrix_.row(1)(1), orientation_matrix_.row(1)(2), position_(1),
+            orientation_matrix_.row(2)(0), orientation_matrix_.row(2)(1), orientation_matrix_.row(2)(2), position_(2));
+    fclose(f);
+
+    return 0;
+}
