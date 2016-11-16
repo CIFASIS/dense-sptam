@@ -172,10 +172,24 @@ int generate_depth_maps_local(const char *in_poses_path, const char *in_clouds_p
             if (image.at<float>(pixel.y, pixel.x) == -1 || image.at<float>(pixel.y, pixel.x) > pos(2))
                 image.at<float>(pixel.y, pixel.x) = pos(2);
         }
-
-        sprintf(cloud_path, "%s/%06d.png", out_path, i);
-        showDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
+        //sprintf(cloud_path, "%s/%06d.png", out_path, i);
+        //showDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
+        sprintf(cloud_path, "%s/%06d.dmap", out_path, i);
+        saveDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
     }
 
     return 0;
+}
+
+void saveDepthImage(float *disp_data, int img_height, int img_width, const char *filename)
+{
+    FILE *fp = fopen(filename, "w+");
+    int i;
+
+    fprintf(fp, "%d %d\n", img_height, img_width);
+
+    for (i = 0; i < img_width * img_height; i++)
+        fprintf(fp, "%f ", disp_data[i]);
+
+    fclose(fp);
 }
