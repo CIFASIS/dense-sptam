@@ -105,9 +105,14 @@ int generate_depth_maps_global(const char *in_poses_path, const char *in_clouds_
             if (image.at<float>(pixel.y, pixel.x) == -1 || image.at<float>(pixel.y, pixel.x) > pos(2))
                 image.at<float>(pixel.y, pixel.x) = pos(2);
         }
-
-        sprintf(cloud_path, "%s/%06d.png", out_path, i);
-        showDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
+        //#define DEPTH_MAP_SAVE_COLOR_IMAGE
+        #ifdef DEPTH_MAP_SAVE_COLOR_IMAGE
+                sprintf(cloud_path, "%s/%06d.png", out_path, i);
+                showDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
+        #else
+                sprintf(cloud_path, "%s/%06d.dmap", out_path, i);
+                saveDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
+        #endif
     }
 
     return 0;
@@ -172,10 +177,14 @@ int generate_depth_maps_local(const char *in_poses_path, const char *in_clouds_p
             if (image.at<float>(pixel.y, pixel.x) == -1 || image.at<float>(pixel.y, pixel.x) > pos(2))
                 image.at<float>(pixel.y, pixel.x) = pos(2);
         }
-        //sprintf(cloud_path, "%s/%06d.png", out_path, i);
-        //showDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
+//#define DEPTH_MAP_SAVE_COLOR_IMAGE
+#ifdef DEPTH_MAP_SAVE_COLOR_IMAGE
+        sprintf(cloud_path, "%s/%06d.png", out_path, i);
+        showDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
+#else
         sprintf(cloud_path, "%s/%06d.dmap", out_path, i);
         saveDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
+#endif
     }
 
     return 0;

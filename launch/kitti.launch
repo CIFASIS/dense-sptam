@@ -73,8 +73,8 @@
 
     <remap from="/dense/keyframes" to="/sptam/keyframes"/>
 
-	<param name="single_depth_map_clouds" value="/BACKUP/tesina/datasets/kitti/sequences/04/velo_clouds/"/>
-	<param name="single_depth_map_poses" value="/BACKUP/tesina/datasets/kitti/sequences/04/velo_clouds/poses.txt"/>
+	<param name="single_depth_map_clouds" value="/BACKUP/tesina/datasets/kitti/sequences/00/dense_clouds/"/>
+	<param name="single_depth_map_poses" value="/BACKUP/tesina/datasets/kitti/sequences/00/dense_clouds/poses.txt"/>
   </node>
   <!--
 	<param name="single_cloud_path" value="/home/adalessandro/.ros/velo"/>

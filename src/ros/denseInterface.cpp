@@ -187,10 +187,14 @@ void dense::denseInterface::cb_images(
 
     /* Single mode: Load clouds/poses, generate depth maps, then exit */
     if (single_depth_map_clouds_ != "" && single_depth_map_poses_ != "") {
-        //generate_depth_maps_global(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(),
-        //                           single_depth_map_clouds_.c_str(), pub_area_filter_min_, dense_);
+#define USE_DEPTH_MAP_GLOBAL
+#ifdef USE_DEPTH_MAP_GLOBAL
+        generate_depth_maps_global(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(),
+                                   single_depth_map_clouds_.c_str(), pub_area_filter_min_, dense_);
+#else
         generate_depth_maps_local(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(),
                                   single_depth_map_clouds_.c_str(), pub_area_filter_min_, dense_);
+#endif
         assert(false);
     }
 
