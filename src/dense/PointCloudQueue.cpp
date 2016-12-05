@@ -93,7 +93,7 @@ void PointCloudQueue::get_local_area_cloud(double pub_area_filter_min,
     for (auto& it : local_area_queue_) {
         if (it->get_cloud() != nullptr) {
             for (auto& p : *it->get_cloud()) {
-                if (p.a > pub_area_filter_min)
+                if (p.a >= pub_area_filter_min)
                     ret_good->push_back(p);
                 else
                     ret_bad->push_back(p);
