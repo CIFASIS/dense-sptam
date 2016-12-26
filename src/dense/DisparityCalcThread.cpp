@@ -39,6 +39,10 @@ void DisparityCalcThread::computeCV()
     while(1) {
         /* Calls to pop() are blocking */
         raw_image_pair = dense_->raw_image_pairs_->pop();
+
+        double start_t, end_t;
+        start_t = GetSeg();
+
         raw_left_image = raw_image_pair->first;
         raw_right_image = raw_image_pair->second;
 
@@ -49,7 +53,20 @@ void DisparityCalcThread::computeCV()
 
         disp_img = boost::make_shared<DispImage>(dmat);
         disp_raw_img = boost::make_shared<DispRawImage>(raw_left_image, disp_img);
-        dense_->disp_images_->push(disp_raw_img);
+
+        if (dense_->disp_images_->push(disp_raw_img) < 0)
+            ROS_INFO("##### WARNING: Keyframe %u omitted, projectionThread busy! #####", raw_left_image->header.seq);
+
+        end_t = GetSeg();
+        ROS_INFO("Disparity  seq = %u (%f secs)", raw_left_image->header.seq, end_t - start_t);
+
+#if 0 /* Save disparity images */
+        char filename[256];
+        sprintf(filename, "images/disparity_%u.jpg", raw_left_image->header.seq);
+        showDispImage((float*)dmat.data, dense_->left_info_->height, dense_->left_info_->width, filename);
+        sprintf(filename, "images/orig_%u.jpg", raw_left_image->header.seq);
+        cv::imwrite(filename, image_left);
+#endif
     }
 }
 
@@ -100,6 +117,14 @@ void DisparityCalcThread::computeELAS()
 
         end_t = GetSeg();
         ROS_INFO("Disparity  seq = %u (%f secs)", raw_left_image->header.seq, end_t - start_t);
+
+#if 0 /* Save disparity images */
+        char filename[256];
+        sprintf(filename, "images/disparity_%u.jpg", raw_left_image->header.seq);
+        showDispImage(D1_data, dense_->left_info_->height, dense_->left_info_->width, filename);
+        sprintf(filename, "images/orig_%u.jpg", raw_left_image->header.seq);
+        cv::imwrite(filename, image_left);
+#endif
     }
 }
 
