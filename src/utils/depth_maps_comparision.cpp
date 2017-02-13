@@ -376,7 +376,7 @@ void do_mae(float *gt_data, float *our_data, int img_height, int img_width)
 }
 
 /* Root-mean-square deviation */
-int do_rmse(float *gt_data, float *our_data, int img_height, int img_width)
+void do_rmse(float *gt_data, float *our_data, int img_height, int img_width)
 {
     //cv::Mat_<float> gt_mat(img_height, img_width, data[0]);
     //cv::Mat_<float> our_mat(img_height, img_width, data[1]);
@@ -413,7 +413,7 @@ int do_rmse(float *gt_data, float *our_data, int img_height, int img_width)
  * Scale-invariant mean squared error (in log space)
  * David Eigen, "Depth Map prediction from Single Image using Multi-Scale Deep Network"
  */
-int do_silmse(float *gt_data, float *our_data, int img_height, int img_width)
+void do_silmse(float *gt_data, float *our_data, int img_height, int img_width)
 {
     unsigned int count = 0;
     double total = 0, total_pow2 = 0, min, max, curr;
@@ -443,7 +443,7 @@ int do_silmse(float *gt_data, float *our_data, int img_height, int img_width)
     std::cout << "Min/max: " << min << "/" << max << std::endl;
 }
 
-int do_intersec(float *gt_data, float *our_data, int img_height, int img_width)
+void do_intersec(float *gt_data, float *our_data, int img_height, int img_width)
 {
     for (int i = 0; i < img_height * img_width; i++) {
         if (gt_data[i] == -1 || our_data[i] == -1) {
@@ -453,7 +453,7 @@ int do_intersec(float *gt_data, float *our_data, int img_height, int img_width)
     }
 }
 
-int do_error_color(float *gt_data, float *our_data, int img_height, int img_width)
+void do_error_color(float *gt_data, float *our_data, int img_height, int img_width)
 {
     for (int i = 0; i < img_height * img_width; i++) {
         if (gt_data[i] == -1 || our_data[i] == -1) {
@@ -464,21 +464,22 @@ int do_error_color(float *gt_data, float *our_data, int img_height, int img_widt
     }
 }
 
-int do_error_graph(float *gt_data, float *our_data, int img_height, int img_width, float size)
+void do_error_graph(float *gt_data, float *our_data, int img_height, int img_width, float size)
 {
     unsigned int total = 255 / size + 1;
     unsigned int histogram[total], pos;
+    unsigned int i;
 
-    for (int i = 0; i < total; i++)
+    for (i = 0; i < total; i++)
         histogram[i] = 0;
 
-    for (int i = 0; i < img_height * img_width; i++) {
-        if (gt_data[i] == -1 || our_data[i] == -1) {
-            gt_data[i] = -1;
+    for (int j = 0; j < img_height * img_width; j++) {
+        if (gt_data[j] == -1 || our_data[j] == -1) {
+            gt_data[j] = -1;
             continue;
         }
-        gt_data[i] = std::abs(gt_data[i] - our_data[i]);
-        pos = gt_data[i] / size;
+        gt_data[j] = std::abs(gt_data[j] - our_data[j]);
+        pos = gt_data[j] / size;
         if (pos >= total) {
             std::cout << "FAILED: pos/total: " << pos << "/" << total << std::endl;
             assert(false);
@@ -487,7 +488,7 @@ int do_error_graph(float *gt_data, float *our_data, int img_height, int img_widt
     }
 
     std::cout << size << std::endl;
-    for (int i = 0; i < total; i++)
+    for (i = 0; i < total; i++)
         std::cout << histogram[i] << std::endl;
 }
 
