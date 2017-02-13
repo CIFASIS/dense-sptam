@@ -6,22 +6,6 @@
   <!-- static_transform_publisher x y z yaw pitch roll frame_id child_frame_id-->
   <node pkg="tf2_ros" type="static_transform_publisher" name="camera_broadcaster" args="0 0 0 0 0 0 base_link left_camera" />
 
-  <!-- Ground Truth path publisher. Used for visualization. -->
-<!--
-  <node pkg="ros_utils" type="pose_to_path" name="gt_path">
-    <remap from="pose" to="robot/gt_pose" />
-    <remap from="path" to="ground_truth/path" />
-  </node>
--->
-
-  <!-- S-PTAM pose path publisher. Used for visualization. -->
-  <!--
-  <node pkg="ros_utils" type="pose_to_path" name="sptam_path">
-    <remap from="pose" to="sptam/robot/pose" />
-    <remap from="path" to="sptam/robot/path" />
-  </node>
-  -->
-
   <!--
     Master nodelet manager.
     S-PTAM as well as the extraction nodelets will be run
@@ -73,6 +57,8 @@
 
   </node>
   <!--
+	<param name="single_depth_map_clouds" value="/BACKUP/tesina/datasets/kitti/sequences/04/dense_clouds/"/>
+	<param name="single_depth_map_poses" value="/BACKUP/tesina/datasets/kitti/sequences/04/dense_clouds/poses.txt"/>
 	<param name="single_depth_map_clouds" value="/BACKUP/tesina/datasets/kitti/sequences/00/dense_clouds/"/>
 	<param name="single_depth_map_poses" value="/BACKUP/tesina/datasets/kitti/sequences/00/dense_clouds/poses.txt"/>
 	<param name="single_cloud_path" value="/home/adalessandro/.ros/velo"/>
