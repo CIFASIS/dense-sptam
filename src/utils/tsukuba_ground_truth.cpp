@@ -300,10 +300,10 @@ void saveDepthImage(float *disp_data, float scale, int img_height, int img_width
     FILE *fp = fopen(filename, "w+");
     int i;
 
-    fprintf(fp, "%d %d\n", img_height, img_width);
+    fprintf(fp, "%d,%d\n", img_height, img_width);
 
     for (i = 0; i < img_width * img_height; i++)
-        fprintf(fp, "%f ", disp_data[i] * scale);
+        fprintf(fp, "%f,", disp_data[i] * scale);
 
     fclose(fp);
 }
@@ -316,11 +316,11 @@ int dmap_to_color(const char *in_file, const char *out_file)
 
     assert(fp);
 
-    fscanf(fp, "%d %d\n", &img_height, &img_width);
+    fscanf(fp, "%d,%d\n", &img_height, &img_width);
     float *img_data = (float*)malloc(img_width * img_height * sizeof(float));
 
     for (i = 0; i < img_width * img_height; i++)
-        fscanf(fp, "%f ", &img_data[i]);
+        fscanf(fp, "%f,", &img_data[i]);
 
     fclose(fp);
 

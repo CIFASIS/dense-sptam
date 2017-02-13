@@ -275,11 +275,11 @@ float *loadDepthImage(const char *filename, int *img_height, int *img_width)
 
     assert(fp);
 
-    fscanf(fp, "%d %d\n", img_height, img_width);
+    fscanf(fp, "%d,%d\n", img_height, img_width);
     float *disp_data = (float*)malloc((*img_width) * (*img_height) * sizeof(float));
 
     for (i = 0; i < (*img_width) * (*img_height); i++)
-        fscanf(fp, "%f ", &disp_data[i]);
+        fscanf(fp, "%f,", &disp_data[i]);
 
     fclose(fp);
     return disp_data;
@@ -290,10 +290,10 @@ void saveDepthImage(float *disp_data, int img_height, int img_width, const char 
     FILE *fp = fopen(filename, "w+");
     int i;
 
-    fprintf(fp, "%d %d\n", img_height, img_width);
+    fprintf(fp, "%d,%d\n", img_height, img_width);
 
     for (i = 0; i < img_width * img_height; i++)
-        fprintf(fp, "%f ", disp_data[i]);
+        fprintf(fp, "%f,", disp_data[i]);
 
     fclose(fp);
 }
