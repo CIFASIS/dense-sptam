@@ -13,10 +13,13 @@
 #include "../dense/PointCloudQueue.hpp"
 #include "../dense/dense.hpp"
 
-int generate_depth_maps_global(const char *in_poses_path, const char *in_clouds_path,
-                               const char *out_path, double pub_area_filter_min, Dense *dense_);
-int generate_depth_maps_local(const char *in_poses_path, const char *in_clouds_path,
-                              const char *out_path, double pub_area_filter_min, Dense *dense_);
+int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_clouds_path,
+                                     const char *out_path, double pub_area_filter_min, Dense *dense_);
+int generate_depth_maps_euroc_global(const char *in_poses_path, const char *in_timestamps_path,
+                                     const char *in_clouds_path, const char *out_path,
+                                     double pub_area_filter_min, Dense *dense_);
+int generate_depth_maps_kitti_local(const char *in_poses_path, const char *in_clouds_path,
+                                    const char *out_path, double pub_area_filter_min, Dense *dense_);
 
 void saveDepthImage(float *disp_data, int img_height, int img_width, const char *filename);
 

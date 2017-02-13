@@ -54,6 +54,8 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     /* Single mode: Load clouds/poses, generate depth maps, then exit */
     nhp.param<std::string>("single_depth_map_clouds", single_depth_map_clouds_, "");
     nhp.param<std::string>("single_depth_map_poses", single_depth_map_poses_, "");
+    nhp.param<std::string>("single_depth_map_timestamps", single_depth_map_timestamps_, "");
+    nhp.param<std::string>("single_depth_map_mode", single_depth_map_mode_, "");
 
     pub_map_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud", 100);
     pub_map_bad_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud_bad", 100);
@@ -66,7 +68,17 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
             PointCloudPtr cloud(new PointCloud);
             char filename[256];
             sprintf(filename, "%s/%s", single_cloud_path_.c_str(), itr->path().filename().c_str());
-            pcl::io::loadPCDFile(filename, *cloud);
+
+            char *e = strrchr(filename, '.');
+            if (!e)
+                continue;
+
+            if (strcmp(e, ".pcd") == 0)
+                pcl::io::loadPCDFile(filename, *cloud);
+            else if (strcmp(e, ".ply") == 0)
+                pcl::io::loadPLYFile(filename, *cloud);
+            else
+                continue;
 
             downsampleCloud(cloud, voxelLeafSize_);
 
@@ -81,7 +93,6 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
             //downsampleCloud(global_cloud_bad, voxelLeafSize_);
             ROS_INFO("Read cloud from file %s/%s", single_cloud_path_.c_str(), itr->path().filename().c_str());
         }
-
         ROS_INFO("Total cloud read size = %lu/%lu", global_cloud_good->size(), global_cloud_bad->size());
 
         global_cloud_good->header.frame_id = map_frame_;
@@ -187,14 +198,23 @@ void dense::denseInterface::cb_images(
 
     /* Single mode: Load clouds/poses, generate depth maps, then exit */
     if (single_depth_map_clouds_ != "" && single_depth_map_poses_ != "") {
-#define USE_DEPTH_MAP_GLOBAL
-#ifdef USE_DEPTH_MAP_GLOBAL
-        generate_depth_maps_global(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(),
-                                   single_depth_map_clouds_.c_str(), pub_area_filter_min_, dense_);
-#else
-        generate_depth_maps_local(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(),
-                                  single_depth_map_clouds_.c_str(), pub_area_filter_min_, dense_);
-#endif
+        assert(single_depth_map_mode_ != "");
+
+        if (single_depth_map_mode_ == "kitti_global") {
+            generate_depth_maps_kitti_global(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(),
+                                             single_depth_map_clouds_.c_str(), pub_area_filter_min_, dense_);
+        } else if (single_depth_map_mode_ == "kitti_local") {
+            generate_depth_maps_kitti_local(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(),
+                                            single_depth_map_clouds_.c_str(), pub_area_filter_min_, dense_);
+        } else if (single_depth_map_mode_ == "euroc_global") {
+            assert(single_depth_map_timestamps_ != "");
+            generate_depth_maps_euroc_global(single_depth_map_poses_.c_str(), single_depth_map_timestamps_.c_str(),
+                                             single_depth_map_clouds_.c_str(), single_depth_map_clouds_.c_str(),
+                                             pub_area_filter_min_, dense_);
+        } else {
+            ROS_INFO("##### Bad single depth map mode configuration!");
+        }
+
         assert(false);
     }
 
