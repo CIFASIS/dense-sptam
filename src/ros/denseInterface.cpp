@@ -135,7 +135,7 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
 dense::denseInterface::~denseInterface()
 {
     std::cout << "Starting DENSE node cleanup..." << std::endl;
-
+    this->dense_->point_clouds_->save_all();
     std::cout << "Done!" << std::endl;
     ros::Duration(1.0).sleep();
 }

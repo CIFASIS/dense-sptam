@@ -82,7 +82,7 @@ void PointCloudQueue::save_all()
 {
     for (auto& it : entries_) {
         if (it.second != nullptr && it.second->save_cloud() == 0)
-            ROS_INFO("Saved cloud seq %05u", it.second->get_seq());
+            std::cout << "Saved cloud seq " << it.second->get_seq() << std::endl;
     }
 }
 
