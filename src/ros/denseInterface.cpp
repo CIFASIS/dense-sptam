@@ -56,6 +56,7 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     nhp.param<std::string>("single_depth_map_poses", single_depth_map_poses_, "");
     nhp.param<std::string>("single_depth_map_timestamps", single_depth_map_timestamps_, "");
     nhp.param<std::string>("single_depth_map_mode", single_depth_map_mode_, "");
+    nhp.param<int>("single_depth_map_region_size", single_depth_map_region_size_, 0);
 
     pub_map_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud", 100);
     pub_map_bad_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud_bad", 100);
@@ -202,7 +203,8 @@ void dense::denseInterface::cb_images(
 
         if (single_depth_map_mode_ == "kitti_global") {
             generate_depth_maps_kitti_global(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(),
-                                             single_depth_map_clouds_.c_str(), pub_area_filter_min_, dense_);
+                                             single_depth_map_clouds_.c_str(), single_depth_map_region_size_,
+                                             pub_area_filter_min_, dense_);
         } else if (single_depth_map_mode_ == "kitti_local") {
             generate_depth_maps_kitti_local(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(),
                                             single_depth_map_clouds_.c_str(), pub_area_filter_min_, dense_);

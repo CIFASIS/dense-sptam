@@ -71,13 +71,13 @@ err_close:
 namespace fs = boost::filesystem;
 
 int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_clouds_path,
-                                     const char *out_path, double pub_area_filter_min, Dense *dense_)
+                                     const char *out_path, int region_size,
+                                     double pub_area_filter_min, Dense *dense_)
 {
     std::vector<std::pair<Eigen::Matrix3d, Eigen::Vector3d>> poses = load_poses(in_poses_path, NULL);
 
     char cloud_path[256];
-    unsigned int i, j;
-    int r, c;
+    int r, c, i, j, limit_l, limit_h;
     fs::path full_path(fs::initial_path<fs::path>());
 
     full_path = fs::system_complete(fs::path(in_clouds_path));
@@ -107,8 +107,14 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
                                     dense_->camera_->getNearPlaneDist(), dense_->camera_->getFarPlaneDist());
         PointCloudPtr global(new PointCloud);
 
-        //for (i >= 30 ? j = i - 30 : j = 0; j < poses.size() && j <= i + 30; j++) {
-        for (j = 0; j < poses.size(); j++) {
+        limit_l = 0;
+        limit_h = poses.size();
+        if (region_size) {
+            limit_l = std::max(i - region_size, limit_l);
+            limit_h = std::min(i + region_size, limit_h);
+        }
+
+        for (j = limit_l; j < limit_h; j++) {
             sprintf(cloud_path, "%s/%06d.pcd", in_clouds_path, j);
             if (!fs::is_regular_file(cloud_path))
                 continue;
@@ -144,14 +150,9 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
             if (image.at<float>(pixel.y, pixel.x) == -1 || image.at<float>(pixel.y, pixel.x) > pos(2))
                 image.at<float>(pixel.y, pixel.x) = pos(2);
         }
-        //#define DEPTH_MAP_SAVE_COLOR_IMAGE
-        #ifdef DEPTH_MAP_SAVE_COLOR_IMAGE
-                sprintf(cloud_path, "%s/%06d.png", out_path, i);
-                showDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
-        #else
-                sprintf(cloud_path, "%s/%06d.dmap", out_path, i);
-                saveDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
-        #endif
+
+        sprintf(cloud_path, "%s/%06d.dmap", out_path, i);
+        saveDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
     }
 
     return 0;
@@ -230,14 +231,8 @@ int generate_depth_maps_euroc_global(const char *in_poses_path, const char *in_t
                 image.at<float>(pixel.y, pixel.x) = pos(2);
         }
 
-        //#define DEPTH_MAP_SAVE_COLOR_IMAGE
-        #ifdef DEPTH_MAP_SAVE_COLOR_IMAGE
-                sprintf(cloud_path, "%s/%06d.png", out_path, i);
-                showDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
-        #else
-                sprintf(cloud_path, "%s/%06d.dmap", out_path, i);
-                saveDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
-        #endif
+        sprintf(cloud_path, "%s/%06d.dmap", out_path, i);
+        saveDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
     }
 
     return 0;
@@ -302,14 +297,9 @@ int generate_depth_maps_kitti_local(const char *in_poses_path, const char *in_cl
             if (image.at<float>(pixel.y, pixel.x) == -1 || image.at<float>(pixel.y, pixel.x) > pos(2))
                 image.at<float>(pixel.y, pixel.x) = pos(2);
         }
-//#define DEPTH_MAP_SAVE_COLOR_IMAGE
-#ifdef DEPTH_MAP_SAVE_COLOR_IMAGE
-        sprintf(cloud_path, "%s/%06d.png", out_path, i);
-        showDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
-#else
+
         sprintf(cloud_path, "%s/%06d.dmap", out_path, i);
         saveDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
-#endif
     }
 
     return 0;

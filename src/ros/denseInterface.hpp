@@ -44,6 +44,7 @@ namespace dense
         bool add_corners_;
         std::string single_cloud_path_, single_depth_map_clouds_, single_depth_map_poses_,
                     single_depth_map_timestamps_, single_depth_map_mode_;
+        int single_depth_map_region_size_;
         double refinement_linear_threshold_, refinement_angular_threshold_;
         double pub_area_filter_min_;
 
