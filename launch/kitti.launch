@@ -40,9 +40,9 @@
 
     <param name="disp_calc_method" value="libelas"/>
 	<param name="max_distance" value="20"/>
-    <param name="VoxelLeafSize" value="0.2"/>
+    <param name="VoxelLeafSize" value="0.1"/>
 
-	<param name="stereoscan_threshold" value="2"/>
+	<param name="stereoscan_threshold" value="0.25"/>
 	<param name="FrustumNearPlaneDist" value="0.0001"/>
 	<param name="FrustumFarPlaneDist" value="50"/>
 	<param name="libelas_ipol_gap" value="1000"/>
@@ -57,12 +57,12 @@
 
   </node>
   <!--
-	<param name="single_depth_map_clouds" value="/BACKUP/tesina/datasets/kitti/sequences/04/dense_clouds/"/>
-	<param name="single_depth_map_poses" value="/BACKUP/tesina/datasets/kitti/sequences/04/dense_clouds/poses.txt"/>
-	<param name="single_depth_map_clouds" value="/BACKUP/tesina/datasets/kitti/sequences/00/dense_clouds/"/>
-	<param name="single_depth_map_poses" value="/BACKUP/tesina/datasets/kitti/sequences/00/dense_clouds/poses.txt"/>
-	<param name="single_cloud_path" value="/home/adalessandro/.ros/velo"/>
-	<param name="single_cloud_path" value="/home/adalessandro/.ros/clouds"/>
+	<param name="single_depth_map_clouds" value="/BACKUP/tesina/datasets/kitti/sequences/04/velodyne/pcd/"/>
+	<param name="single_depth_map_poses" value="/BACKUP/tesina/datasets/kitti/sequences/04/velodyne/poses.txt"/>
+	<param name="single_depth_map_mode" value="kitti_global"/>
+	<param name="single_depth_map_region_size" value="30"/>
+
+	<param name="single_cloud_path" value="/BACKUP/tesina/datasets/kitti/sequences/04/dense/pcd/"/>
   -->
 
 </launch>
