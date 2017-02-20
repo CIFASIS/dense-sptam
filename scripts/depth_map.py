@@ -2,6 +2,8 @@ import argparse
 import colorsys
 import csv
 import cv2
+import matplotlib.cm as cmx
+import matplotlib.colors as colors
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
@@ -72,10 +74,12 @@ def absoluteDiffMap(dmap_x, dmap_y):
 				ret[i, j] = abs(dmap_x[i, j] - dmap_y[i, j])
 	return ret
 
-def getRGBcolor(val, high, hsv_s = 0.8, hsv_v = 0.8, factor = 0.7):
+def getRGBcolor01(val, high, hsv_s = 0.8, hsv_v = 0.8, factor = 1):
 	hsv = ((1 - float(val) / float(high)) * factor, hsv_s, hsv_v)
-	rgb = tuple(int(i * 255) for i in colorsys.hsv_to_rgb(*hsv))
-	return rgb
+	return colorsys.hsv_to_rgb(*hsv)
+
+def getRGBcolor(val, high, hsv_s = 0.8, hsv_v = 0.8, factor = 1):
+	return tuple(int(i * 255) for i in getRGBcolor01(val, high, hsv_s, hsv_v, factor))
 
 def genRGBcolors(N):
 	return map(lambda x: getRGBcolor(x, N), range(N))
@@ -93,6 +97,23 @@ def doColorArray(arr, limit = 0):
 
 def saveImage(filename, img):
 	cv2.imwrite(filename, img)
+
+def plotSaveImage(filename, img):
+	plt.imshow(img)
+	plt.savefig(filename, dpi=300)
+
+def genSpectrum(N):
+	fig = plt.figure()
+	ax = fig.add_subplot(111)
+	plt.axis('scaled')
+	ax.set_xlim([0, N])
+	ax.set_ylim([-1, 1])
+	for i in range(N):
+		col = getRGBcolor01(i, N)
+		rect = plt.Rectangle((i, -1), 2, 2, facecolor=col)
+		ax.add_artist(rect)
+		ax.set_yticks([])
+	plt.savefig('spectrum.png')
 
 class DepthMap:
 
@@ -116,6 +137,7 @@ parser.add_argument('dmap_dense', help='dmap dir - dense node')
 parser.add_argument('dmap_gt', help='dmap dir - ground truth')
 parser.add_argument('--max_dist', help='truncate depth maps using this maximum distance')
 parser.add_argument('--max_colors', help='number of colors to use')
+parser.add_argument('--gen_spectrum', help='generate spectrum of N colors')
 args = parser.parse_args()
 
 assert(os.path.isdir(args.dmap_dense))
@@ -127,7 +149,11 @@ if (args.max_dist):
 
 max_colors = 0
 if (args.max_colors):
-	max_colors = args.max_colors
+	max_colors = int(args.max_colors)
+
+if (args.gen_spectrum):
+	genSpectrum(int(args.gen_spectrum))
+	exit(0)
 
 diff_list = []
 for f in os.listdir(args.dmap_dense):
@@ -152,7 +178,9 @@ for f in os.listdir(args.dmap_dense):
 
 		output_file = os.path.splitext(f)[0] + '_absdiff.png'
 		dmap_diff_arr = listToArray(absdiff_list, dmap_dense.height, dmap_dense.width)
-		saveImage(output_file, doColorArray(dmap_diff_arr, max_colors))
+
+		plotSaveImage(output_file, doColorArray(dmap_diff_arr, max_colors));
+		#saveImage(output_file, doColorArray(dmap_diff_arr, max_colors))
 
 		print(log_entry)
 
