@@ -20,6 +20,8 @@ public:
     );
     ~Dense();
 
+    void WriteToLog(char *log);
+
     const sensor_msgs::CameraInfoConstPtr left_info_, right_info_;
     double frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_;
     double filter_meanK_, filter_stddev_;
@@ -45,6 +47,7 @@ private:
 
     RefinementThread *refinementThread_;
 
+    FILE *log_file_;
 };
 
 typedef boost::shared_ptr<Dense> DensePtr;

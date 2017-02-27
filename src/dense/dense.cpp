@@ -25,6 +25,9 @@ Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs
   , refinement_linear_threshold_(refinement_linear_threshold)
   , refinement_angular_threshold_(refinement_angular_threshold)
 {
+    log_file_ = fopen("dense_node.log", "w");
+    assert(log_file_);
+
     camera_ = new Camera(left_info_, right_info_, frustumNearPlaneDist_, frustumFarPlaneDist_);
     raw_image_pairs_ = new ImageQueue();
     disp_images_ = new DispImageQueue();
@@ -36,4 +39,11 @@ Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs
 }
 
 Dense::~Dense()
-{}
+{
+    fclose(log_file_);
+}
+
+void Dense::WriteToLog(char *log)
+{
+    fprintf(log_file_, log);
+}
