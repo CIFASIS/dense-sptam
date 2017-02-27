@@ -17,17 +17,20 @@ ProjectionThread::ProjectionThread(Dense *dense)
 
 void ProjectionThread::compute()
 {
+    char log_buffer[512];
+    unsigned int log_data[3];
+    double time_t[3];
+    int i;
+
     while(1) {
         /* Calls to pop() are blocking */
         DispRawImagePtr disp_raw_img = dense_->disp_images_->pop();
-
-        double time_t[2];
-        time_t[0] = GetSeg();
 
         PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(disp_raw_img->first->header.seq);
         assert(entry);
 
         entry->lock();
+        time_t[0] = GetSeg();
 
         CameraPose::Ptr current_pose = entry->get_update_pos();
         if(!current_pose) {
@@ -58,14 +61,23 @@ void ProjectionThread::compute()
                                      dense_->camera_->GetFOV_LH(), dense_->camera_->GetFOV_LV(),
                                      dense_->camera_->getNearPlaneDist(), dense_->camera_->getFarPlaneDist());
 
+        for (i = 0; i < 3; i++)
+            log_data[i] = 0;
+
         for (auto& local_area_entry : dense_->point_clouds_->local_area_queue_) {
             /* No need to lock the entry as no one else will alter its current_pose or cloud */
             PointCloudPtr last_cloud = doStereoscan(local_area_entry->get_cloud(), disp_raw_img->second,
                                                     &frustum_left, &frustum_right,
-                                                    pose_left, dense_->stereoscan_threshold_);
+                                                    pose_left, dense_->stereoscan_threshold_, log_data);
             if (last_cloud)
                 local_area_entry->set_cloud(last_cloud);
         }
+
+        time_t[1] = GetSeg();
+
+        sprintf(log_buffer, "stereoscan,%u,%f,%u,%u,%u\n", entry->get_seq(),
+                time_t[1] - time_t[0], log_data[0], log_data[1], log_data[2]);
+        dense_->WriteToLog(log_buffer);
 
         filterDisp(disp_raw_img);
         PointCloudPtr cloud = my_generateCloud(disp_raw_img);
@@ -75,14 +87,16 @@ void ProjectionThread::compute()
         //statisticalFilterCloud(cloud, dense_->filter_meanK_, dense_->filter_stddev_);
         //radiusFilterCloud(cloud, dense_->filter_radius_, dense_->filter_minneighbours_);
 
+        time_t[2] = GetSeg();
         entry->lock();
         entry->set_cloud(cloud);
         dense_->point_clouds_->push_local_area(entry);
         entry->unlock();
 
-        time_t[1] = GetSeg();
-
-        ROS_INFO("Projected seq %u (size = %lu, time = %f)", entry->get_seq(), cloud->size(), time_t[1] - time_t[0]);
+        sprintf(log_buffer, "projection,%u,%f\n", entry->get_seq(), time_t[2] - time_t[1]);
+        dense_->WriteToLog(log_buffer);
+        ROS_INFO("Projected seq %u (size = %lu, time = %f)", entry->get_seq(), cloud->size(),
+                 time_t[2] - time_t[0]);
     }
 }
 
@@ -244,8 +258,11 @@ void ProjectionThread::radiusFilterCloud(PointCloudPtr cloud, double filter_radi
 
 PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImagePtr disp_img,
                                              FrustumCulling *frustum_left, FrustumCulling *frustum_right,
-                                             CameraPose::Ptr current_pos, double stereoscan_threshold)
+                                             CameraPose::Ptr current_pos, double stereoscan_threshold,
+                                             unsigned int log_data[])
 {
+    char log_buffer[512];
+
     if (!stereoscan_threshold)
         return nullptr;
 
@@ -330,6 +347,9 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
         }
     }
 
+    log_data[0] += match;
+    log_data[1] += unmatch;
+    log_data[2] += outlier;
     ROS_DEBUG("invisible/corner = %u/%u,\tmatch = %u,\tunmatch/outlier = %u/%u",
              invisible, corner, match, unmatch, outlier);
     return new_last_cloud;

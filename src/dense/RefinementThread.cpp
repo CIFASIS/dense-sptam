@@ -1,6 +1,7 @@
 #include "RefinementThread.hpp"
 
 #include "dense.hpp"
+#include "../../../sptam/src/sptam/utils/Time.hpp"
 
 RefinementThread::RefinementThread(Dense *dense)
   : dense_(dense)
@@ -9,12 +10,17 @@ RefinementThread::RefinementThread(Dense *dense)
 
 void RefinementThread::compute()
 {
+    char log_buffer[512];
+    double start_t, end_t;
+
     while(1) {
         for (auto& it : dense_->point_clouds_->entries_) {
             if (!it.second)
                 continue;
 
             it.second->lock();
+
+            start_t = GetSeg();
 
             CameraPose::Ptr current_pose = it.second->get_current_pos();
             /* Projection thread is in charge of setting the first pose */
@@ -50,6 +56,9 @@ void RefinementThread::compute()
                     PointCloudPtr cloud = refine_cloud(it.second->get_cloud(), current_pose, update_pose);
                     it.second->set_cloud(cloud);
 
+                    end_t = GetSeg();
+                    sprintf(log_buffer, "refinement,%u,%f\n", it.second->get_seq(), end_t - start_t);
+                    dense_->WriteToLog(log_buffer);
                     ROS_INFO("Refinement seq = %u cloud REFINED (distance = %f, quaternion = %f)",
                              it.second->get_seq(), current_pose->distance(*update_pose),
                              current_pose->get_orientation().angularDistance(update_pose->get_orientation()));

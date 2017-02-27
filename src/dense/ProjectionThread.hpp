@@ -45,7 +45,8 @@ private:
 
     PointCloudPtr doStereoscan(PointCloudPtr last_cloud, DispImagePtr disp_img,
                                FrustumCulling *frustum_left, FrustumCulling *frustum_right,
-                               CameraPose::Ptr current_pos, double stereoscan_threshold);
+                               CameraPose::Ptr current_pos, double stereoscan_threshold,
+                               unsigned int log_data[]);
 };
 
 void downsampleCloud(PointCloudPtr cloud, double voxelLeafSize);
