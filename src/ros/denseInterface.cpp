@@ -48,6 +48,8 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     nhp.param<double>("refinement_linear_threshold", refinement_linear_threshold_, 0);
     nhp.param<double>("refinement_angular_threshold", refinement_angular_threshold_, 0);
 
+    nhp.param<std::string>("output_dir", output_dir_, "clouds");
+
     /* Single mode: Load and publish pointcloud, then exit */
     nhp.param<std::string>("single_cloud_path", single_cloud_path_, "");
 
@@ -136,14 +138,14 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
 dense::denseInterface::~denseInterface()
 {
     std::cout << "Starting DENSE node cleanup..." << std::endl;
-    this->dense_->point_clouds_->save_all();
+    this->dense_->point_clouds_->save_all(dense_->output_dir_.c_str());
     std::cout << "Done!" << std::endl;
     ros::Duration(1.0).sleep();
 }
 
 void dense::denseInterface::cb_save_cloud(const std_msgs::Empty& dummy)
 {
-    dense_->point_clouds_->save_all();
+    dense_->point_clouds_->save_all(dense_->output_dir_.c_str());
 }
 
 void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path)
@@ -193,7 +195,7 @@ void dense::denseInterface::cb_images(
 
     if (!dense_)
         dense_ = new Dense(left_info, right_info, frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_,
-                           filter_meanK_, filter_stddev_, disp_calc_method_, filter_radius_, filter_minneighbours_,
+                           filter_meanK_, filter_stddev_, output_dir_, disp_calc_method_, filter_radius_, filter_minneighbours_,
                            max_distance_, stereoscan_threshold_, local_area_size_, libelas_ipol_gap_, add_corners_,
                            sigma_, refinement_linear_threshold_, refinement_angular_threshold_);
 

@@ -48,7 +48,7 @@ void RefinementThread::compute()
                 if (linear_dist > dense_->refinement_linear_threshold_ ||
                     angular_dist > dense_->refinement_angular_threshold_) {
                     if (it.second->get_state() == PointCloudEntry::GLOBAL_MAP_SWAP) {
-                        it.second->load_cloud();
+                        it.second->load_cloud(dense_->output_dir_.c_str());
                         ROS_INFO("Refinement seq = %u cloud to RAM", it.second->get_seq());
                         it.second->set_state(PointCloudEntry::GLOBAL_MAP_RAM);
                     }
@@ -66,7 +66,7 @@ void RefinementThread::compute()
             }
 
             if (it.second->get_state() == PointCloudEntry::GLOBAL_MAP_RAM) {
-                it.second->save_cloud();
+                it.second->save_cloud(dense_->output_dir_.c_str());
                 it.second->set_state(PointCloudEntry::GLOBAL_MAP_SWAP);
                 ROS_INFO("Refinement seq = %u cloud SWAPPED", it.second->get_seq());
             }

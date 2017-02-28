@@ -13,18 +13,18 @@ PointCloudEntry::PointCloudEntry(uint32_t seq)
 PointCloudEntry::~PointCloudEntry()
 {}
 
-int PointCloudEntry::save_cloud()
+int PointCloudEntry::save_cloud(const char *output_dir)
 {
     char filename[128];
 
     if (this->get_cloud() == nullptr || this->get_cloud()->size() == 0)
         return -1;
 
-    sprintf(filename, "clouds/cloud_%06u.pcd", this->get_seq());
+    sprintf(filename, "%s/cloud_%06u.pcd", output_dir, this->get_seq());
     pcl::io::savePCDFileBinary(filename, *this->get_cloud());
     this->set_cloud(nullptr);
 
-    sprintf(filename, "clouds/cloud_%06u.txt", this->get_seq());
+    sprintf(filename, "%s/cloud_%06u.txt", output_dir, this->get_seq());
     CameraPose::Ptr current_pose = this->get_current_pos();
     if (current_pose->save(filename) < 0)
         return -1;
@@ -32,12 +32,12 @@ int PointCloudEntry::save_cloud()
     return 0;
 }
 
-int PointCloudEntry::load_cloud()
+int PointCloudEntry::load_cloud(const char *output_dir)
 {
     PointCloudPtr cloud(new PointCloud);
     char filename[128];
 
-    sprintf(filename, "clouds/cloud_%06u.pcd", this->get_seq());
+    sprintf(filename, "%s/cloud_%06u.pcd", output_dir, this->get_seq());
     if (pcl::io::loadPCDFile(filename, *cloud) < 0)
         return -1;
 
@@ -78,10 +78,10 @@ uint32_t PointCloudQueue::get_local_area_seq()
         return 0;
 }
 
-void PointCloudQueue::save_all()
+void PointCloudQueue::save_all(const char *output_dir)
 {
     for (auto& it : entries_) {
-        if (it.second != nullptr && it.second->save_cloud() == 0)
+        if (it.second != nullptr && it.second->save_cloud(output_dir) == 0)
             std::cout << "Saved cloud seq " << it.second->get_seq() << std::endl;
     }
 }

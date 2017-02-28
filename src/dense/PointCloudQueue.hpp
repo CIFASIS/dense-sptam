@@ -32,8 +32,8 @@ public:
     PointCloudEntry(uint32_t seq);
     ~PointCloudEntry();
 
-    int save_cloud();
-    int load_cloud();
+    int save_cloud(const char *output_dir);
+    int load_cloud(const char *output_dir);
 
     inline uint32_t get_seq()
     { return seq_; }
@@ -99,7 +99,7 @@ public:
 
     size_t size();
 
-    void save_all();
+    void save_all(const char *output_dir);
     void push_local_area(PointCloudEntry::Ptr entry);
     uint32_t get_local_area_seq();
     void get_local_area_cloud(double pub_area_filter_min, PointCloudPtr ret_good, PointCloudPtr ret_bad);
