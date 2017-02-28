@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import operator
 import os
+import pickle
 
 def simplePlot(data):
 	plt.plot(data)
@@ -115,6 +116,17 @@ def genSpectrum(N):
 		ax.set_yticks([])
 	plt.savefig('spectrum.png')
 
+def addToDiffList(diffList, newList, step, maxdiff):
+	limit = int(MAXDIFF / STEP)
+	for i in newList:
+		if (i < 0):
+			continue;
+		pos = int(i / step)
+		if (pos > limit):
+			pos = limit
+		diffList[pos] = diffList[pos] + 1
+	return diffList
+
 class DepthMap:
 
 	def __init__(self, filename):
@@ -155,34 +167,54 @@ if (args.gen_spectrum):
 	genSpectrum(int(args.gen_spectrum))
 	exit(0)
 
-diff_list = []
+# Output log
+logfile = open("output.log", "w")
+logfile.write("filename,total,valid dense, valid gt, filtered dense, filtered gt, valid absdiff\n")
+
+# Calculate absolute differences with 0.1m of step and a maximum of 100m
+MAXDIFF = 100.0
+STEP = 0.1
+diff_list = [0] * int(MAXDIFF / STEP)
 for f in os.listdir(args.dmap_dense):
 	if f.endswith(".dmap"):
-		log_entry = [('filename', f)]
+		# log filename
+		logfile.write(f + ',')
 
 		dmap_dense = DepthMap(args.dmap_dense + '/' + f)
 		dmap_gt = DepthMap(args.dmap_gt + '/' + f)
 
-		log_entry.append(('total pixels', dmap_dense.height * dmap_dense.width))
-		log_entry.append(('valid dense,gt', countValid(dmap_dense.body), countValid(dmap_gt.body)))
+		# log total pixels
+		logfile.write(str(dmap_dense.height * dmap_dense.width) + ',')
+		# log valid pixels
+		logfile.write(str(countValid(dmap_dense.body)) + ',')
+		logfile.write(str(countValid(dmap_gt.body)) + ',')
 
 		if (max_dist):
 			dmap_dense.body = filterList(dmap_dense.body, max_dist)
 			dmap_gt.body = filterList(dmap_gt.body, max_dist)
 
-		log_entry.append(('valid filtered', countValid(dmap_dense.body), countValid(dmap_gt.body)))
+		# log valid pixels after filtering
+		logfile.write(str(countValid(dmap_dense.body)) + ',')
+		logfile.write(str(countValid(dmap_gt.body)) + ',')
 
 		absdiff_list = absoluteDiffList(dmap_dense.body, dmap_gt.body)
 
-		log_entry.append(('valid absdiff', countValid(absdiff_list)))
+		# log absolute difference valid pixels
+		logfile.write(str(countValid(absdiff_list)) + ',')
 
-		output_file = os.path.splitext(f)[0] + '_absdiff.png'
-		dmap_diff_arr = listToArray(absdiff_list, dmap_dense.height, dmap_dense.width)
-
-		plotSaveImage(output_file, doColorArray(dmap_diff_arr, max_colors));
+		#output_file = os.path.splitext(f)[0] + '_absdiff.png'
+		#dmap_diff_arr = listToArray(absdiff_list, dmap_dense.height, dmap_dense.width)
+		#plotSaveImage(output_file, doColorArray(dmap_diff_arr, max_colors));
 		#saveImage(output_file, doColorArray(dmap_diff_arr, max_colors))
 
-		print(log_entry)
+		diff_list = addToDiffList(diff_list, absdiff_list, STEP, MAXDIFF)
+		logfile.write('\n')
+		print("Processed: " + f)
 
-histogramPlot(diff_list, 100)
+diff_list_file = open('diff_list.txt', 'w')
+for item in diff_list:
+	diff_list_file.write("%s," % item)
+diff_list_file.close()
 
+#histogramPlot(reduce(operator.add, diff_list), 100)
+logfile.close()
