@@ -54,16 +54,16 @@ for line in logfile.readlines():
 		task_count[TASK_REFINEMENT] += 1
 		task_time[TASK_REFINEMENT] += time
 
-assert(task_count[1] == task_count[2])
+assert(task_count[TASK_STEREOSCAN] == task_count[TASK_PROJECTION])
 
-task_time_mean = map(lambda (x, y): y / x, zip(task_count, task_time))
+task_time_mean = map(lambda (x, y): (y / x) * 1000, zip(task_count, task_time))
 
 print("Keyframes processed per phase")
-print(task_count[0], task_count[1], task_count[3])
+print(task_count[TASK_DISPARITY], task_count[TASK_STEREOSCAN], task_count[TASK_REFINEMENT])
 
 print("Mean time per phase")
-print(task_time_mean[0], task_time_mean[1] + task_time_mean[2], task_time_mean[3])
+print(task_time_mean[TASK_DISPARITY], task_time_mean[TASK_STEREOSCAN] + task_time_mean[TASK_PROJECTION], task_time_mean[TASK_REFINEMENT])
 
 print("Stereo scan points")
-print(stereoscan_points)
+print(stereoscan_points[STEREOSCAN_MATCH], stereoscan_points[STEREOSCAN_OUTLIER])
 
