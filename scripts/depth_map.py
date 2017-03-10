@@ -175,8 +175,11 @@ logfile.write("filename,total,valid dense, valid gt, filtered dense, filtered gt
 MAXDIFF = 100.0
 STEP = 0.1
 diff_list = [0] * int(MAXDIFF / STEP)
+
+files_count = 0
+files_total = len(os.listdir(args.dmap_dense))
 for f in os.listdir(args.dmap_dense):
-	if f.endswith(".dmap"):
+	if f.endswith(".dmap") and os.path.isfile(args.dmap_gt + '/' + f):
 		# log filename
 		logfile.write(f + ',')
 
@@ -209,7 +212,9 @@ for f in os.listdir(args.dmap_dense):
 
 		diff_list = addToDiffList(diff_list, absdiff_list, STEP, MAXDIFF)
 		logfile.write('\n')
-		print("Processed: " + f)
+
+		files_count += 1
+		print("Processed: " + f + " - " + str(files_count) + "/" + str(files_total))
 
 diff_list_file = open('diff_list.txt', 'w')
 for item in diff_list:
