@@ -30,14 +30,14 @@ find_package(PkgConfig)
 pkg_check_modules(YamlCpp yaml-cpp)
 
 # Find OpenCV library
-#FIND_PACKAGE(OpenCV REQUIRED) # OpenCV 3
-FIND_PACKAGE(OpenCV 2 REQUIRED) # OpenCV 2
+FIND_PACKAGE(OpenCV REQUIRED) # OpenCV 3
+#FIND_PACKAGE(OpenCV 2 REQUIRED) # OpenCV 2
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 message(${OpenCV_LIBRARIES})
 
 # Find PCL library
-find_package(PCL 1.8 REQUIRED)
+find_package(PCL REQUIRED)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})

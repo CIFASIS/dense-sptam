@@ -10,7 +10,7 @@
 #include "../libelas/src/elas.h"
 #include "../libelas/src/image.h"
 #include "dense.hpp"
-#include "../../../sptam/src/sptam/utils/Time.hpp"
+#include "../utils/Time.hpp"
 
 DisparityCalcThread::DisparityCalcThread(Dense *dense)
   : dense_(dense)
@@ -29,7 +29,7 @@ void DisparityCalcThread::compute()
 
 void DisparityCalcThread::computeCV()
 {
-    cv::StereoBM stereo(cv::StereoBM::BASIC_PRESET);
+    cv::Ptr<cv::StereoBM> stereo = cv::StereoBM::create();
     ImagePairPtr raw_image_pair;
     ImagePtr raw_left_image, raw_right_image;
     cv::Mat image_left, image_right, dmat;
@@ -50,7 +50,7 @@ void DisparityCalcThread::computeCV()
         image_left = cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::MONO8)->image;
         image_right = cv_bridge::toCvCopy(raw_right_image, sensor_msgs::image_encodings::MONO8)->image;
 
-        stereo(image_left, image_right, dmat, CV_32F);
+        stereo->compute(image_left, image_right, dmat);
 
         disp_img = boost::make_shared<DispImage>(dmat);
         disp_raw_img = boost::make_shared<DispRawImage>(raw_left_image, disp_img);

@@ -8,7 +8,7 @@
 #include <pcl/filters/conditional_removal.h>
 
 #include "dense.hpp"
-#include "../../../sptam/src/sptam/utils/Time.hpp"
+#include "../utils/Time.hpp"
 
 ProjectionThread::ProjectionThread(Dense *dense)
   : dense_(dense)
@@ -140,7 +140,7 @@ bool ProjectionThread::isValidPoint(const cv::Vec3f& pt)
      * Check both for disparities explicitly marked as invalid (where OpenCV maps pt.z to MISSING_Z)
      * and zero disparities (point mapped to infinity).
      */
-    return pt[2] != MY_MISSING_Z && !isinf(pt[2]);
+    return pt[2] != MY_MISSING_Z && !std::isinf(pt[2]);
 }
 
 PointCloudPtr ProjectionThread::my_generateCloud(DispRawImagePtr disp_raw_img)

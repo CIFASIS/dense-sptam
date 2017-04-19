@@ -1,7 +1,7 @@
 #include "RefinementThread.hpp"
 
 #include "dense.hpp"
-#include "../../../sptam/src/sptam/utils/Time.hpp"
+#include "../utils/Time.hpp"
 
 RefinementThread::RefinementThread(Dense *dense)
   : dense_(dense)
