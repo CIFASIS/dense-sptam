@@ -24,8 +24,7 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     /* Parameters */
     bool use_approx_sync;
     nhp.param<bool>("approximate_sync", use_approx_sync, false);
-    nhp.param<std::string>("odom_frame", odom_frame_, "odom");
-    nhp.param<std::string>("base_link_frame", base_frame_, "base_link");
+    nhp.param<std::string>("base_frame", base_frame_, "base_link");
     nhp.param<std::string>("camera_frame", camera_frame_, "camera");
     nhp.param<std::string>("map_frame", map_frame_, "map");
     nhp.param<double>("FrustumNearPlaneDist", frustumNearPlaneDist_, 0.1);

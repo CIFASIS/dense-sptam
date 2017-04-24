@@ -35,7 +35,7 @@ namespace dense
                        const sensor_msgs::ImageConstPtr& img_msg_right, const sensor_msgs::CameraInfoConstPtr& right_info);
 
         /* Parameters */
-        std::string odom_frame_, base_frame_, camera_frame_, map_frame_;
+        std::string base_frame_, camera_frame_, map_frame_;
         double frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_;
         double filter_meanK_, filter_stddev_, filter_radius_, filter_minneighbours_;
         double max_distance_, stereoscan_threshold_, sigma_;
