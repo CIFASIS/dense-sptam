@@ -35,7 +35,6 @@ void DisparityCalcThread::computeCV()
     cv::Mat image_left, image_right, dmat;
     DispRawImagePtr disp_raw_img;
     DispImagePtr disp_img;
-    char log_buffer[512];
 
     while(1) {
         /* Calls to pop() are blocking */
@@ -81,7 +80,6 @@ void DisparityCalcThread::computeELAS()
     DispRawImagePtr disp_raw_img;
     DispImagePtr disp_img;
     int32_t dims[3];
-    char log_buffer[512];
 
     float *D1_data = (float*)malloc(dense_->left_info_->width * dense_->left_info_->height * sizeof(float));
     float *D2_data = (float*)malloc(dense_->right_info_->width * dense_->right_info_->height * sizeof(float));

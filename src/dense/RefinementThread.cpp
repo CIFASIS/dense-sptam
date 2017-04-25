@@ -10,7 +10,6 @@ RefinementThread::RefinementThread(Dense *dense)
 
 void RefinementThread::compute()
 {
-    char log_buffer[512];
     double start_t, end_t;
 
     while(1) {

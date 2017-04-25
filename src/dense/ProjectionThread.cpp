@@ -17,7 +17,6 @@ ProjectionThread::ProjectionThread(Dense *dense)
 
 void ProjectionThread::compute()
 {
-    char log_buffer[512];
     unsigned int log_data[3];
     double time_t[3];
     int i;
@@ -259,8 +258,6 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
                                              CameraPose::Ptr current_pos, double stereoscan_threshold,
                                              unsigned int log_data[])
 {
-    char log_buffer[512];
-
     if (!stereoscan_threshold)
         return nullptr;
 
