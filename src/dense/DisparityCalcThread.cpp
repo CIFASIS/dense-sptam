@@ -60,8 +60,7 @@ void DisparityCalcThread::computeCV()
 
         end_t = GetSeg();
 
-        sprintf(log_buffer, "disparity,%u,%f\n", raw_left_image->header.seq, end_t - start_t);
-        dense_->WriteToLog(log_buffer);
+        dense_->WriteToLog("disparity,%u,%f\n", raw_left_image->header.seq, end_t - start_t);
         ROS_INFO("Disparity  seq = %u (%f secs)", raw_left_image->header.seq, end_t - start_t);
 
 #if 0 /* Save disparity images */
@@ -122,8 +121,7 @@ void DisparityCalcThread::computeELAS()
 
         end_t = GetSeg();
 
-        sprintf(log_buffer, "disparity,%u,%f\n", raw_left_image->header.seq, end_t - start_t);
-        dense_->WriteToLog(log_buffer);
+        dense_->WriteToLog("disparity,%u,%f\n", raw_left_image->header.seq, end_t - start_t);
         ROS_INFO("Disparity  seq = %u (%f secs)", raw_left_image->header.seq, end_t - start_t);
 
 #if 0 /* Save disparity images */

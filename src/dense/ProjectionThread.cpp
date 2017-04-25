@@ -75,9 +75,8 @@ void ProjectionThread::compute()
 
         time_t[1] = GetSeg();
 
-        sprintf(log_buffer, "stereoscan,%u,%f,%u,%u,%u\n", entry->get_seq(),
-                time_t[1] - time_t[0], log_data[0], log_data[1], log_data[2]);
-        dense_->WriteToLog(log_buffer);
+        dense_->WriteToLog("stereoscan,%u,%f,%u,%u,%u\n", entry->get_seq(),
+                           time_t[1] - time_t[0], log_data[0], log_data[1], log_data[2]);
 
         filterDisp(disp_raw_img);
         PointCloudPtr cloud = my_generateCloud(disp_raw_img);
@@ -93,8 +92,7 @@ void ProjectionThread::compute()
         dense_->point_clouds_->push_local_area(entry);
         entry->unlock();
 
-        sprintf(log_buffer, "projection,%u,%f\n", entry->get_seq(), time_t[2] - time_t[1]);
-        dense_->WriteToLog(log_buffer);
+        dense_->WriteToLog("projection,%u,%f\n", entry->get_seq(), time_t[2] - time_t[1]);
         ROS_INFO("Projected seq %u (size = %lu, time = %f)", entry->get_seq(), cloud->size(),
                  time_t[2] - time_t[0]);
     }

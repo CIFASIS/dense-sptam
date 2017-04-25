@@ -20,7 +20,7 @@ public:
     );
     ~Dense();
 
-    void WriteToLog(char *log);
+    void WriteToLog(const char* fmt, ...);
 
     const sensor_msgs::CameraInfoConstPtr left_info_, right_info_;
     double frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_;

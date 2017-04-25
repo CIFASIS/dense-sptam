@@ -57,8 +57,7 @@ void RefinementThread::compute()
                     it.second->set_cloud(cloud);
 
                     end_t = GetSeg();
-                    sprintf(log_buffer, "refinement,%u,%f\n", it.second->get_seq(), end_t - start_t);
-                    dense_->WriteToLog(log_buffer);
+                    dense_->WriteToLog("refinement,%u,%f\n", it.second->get_seq(), end_t - start_t);
                     ROS_INFO("Refinement seq = %u cloud REFINED (distance = %f, quaternion = %f)",
                              it.second->get_seq(), current_pose->distance(*update_pose),
                              current_pose->get_orientation().angularDistance(update_pose->get_orientation()));

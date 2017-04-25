@@ -44,7 +44,11 @@ Dense::~Dense()
     fclose(log_file_);
 }
 
-void Dense::WriteToLog(char *log)
+void Dense::WriteToLog(const char* fmt, ...)
 {
-    fprintf(log_file_, log);
+    va_list args;
+
+    va_start(args, fmt);
+    vfprintf(log_file_, fmt, args);
+    va_end(args);
 }
