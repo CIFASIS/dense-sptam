@@ -40,9 +40,6 @@ private:
 
     void cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos);
 
-    void statisticalFilterCloud(PointCloudPtr cloud, double filter_meanK, double filter_stddev);
-    void radiusFilterCloud(PointCloudPtr cloud, double filter_radius, double filter_minneighbours);
-
     PointCloudPtr doStereoscan(PointCloudPtr last_cloud, DispImagePtr disp_img,
                                FrustumCulling *frustum_left, FrustumCulling *frustum_right,
                                CameraPose::Ptr current_pos, double stereoscan_threshold,

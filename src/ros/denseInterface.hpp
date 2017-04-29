@@ -37,7 +37,6 @@ namespace dense
         /* Parameters */
         std::string base_frame_, camera_frame_, map_frame_;
         double frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_;
-        double filter_meanK_, filter_stddev_, filter_radius_, filter_minneighbours_;
         double max_distance_, stereoscan_threshold_, sigma_;
         std::string disp_calc_method_;
         int local_area_size_, libelas_ipol_gap_;

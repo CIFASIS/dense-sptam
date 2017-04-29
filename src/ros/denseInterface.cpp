@@ -31,10 +31,6 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     nhp.param<double>("FrustumFarPlaneDist", frustumFarPlaneDist_, 1000.0);
     nhp.param<std::string>("disp_calc_method", disp_calc_method_, "opencv");
     nhp.param<double>("VoxelLeafSize", voxelLeafSize_, 0);
-    nhp.param<double>("filter_meanK", filter_meanK_, 0);
-    nhp.param<double>("filter_stddev", filter_stddev_, 0);
-    nhp.param<double>("filter_radius", filter_radius_, 0);
-    nhp.param<double>("filter_minneighbours", filter_minneighbours_, 0);
     nhp.param<double>("max_distance", max_distance_, 0);
     nhp.param<double>("stereoscan_threshold", stereoscan_threshold_, 0);
     nhp.param<int>("local_area_size", local_area_size_, 1);
@@ -194,7 +190,7 @@ void dense::denseInterface::cb_images(
 
     if (!dense_)
         dense_ = new Dense(left_info, right_info, frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_,
-                           filter_meanK_, filter_stddev_, output_dir_, disp_calc_method_, filter_radius_, filter_minneighbours_,
+                           output_dir_, disp_calc_method_,
                            max_distance_, stereoscan_threshold_, local_area_size_, libelas_ipol_gap_, add_corners_,
                            sigma_, refinement_linear_threshold_, refinement_angular_threshold_);
 

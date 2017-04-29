@@ -2,8 +2,8 @@
 
 Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
              double frustumNearPlaneDist, double frustumFarPlaneDist, double voxelLeafSize,
-             double filter_meanK, double filter_stddev, std::string output_dir, std::string disp_calc_method,
-             double filter_radius, double filter_minneighbours, double max_distance, double stereoscan_threshold,
+             std::string output_dir, std::string disp_calc_method,
+             double max_distance, double stereoscan_threshold,
              int local_area_size, int libelas_ipol_gap, bool add_corners, double sigma,
              double refinement_linear_threshold, double refinement_angular_threshold)
   : left_info_(left_info)
@@ -11,12 +11,8 @@ Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs
   , frustumNearPlaneDist_(frustumNearPlaneDist)
   , frustumFarPlaneDist_(frustumFarPlaneDist)
   , voxelLeafSize_(voxelLeafSize)
-  , filter_meanK_(filter_meanK)
-  , filter_stddev_(filter_stddev)
   , output_dir_(output_dir)
   , disp_calc_method_(disp_calc_method)
-  , filter_radius_(filter_radius)
-  , filter_minneighbours_(filter_minneighbours)
   , max_distance_(max_distance)
   , stereoscan_threshold_(stereoscan_threshold)
   , local_area_size_(local_area_size)

@@ -3,9 +3,6 @@
 #include <cv_bridge/cv_bridge.h>
 #include <pcl/point_types.h>
 #include <pcl/filters/voxel_grid.h>
-#include <pcl/filters/statistical_outlier_removal.h>
-#include <pcl/filters/radius_outlier_removal.h>
-#include <pcl/filters/conditional_removal.h>
 
 #include "dense.hpp"
 #include "../utils/Time.hpp"
@@ -82,8 +79,6 @@ void ProjectionThread::compute()
         cameraToWorld(cloud, pose_left);
 
         //downsampleCloud(cloud, dense_->voxelLeafSize_);
-        //statisticalFilterCloud(cloud, dense_->filter_meanK_, dense_->filter_stddev_);
-        //radiusFilterCloud(cloud, dense_->filter_radius_, dense_->filter_minneighbours_);
 
         time_t[2] = GetSeg();
         entry->lock();
@@ -225,32 +220,6 @@ void ProjectionThread::cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr curren
         it.y = pos(1);
         it.z = pos(2);
     }
-}
-
-void ProjectionThread::statisticalFilterCloud(PointCloudPtr cloud, double filter_meanK, double filter_stddev)
-{
-    if (!filter_meanK || !filter_stddev)
-        return;
-
-    pcl::StatisticalOutlierRemoval<Point> sor;
-
-    sor.setInputCloud(cloud);
-    sor.setMeanK(filter_meanK);
-    sor.setStddevMulThresh(filter_stddev);
-    sor.filter(*cloud);
-}
-
-void ProjectionThread::radiusFilterCloud(PointCloudPtr cloud, double filter_radius, double filter_minneighbours)
-{
-    if (!filter_radius || !filter_minneighbours)
-        return;
-
-    pcl::RadiusOutlierRemoval<Point> outrem;
-    outrem.setInputCloud(cloud);
-    outrem.setRadiusSearch(filter_radius);
-    outrem.setMinNeighborsInRadius(filter_minneighbours);
-    outrem.filter(*cloud);
-
 }
 
 PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImagePtr disp_img,
