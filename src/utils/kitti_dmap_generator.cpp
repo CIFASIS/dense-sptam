@@ -1,6 +1,88 @@
 #include "kitti_dmap.hpp"
+#include "ProgramOptions.hpp"
+#include <yaml-cpp/yaml.h>
 
-int main(){
+
+template<typename T>
+void loadParameter(const YAML::Node& config, const std::string key, T& ret, const T& default_value)
+{
+  try {
+    ret = config[ key ].as<T>();
+  } catch(YAML::KeyNotFound& e) {
+    ret = default_value;
+  }
+}
+
+
+int main(int argc, char* argv[]){
+
+
+  std::string parametersFileYML, posesFile, pcdPath;
+
+
+  // cargar parametros
+  ProgramOptions program_options( argv[0] );
+
+  program_options.addPositionalArgument("configuration", "configuration file with all the parameters.", parametersFileYML);
+  program_options.addPositionalArgument("poses", "poses file", posesFile);
+  program_options.addPositionalArgument("pcd_dir", "pcd directory path", pcdPath);
+
+  /** Parse the program options */
+
+  try
+  {
+    // may throw
+    program_options.parse( argc, argv );
+
+    // if count 'help' show help and exit
+    if (program_options.count("help") ) {
+      std::cerr << program_options << std::endl;
+      return 0;
+    }
+
+    // throws on error, so do after help in case there are any problems.
+    program_options.notify();
+  }
+  catch(boost::program_options::error& e)
+  {
+    std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
+    std::cerr << program_options << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  /** Load program parameters from configuration file */
+
+  try
+  {
+    YAML::Node config = YAML::LoadFile( parametersFileYML );
+
+//    loadParameter(config, "FrustumNearPlaneDist", frustum_near_plane_distance_, 0.1);
+//    loadParameter(config, "FrustumFarPlaneDist", frustum_far_plane_distance_, 1000.0);
+
+//    for (auto it : config)
+//    {
+//      std::string key = it.first.as<std::string>();
+//      if (key == "MatchingCellSize") sptam_params.matchingCellSize = it.second.as<size_t>();
+//      else if (key == "MatchingNeighborhood") sptam_params.matchingNeighborhoodThreshold = it.second.as<size_t>();
+//      else if (key == "MatchingDistance") sptam_params.matchingDistanceThreshold = it.second.as<double>();
+//      else if (key == "EpipolarDistance") sptam_params.epipolarDistanceThreshold = it.second.as<size_t>();
+//      else if (key == "BundleAdjustmentActiveKeyframes") sptam_params.nKeyFramesToAdjustByLocal = it.second.as<size_t>();
+//      else if (key == "maxIterationsLocal") sptam_params.maxIterationsLocal = it.second.as<size_t>();
+//      else if (key == "minimumTrackedPointsRatio") sptam_params.minimumTrackedPointsRatio = it.second.as<double>();
+//    }
+  }
+  catch(YAML::BadFile& e)
+  {
+    std::cerr << "Could not open configuration file " << parametersFileYML << std::endl;
+    return EXIT_FAILURE;
+  }
+  catch(YAML::ParserException& e)
+  {
+    std::cerr << "Could not parse configuration file " << parametersFileYML << ". " << e.what() << std::endl;
+    return EXIT_FAILURE;
+  }
+
+
 
 
   std::string single_depth_map_poses;
