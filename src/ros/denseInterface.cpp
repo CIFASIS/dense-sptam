@@ -5,7 +5,7 @@
 #include <pcl/io/ply_io.h>
 
 #include "denseInterface.hpp"
-#include "../dense/kitti_ground_truth.hpp"
+#include "../utils/kitti_dmap.hpp"
 
 namespace std
 {

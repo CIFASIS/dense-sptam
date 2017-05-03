@@ -17,3 +17,9 @@ add_executable(tsukuba_ground_truth tsukuba_ground_truth.cpp)
 target_link_libraries(tsukuba_ground_truth ${DENSE_LIBRARIES})
 add_executable(depth_maps_comparision depth_maps_comparision.cpp)
 target_link_libraries(depth_maps_comparision ${DENSE_LIBRARIES})
+
+
+# Build kitti_dmap_generator
+FILE(GLOB KITTI_DMAP_GENERATOR_SRCS kitti_dmap_generator.cpp kitti_dmap.cpp)
+add_executable(kitti_dmap_generator ${KITTI_DMAP_GENERATOR_SRCS})
+target_link_libraries(kitti_dmap_generator dense ${OpenCV_LIBRARIES} ${Boost_LIBRARIES} ${PCL_LIBRARIES} ${catkin_LIBRARIES})

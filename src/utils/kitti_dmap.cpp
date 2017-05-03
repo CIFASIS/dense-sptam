@@ -1,6 +1,4 @@
-#include "kitti_ground_truth.hpp"
-#include "../dense/Camera.hpp"
-#include "../dense/DisparityCalcThread.hpp"
+#include "kitti_dmap.hpp"
 
 using namespace std;
 
@@ -330,3 +328,6 @@ void saveDepthImage(float *disp_data, int img_height, int img_width, const char 
 
     fclose(fp);
 }
+
+
+
