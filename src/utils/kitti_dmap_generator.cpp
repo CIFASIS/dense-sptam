@@ -52,38 +52,6 @@ int main(int argc, char* argv[]){
 
   /** Load program parameters from configuration file */
 
-  try
-  {
-    YAML::Node config = YAML::LoadFile( parametersFileYML );
-
-//    loadParameter(config, "FrustumNearPlaneDist", frustum_near_plane_distance_, 0.1);
-//    loadParameter(config, "FrustumFarPlaneDist", frustum_far_plane_distance_, 1000.0);
-
-//    for (auto it : config)
-//    {
-//      std::string key = it.first.as<std::string>();
-//      if (key == "MatchingCellSize") sptam_params.matchingCellSize = it.second.as<size_t>();
-//      else if (key == "MatchingNeighborhood") sptam_params.matchingNeighborhoodThreshold = it.second.as<size_t>();
-//      else if (key == "MatchingDistance") sptam_params.matchingDistanceThreshold = it.second.as<double>();
-//      else if (key == "EpipolarDistance") sptam_params.epipolarDistanceThreshold = it.second.as<size_t>();
-//      else if (key == "BundleAdjustmentActiveKeyframes") sptam_params.nKeyFramesToAdjustByLocal = it.second.as<size_t>();
-//      else if (key == "maxIterationsLocal") sptam_params.maxIterationsLocal = it.second.as<size_t>();
-//      else if (key == "minimumTrackedPointsRatio") sptam_params.minimumTrackedPointsRatio = it.second.as<double>();
-//    }
-  }
-  catch(YAML::BadFile& e)
-  {
-    std::cerr << "Could not open configuration file " << parametersFileYML << std::endl;
-    return EXIT_FAILURE;
-  }
-  catch(YAML::ParserException& e)
-  {
-    std::cerr << "Could not parse configuration file " << parametersFileYML << ". " << e.what() << std::endl;
-    return EXIT_FAILURE;
-  }
-
-
-
 
   std::string single_depth_map_poses;
   std::string single_depth_map_clouds;
@@ -109,6 +77,33 @@ int main(int argc, char* argv[]){
   double sigma;
   double refinement_linear_threshold;
   double refinement_angular_threshold;
+
+
+  try
+  {
+    YAML::Node config = YAML::LoadFile( parametersFileYML );
+
+    for (auto it : config)
+    {
+      std::string key = it.first.as<std::string>();
+      if (key == "FrustumNearPlaneDist") frustumNearPlaneDist = it.second.as<double>();
+//      else if (key == "frustumFarPlaneDist") frustumFarPlaneDist = it.second.as<double>();
+//      else if (key == "voxelLeafSize") voxelLeafSize = it.second.as<double>();
+//      else if (key == "filter_meanK") filter_meanK = it.second.as<double>();
+//      else if (key == "filter_stddev") filter_stddev = it.second.as<double>();
+    }
+  }
+  catch(YAML::BadFile& e)
+  {
+    std::cerr << "Could not open configuration file " << parametersFileYML << std::endl;
+    return EXIT_FAILURE;
+  }
+  catch(YAML::ParserException& e)
+  {
+    std::cerr << "Could not parse configuration file " << parametersFileYML << ". " << e.what() << std::endl;
+    return EXIT_FAILURE;
+  }
+
 
 
   Dense *dense = new Dense( left_info, right_info,

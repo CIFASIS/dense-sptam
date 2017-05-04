@@ -76,7 +76,6 @@ std::ostream& operator << ( std::ostream& os, const ProgramOptions& program_opti
 
 
   os << "configuration file is a YML file" << std::endl;
-  os << "image source must be passed in this way: path_to_image_directory" << std::endl;
 
   os << std::endl << std::endl;
 
