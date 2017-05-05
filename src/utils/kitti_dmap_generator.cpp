@@ -61,8 +61,6 @@ int main(int argc, char* argv[]){
   size_t single_depth_map_region_size;
   double pub_area_filter_min;
 
-  const sensor_msgs::CameraInfoConstPtr left_info;
-  const sensor_msgs::CameraInfoConstPtr right_info;
   double frustumNearPlaneDist;
   double frustumFarPlaneDist;
   double voxelLeafSize;
@@ -139,6 +137,35 @@ int main(int argc, char* argv[]){
     std::cerr << "Could not parse configuration file " << parametersFileYML << ". " << e.what() << std::endl;
     return EXIT_FAILURE;
   }
+
+  // Create CameraInfo messages
+  sensor_msgs::CameraInfoConstPtr left_info( new sensor_msgs::CameraInfo() );
+  sensor_msgs::CameraInfoConstPtr right_info( new sensor_msgs::CameraInfo() );
+
+  std::cout << "left_info->header.seq: " << left_info->header.seq << std::endl;
+
+//  left_info->header.seq = 0;
+//  left_info->header.stamp.sec = 0;
+//  left_info->header.stamp.nsec = 0;
+//  left_info->header.frame_id = "stereo";
+//  left_info->height =;
+//  left_info->width = ;
+//  left_info->K = ;
+//  left_info->R = ;
+//  left_info->P = ;
+//  left_info->binning_x = ;
+//  left_info->binning_y = ;
+//  left_info->roi = ;
+
+
+//  right_info->header.seq = 0;
+//  right_info->header.stamp.sec = 0;
+//  right_info->header.stamp.nsec = 0;
+//  right_info->header.frame_id = "stereo";
+
+
+
+
 
 
   // create Dense instance
