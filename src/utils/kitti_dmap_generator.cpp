@@ -17,7 +17,7 @@ void loadParameter(const YAML::Node& config, const std::string key, T& ret, cons
 int main(int argc, char* argv[]){
 
 
-  std::string parametersFileYML, posesFile, pcdPath;
+  std::string parametersFileYML, posesFile, pcdPath, output_path;
 
 
   // cargar parametros
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]){
 
   program_options.addPositionalArgument("configuration", "configuration file with all the parameters.", parametersFileYML);
   program_options.addPositionalArgument("poses", "poses file", posesFile);
-  program_options.addPositionalArgument("pcd_dir", "pcd directory path", pcdPath);
+  program_options.addPositionalArgument("pcd_path", "pcd directory path", pcdPath);
 
   /** Parse the program options */
 
@@ -50,11 +50,14 @@ int main(int argc, char* argv[]){
     return EXIT_FAILURE;
   }
 
+
+
+  std::cout << "Poses path: " << posesFile << std::endl;
+  std::cout << "pcd directory path: " << pcdPath << std::endl;
+
+
   /** Load program parameters from configuration file */
 
-
-  std::string single_depth_map_poses;
-  std::string single_depth_map_clouds;
   size_t single_depth_map_region_size;
   double pub_area_filter_min;
 
@@ -65,7 +68,6 @@ int main(int argc, char* argv[]){
   double voxelLeafSize;
   double filter_meanK;
   double filter_stddev;
-  std::string output_dir;
   std::string disp_calc_method;
   double filter_radius;
   double filter_minneighbours;
@@ -86,12 +88,46 @@ int main(int argc, char* argv[]){
     for (auto it : config)
     {
       std::string key = it.first.as<std::string>();
+      // Dense constructor parameters
       if (key == "FrustumNearPlaneDist") frustumNearPlaneDist = it.second.as<double>();
-//      else if (key == "frustumFarPlaneDist") frustumFarPlaneDist = it.second.as<double>();
-//      else if (key == "voxelLeafSize") voxelLeafSize = it.second.as<double>();
-//      else if (key == "filter_meanK") filter_meanK = it.second.as<double>();
-//      else if (key == "filter_stddev") filter_stddev = it.second.as<double>();
+      else if (key == "FrustumFarPlaneDist") frustumFarPlaneDist = it.second.as<double>();
+      else if (key == "VoxelLeafSize") voxelLeafSize = it.second.as<double>();
+      else if (key == "filter_meanK") filter_meanK = it.second.as<double>();
+      else if (key == "filter_stddev") filter_stddev = it.second.as<double>();
+      else if (key == "disp_calc_method") disp_calc_method = it.second.as<std::string>();
+      else if (key == "filter_radius") filter_radius = it.second.as<double>();
+      else if (key == "filter_minneighbours") filter_minneighbours = it.second.as<double>();
+      else if (key == "max_distance") max_distance = it.second.as<double>();
+      else if (key == "stereoscan_threshold") stereoscan_threshold = it.second.as<double>();
+      else if (key == "local_area_size") local_area_size = it.second.as<int>();
+      else if (key == "libelas_ipol_gap") libelas_ipol_gap = it.second.as<double>();
+      else if (key == "add_corners") add_corners = it.second.as<bool>();
+      else if (key == "sigma") sigma = it.second.as<double>();
+      else if (key == "refinement_linear_threshold") refinement_linear_threshold = it.second.as<double>();
+      else if (key == "refinement_angular_threshold") refinement_angular_threshold = it.second.as<double>();
+      // other parameters
+      else if (key == "single_depth_map_region_size") single_depth_map_region_size = it.second.as<int>();
+      else if (key == "pub_area_filter_min") pub_area_filter_min = it.second.as<double>();
     }
+
+    std::cout << "frustumNearPlaneDist: " << frustumNearPlaneDist << std::endl;
+    std::cout << "frustumFarPlaneDist: " << frustumFarPlaneDist << std::endl;
+    std::cout << "voxelLeafSize: " << voxelLeafSize << std::endl;
+    std::cout << "filter_meanK: " << filter_meanK << std::endl;
+    std::cout << "filter_stddev: " << filter_stddev << std::endl;
+    std::cout << "disp_calc_method: " << disp_calc_method << std::endl;
+    std::cout << "filter_radius: " << filter_radius << std::endl;
+    std::cout << "filter_minneighbours: " << filter_minneighbours << std::endl;
+    std::cout << "max_distance: " << max_distance << std::endl;
+    std::cout << "stereoscan_threshold: " << stereoscan_threshold << std::endl;
+    std::cout << "local_area_size: " << local_area_size << std::endl;
+    std::cout << "libelas_ipol_gap: " << libelas_ipol_gap << std::endl;
+    std::cout << "add_corners: " << add_corners << std::endl;
+    std::cout << "sigma: " << sigma << std::endl;
+    std::cout << "refinement_linear_threshold: " << refinement_linear_threshold << std::endl;
+    std::cout << "refinement_angular_threshold: " << refinement_angular_threshold << std::endl;
+    std::cout << "single_depth_map_region_size: " << single_depth_map_region_size << std::endl;
+    std::cout << "pub_area_filter_min: " << pub_area_filter_min << std::endl;
   }
   catch(YAML::BadFile& e)
   {
@@ -105,18 +141,18 @@ int main(int argc, char* argv[]){
   }
 
 
-
+  // create Dense instance
   Dense *dense = new Dense( left_info, right_info,
-                           frustumNearPlaneDist, frustumFarPlaneDist, voxelLeafSize,
-                           filter_meanK, filter_stddev, output_dir, disp_calc_method,
-                           filter_radius, filter_minneighbours, max_distance, stereoscan_threshold,
-                           local_area_size, libelas_ipol_gap, add_corners, sigma,
-                           refinement_linear_threshold, refinement_angular_threshold);
+                            frustumNearPlaneDist, frustumFarPlaneDist, voxelLeafSize,
+                            filter_meanK, filter_stddev, output_path, disp_calc_method,
+                            filter_radius, filter_minneighbours, max_distance, stereoscan_threshold,
+                            local_area_size, libelas_ipol_gap, add_corners, sigma,
+                            refinement_linear_threshold, refinement_angular_threshold );
 
-
-  generate_depth_maps_kitti_global(single_depth_map_poses.c_str(), single_depth_map_clouds.c_str(),
-                                   single_depth_map_clouds.c_str(), single_depth_map_region_size,
-                                   pub_area_filter_min, dense);
+  // generate depth maps (.dmap files)
+  generate_depth_maps_kitti_global( posesFile.c_str(), pcdPath.c_str(),
+                                    pcdPath.c_str(), single_depth_map_region_size,
+                                    pub_area_filter_min, dense );
 
 
   return 0;
