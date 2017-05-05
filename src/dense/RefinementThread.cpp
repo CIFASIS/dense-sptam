@@ -64,7 +64,7 @@ void RefinementThread::compute()
             }
 
             if (it.second->get_state() == PointCloudEntry::GLOBAL_MAP_RAM) {
-                it.second->save_cloud(dense_->output_dir_.c_str());
+                it.second->save_cloud(dense_->output_dir_.c_str(), dense_->point_clouds_->poses_);
                 it.second->set_state(PointCloudEntry::GLOBAL_MAP_SWAP);
                 ROS_INFO("Refinement seq = %u cloud SWAPPED", it.second->get_seq());
             }

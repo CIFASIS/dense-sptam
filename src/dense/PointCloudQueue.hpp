@@ -32,7 +32,7 @@ public:
     PointCloudEntry(uint32_t seq);
     ~PointCloudEntry();
 
-    int save_cloud(const char *output_dir);
+    int save_cloud(const char *output_dir, std::map<uint32_t, CameraPose::Ptr>& poses);
     int load_cloud(const char *output_dir);
 
     inline uint32_t get_seq()
@@ -99,12 +99,15 @@ public:
 
     size_t size();
 
+    void generate_poses_txt(const char *output_dir);
     void save_all(const char *output_dir);
     void push_local_area(PointCloudEntry::Ptr entry);
     uint32_t get_local_area_seq();
     void get_local_area_cloud(double pub_area_filter_min, PointCloudPtr ret_good, PointCloudPtr ret_bad);
 
     std::unordered_map<uint32_t, PointCloudEntry::Ptr> entries_;
+    std::map<uint32_t, CameraPose::Ptr> poses_;
+
 
     PointCloudEntry::Ptr getEntry(uint32_t seq_, bool force = true);
     std::vector<PointCloudEntry::Ptr> local_area_queue_;

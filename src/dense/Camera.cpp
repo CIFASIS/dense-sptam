@@ -95,10 +95,10 @@ CameraPose CameraPose::applyTransform(TransformPtr base_to_camera)
     return CameraPose(position, orientation_);
 }
 
-int CameraPose::save(const char *filename)
+int CameraPose::save(const char *filename, const char *mode)
 {
     FILE *f;
-    f = fopen(filename, "w+");
+    f = fopen(filename, mode);
     if (!f) {
         ROS_INFO("%m");
         return -1;

@@ -13,7 +13,7 @@ PointCloudEntry::PointCloudEntry(uint32_t seq)
 PointCloudEntry::~PointCloudEntry()
 {}
 
-int PointCloudEntry::save_cloud(const char *output_dir)
+int PointCloudEntry::save_cloud(const char *output_dir, std::map<uint32_t, CameraPose::Ptr>& poses)
 {
     char filename[128];
 
@@ -28,6 +28,9 @@ int PointCloudEntry::save_cloud(const char *output_dir)
     CameraPose::Ptr current_pose = this->get_current_pos();
     if (current_pose->save(filename) < 0)
         return -1;
+
+    // insert current pose to be saved later
+    poses.insert(std::pair<uint32_t, CameraPose::Ptr>(this->get_seq(), current_pose));
 
     return 0;
 }
@@ -81,9 +84,53 @@ uint32_t PointCloudQueue::get_local_area_seq()
 void PointCloudQueue::save_all(const char *output_dir)
 {
     for (auto& it : entries_) {
-        if (it.second != nullptr && it.second->save_cloud(output_dir) == 0)
+        if (it.second != nullptr && it.second->save_cloud(output_dir, poses_) == 0)
             std::cout << "Saved cloud seq " << it.second->get_seq() << std::endl;
     }
+
+    generate_poses_txt(output_dir);
+}
+
+// Generate file poses txt from entries
+void PointCloudQueue::generate_poses_txt(const char *output_dir)
+{
+
+    char filename[128];
+    sprintf(filename, "%s/poses.txt", output_dir);
+
+    // maps are sorted, so we take the last key and fill the blanks
+    uint32_t last_key = poses_.rbegin()->first;
+
+    for (uint32_t i = 1; i <= last_key; i++)
+    {
+        if ( poses_.find(i) == poses_.end() )
+        {
+            // not found, print zeros
+            FILE *f;
+            f = fopen(filename, "a+");
+            if (!f) {
+                ROS_INFO("Error with filesystem: %m");
+                return;
+            }
+
+            fprintf(f, "0 0 0 0 0 0 0 0 0 0 0 0\n");
+            fclose(f);
+        }
+        else
+        {
+            // found
+            // add one line to the file poses.txt
+            CameraPose::Ptr current_pose = poses_[i];
+
+            if (current_pose->save(filename, "a+") < 0)
+            {
+                ROS_INFO("Error when saving poses.txt");
+                return;
+            }
+        }
+
+    }
+
 }
 
 void PointCloudQueue::get_local_area_cloud(double pub_area_filter_min,
