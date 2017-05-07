@@ -91,20 +91,30 @@ void ProjectionThread::compute()
     }
 }
 
-unsigned ProjectionThread::calculateValidDisp(const DispRawImagePtr disp_raw_img)
+/*
+ * ProjectionThread::isValidDisparity
+ *
+ * Returns whether a pixel disparity value is considered valid or not.
+ */
+bool ProjectionThread::isValidDisparity(const float disp)
 {
-    ImagePtr raw_left_image = disp_raw_img->first;
-    DispImagePtr disp_img = disp_raw_img->second;
-    unsigned count = 0;
+    if (!finite(disp) || disp <= 0)
+        return false;
 
-    for (unsigned int i = 0; i < raw_left_image->height; i++)
-        for (unsigned int j = 0; j < raw_left_image->width; j++)
-            if (isValidDisparity(disp_img->at<float>(i, j)))
-                    count++;
-
-    return count;
+    /*
+     * Disparity values that correspond to distances greater than the
+     * maximum allowed distance, are considered invalid.
+     */
+    return dense_->camera_->getStereoModel().getZ(disp) <= dense_->max_distance_;
 }
 
+/*
+ * ProjectionThread::filterDisp
+ *
+ * Applies ProjectionThread::isValidDisparity() to every pixel in the
+ * disparity map of @disp_raw_img, setting a value of PIXEL_DISP_INVALID
+ * to those pixels that are invalid. Valid pixels are not modified.
+ */
 void ProjectionThread::filterDisp(const DispRawImagePtr disp_raw_img)
 {
     ImagePtr raw_left_image = disp_raw_img->first;
@@ -114,24 +124,6 @@ void ProjectionThread::filterDisp(const DispRawImagePtr disp_raw_img)
         for (unsigned int j = 0; j < raw_left_image->width; j++)
             if (!isValidDisparity(disp_img->at<float>(i, j)))
                 disp_img->at<float>(i, j) = PIXEL_DISP_INVALID;
-}
-
-bool ProjectionThread::isValidDisparity(const float disp)
-{
-    if (!finite(disp) || disp <= 0)
-        return false;
-    double dist = dense_->camera_->getStereoModel().getZ(disp);
-
-    return dist <= dense_->max_distance_;
-}
-
-bool ProjectionThread::isValidPoint(const cv::Vec3f& pt)
-{
-    /*
-     * Check both for disparities explicitly marked as invalid (where OpenCV maps pt.z to MISSING_Z)
-     * and zero disparities (point mapped to infinity).
-     */
-    return pt[2] != MY_MISSING_Z && !std::isinf(pt[2]);
 }
 
 /*

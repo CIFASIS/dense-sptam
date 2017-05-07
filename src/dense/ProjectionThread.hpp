@@ -30,10 +30,8 @@ private:
     std::thread projectionThread_;
     void compute();
 
-    unsigned calculateValidDisp(const DispRawImagePtr disp_raw_img);
     void filterDisp(const DispRawImagePtr disp_raw_img);
-    bool isValidDisparity(const float   disp);
-    bool isValidPoint(const cv::Vec3f& pt);
+    bool isValidDisparity(const float disp);
 
     PointCloudPtr generateCloud(DispRawImagePtr disp_raw_img);
 
