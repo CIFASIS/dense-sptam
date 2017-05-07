@@ -73,7 +73,6 @@
     <param name="refinement_linear_threshold" value="0.01"/>
     <param name="refinement_angular_threshold" value="0.001"/>
 
-    <param name="output_dir" value="/BACKUP/tesina/datasets/kitti/output"/>
     <remap from="/dense/keyframes" to="/sptam/keyframes"/>
 
   </node>
