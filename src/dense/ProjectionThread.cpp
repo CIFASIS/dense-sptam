@@ -134,6 +134,12 @@ bool ProjectionThread::isValidPoint(const cv::Vec3f& pt)
     return pt[2] != MY_MISSING_Z && !std::isinf(pt[2]);
 }
 
+/*
+ * ProjectionThread::generateCloud
+ *
+ * Generate a point cloud based on a disparity map.
+ * Every pixel with a valid disparity is re-projected to the 3D space.
+ */
 PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
 {
     ImagePtr raw_left_image = disp_raw_img->first;
@@ -172,6 +178,12 @@ PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
     return cloud;
 }
 
+/*
+ * ProjectionThread::cameraToWorld
+ *
+ * Transform every point in @cloud from camera to world coordinates using
+ * @current_pos as the pose of the camera.
+ */
 void ProjectionThread::cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos)
 {
     for (auto& it: *cloud) {
@@ -267,6 +279,12 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
     return new_last_cloud;
 }
 
+/*
+ * downsampleCloud
+ *
+ * Downsample @cloud using a voxel grid with a leaf size of @voxelLeafSize.
+ * If @voxelLeafSize is 0, not downsample is performed.
+ */
 void downsampleCloud(PointCloudPtr cloud, double voxelLeafSize)
 {
     if (!voxelLeafSize)
