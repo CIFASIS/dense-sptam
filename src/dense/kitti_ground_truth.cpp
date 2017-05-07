@@ -96,7 +96,7 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
         return 1;
     }
 
-    for (i = 0; i < poses.size(); i++) {
+    for (i = 0; i < (int)poses.size(); i++) {
         cv::Mat_<float> image(dense_->left_info_->height, dense_->left_info_->width);
         for (r = 0; r < image.rows; r++) {
             for (c = 0; c < image.cols; c++) {
