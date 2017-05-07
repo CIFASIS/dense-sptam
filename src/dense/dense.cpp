@@ -1,4 +1,7 @@
+#include "boost/filesystem.hpp"
 #include "dense.hpp"
+
+namespace fs = boost::filesystem;
 
 Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
              double frustumNearPlaneDist, double frustumFarPlaneDist, double voxelLeafSize,
@@ -22,6 +25,16 @@ Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs
   , refinement_linear_threshold_(refinement_linear_threshold)
   , refinement_angular_threshold_(refinement_angular_threshold)
 {
+    fs::path output_path{output_dir_};
+    output_path = fs::absolute(output_path);
+
+    if (!fs::is_directory(output_path)) {
+        ROS_ERROR_STREAM("DENSE: output dir " << output_path << " not found!");
+        abort();
+    }
+
+    ROS_INFO_STREAM("DENSE: output dir " << output_path);
+
     log_file_ = fopen("dense_node.log", "w");
     assert(log_file_);
 
