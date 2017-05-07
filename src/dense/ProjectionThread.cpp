@@ -253,12 +253,14 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
             continue;
         }
 
-        double dist = dense_->camera_->getStereoModel().getZ(disp_img->at<float>(pixel.y, pixel.x));
+        cv::Point3d new_cvpos, diff;
+        dense_->camera_->getStereoModel().projectDisparityTo3d(pixel, disp, new_cvpos);
+        diff = new_cvpos - cvpos;
 
         /* StereoScan part */
-        if (std::abs(dist - cvpos.z) < stereoscan_threshold) {
-            float new_dist = (dist + cvpos.z) / 2;
-            CameraPose::Position new_pos(pos(0), pos(1), new_dist);
+        if (cv::norm(diff) < stereoscan_threshold) {
+            cvpos += diff / 2;
+            CameraPose::Position new_pos(cvpos.x, cvpos.y, cvpos.z);
             new_pos = current_pos->ToWorld(new_pos);
 
             it.x = new_pos(0);
