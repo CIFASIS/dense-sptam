@@ -220,15 +220,15 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
 
     PointCloudPtr new_last_cloud(new PointCloud);
 
-    CameraPose::Position pos;
     unsigned invisible = 0, corner = 0, match = 0, unmatch = 0, outlier = 0;
 
     for (auto& it: *last_cloud) {
-        pos(0) = it.x;
-        pos(1) = it.y;
-        pos(2) = it.z;
+        CameraPose::Position pos(it.x, it.y, it.z);
 
-        /* Keep points outside current -stereo- frustum of view */
+        /*
+         * Points outside current -stereo- frustum of view are omitted,
+         * i.e. kept in its original cloud.
+         */
         if (!frustum_left->Contains(pos) || !frustum_right->Contains(pos)) {
             invisible++;
             new_last_cloud->push_back(it);
@@ -237,40 +237,30 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
 
         pos = current_pos->ToCamera(pos);
         cv::Point3d cvpos(pos(0), pos(1), pos(2));
-
         cv::Point2i pixel = dense_->camera_->getStereoModel().left().project3dToPixel(cvpos);
 
-        /* Why is this condition satisfied after FrustumCulling filtering? */
+        /*
+         * FIXME: this condition shouldn't be satisfied after applying FrustumCulling.
+         * However, in some cases it is being satisfied, thus we must check it.
+         */
         if (pixel.y < 0 || pixel.x < 0 || disp_img->rows < pixel.y || disp_img->cols < pixel.x) {
             invisible++;
             new_last_cloud->push_back(it);
             continue;
         }
 
-        /* Pixels marked as corners (not interpolated) are omitted */
-        if (disp_img->at<float>(pixel.y, pixel.x) == PIXEL_DISP_CORNER) {
+        float disp = disp_img->at<float>(pixel.y, pixel.x);
+
+        /* Pixels with invalid disparity are omitted */
+        if (!finite(disp) || disp <= 0) {
             corner++;
             new_last_cloud->push_back(it);
             continue;
         }
 
-        /* Pixels marked as invalid disparity are  */
-        if (disp_img->at<float>(pixel.y, pixel.x) == PIXEL_DISP_INVALID) {
-            corner++;
-            new_last_cloud->push_back(it);
-            continue;
-        }
-
-        if (!finite(disp_img->at<float>(pixel.y, pixel.x)) || disp_img->at<float>(pixel.y, pixel.x) <= 0) {
-            corner++;
-            new_last_cloud->push_back(it);
-            continue;
-        }
-
-        /* TODO: check on disparity validity */
         double dist = dense_->camera_->getStereoModel().getZ(disp_img->at<float>(pixel.y, pixel.x));
 
-        /* StereoScan trick */
+        /* StereoScan part */
         if (std::abs(dist - cvpos.z) < stereoscan_threshold) {
             float new_dist = (dist + cvpos.z) / 2;
             CameraPose::Position new_pos(pos(0), pos(1), new_dist);
