@@ -23,23 +23,27 @@ void ProjectionThread::compute()
         log_data = { 0 };
 
         entry->lock();
+
         log_data.time_t[0] = GetSeg();
 
-        CameraPose::Ptr current_pose = entry->get_update_pos();
-        if(!current_pose) {
+        CameraPose::Ptr update_pose = entry->get_update_pos();
+        if (!update_pose) {
             ROS_INFO("##### WARNING: Keyframe %u omitted, no pose! #####", entry->get_seq());
             entry->unlock();
             continue;
         }
 
-        entry->set_current_pos(current_pose);
+        entry->set_current_pos(update_pose);
         entry->set_update_pos(nullptr);
-        /* Check this with Taihú */
+
         /*
-        CameraPose::Ptr pose_left =
-                boost::make_shared<CameraPose>(current_pose->applyTransform(entry->get_transform()));
-        */
-        CameraPose::Ptr pose_left = current_pose;
+         * FIXME: Is it ok to just use the current_pose as the left camera pose?
+         * Or should we be applying the robot to camera transform first? Like this:
+         *   CameraPose::Ptr pose_left =
+         *      boost::make_shared<CameraPose>(
+         *          current_pose->applyTransform(entry->get_transform()));
+         */
+        CameraPose::Ptr pose_left = update_pose;
 
         entry->unlock();
 
@@ -72,8 +76,6 @@ void ProjectionThread::compute()
         filterDisp(disp_raw_img);
         PointCloudPtr cloud = generateCloud(disp_raw_img);
         cameraToWorld(cloud, pose_left);
-
-        //downsampleCloud(cloud, dense_->voxelLeafSize_);
 
         log_data.time_t[2] = GetSeg();
 
