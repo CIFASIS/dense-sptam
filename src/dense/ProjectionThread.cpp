@@ -74,7 +74,7 @@ void ProjectionThread::compute()
                            time_t[1] - time_t[0], log_data[0], log_data[1], log_data[2]);
 
         filterDisp(disp_raw_img);
-        PointCloudPtr cloud = my_generateCloud(disp_raw_img);
+        PointCloudPtr cloud = generateCloud(disp_raw_img);
         cameraToWorld(cloud, pose_left);
 
         //downsampleCloud(cloud, dense_->voxelLeafSize_);
@@ -134,7 +134,7 @@ bool ProjectionThread::isValidPoint(const cv::Vec3f& pt)
     return pt[2] != MY_MISSING_Z && !std::isinf(pt[2]);
 }
 
-PointCloudPtr ProjectionThread::my_generateCloud(DispRawImagePtr disp_raw_img)
+PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
 {
     ImagePtr raw_left_image = disp_raw_img->first;
     DispImagePtr disp_img = disp_raw_img->second;
@@ -165,36 +165,6 @@ PointCloudPtr ProjectionThread::my_generateCloud(DispRawImagePtr disp_raw_img)
             cloud->push_back(new_pt3d);
         }
     }
-
-    return cloud;
-}
-
-
-PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
-{
-    ImagePtr raw_left_image = disp_raw_img->first;
-    DispImagePtr disp_img = disp_raw_img->second;
-    MatVec3fPtr dense_points_(new MatVec3f);
-    PointCloudPtr cloud(new PointCloud);
-    Point new_pt3d;
-
-    cv::Mat image_left(cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::MONO8)->image);
-
-    dense_->camera_ ->getStereoModel().projectDisparityImageTo3d(*disp_img, *dense_points_, true);
-
-    for (int32_t u = 0; u < dense_points_->rows; ++u)
-        for (int32_t v = 0; v < dense_points_->cols; ++v)
-            if (isValidPoint((*dense_points_)(u,v))) {
-                memcpy(&new_pt3d.x, &(*dense_points_)(u,v)[0], sizeof (float));
-                memcpy(&new_pt3d.y, &(*dense_points_)(u,v)[1], sizeof (float));
-                memcpy(&new_pt3d.z, &(*dense_points_)(u,v)[2], sizeof (float));
-                new_pt3d.a = 1;
-                uint8_t g = image_left.at<uint8_t>(u,v);
-                int32_t rgb = (g << 16) | (g << 8) | g;
-                memcpy(&new_pt3d.rgb, &rgb, sizeof (int32_t));
-
-                cloud->push_back(new_pt3d);
-            }
 
     return cloud;
 }

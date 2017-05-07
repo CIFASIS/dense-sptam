@@ -35,8 +35,7 @@ private:
     bool isValidDisparity(const float   disp);
     bool isValidPoint(const cv::Vec3f& pt);
 
-    PointCloudPtr my_generateCloud(DispRawImagePtr disp_raw_img);
-    PointCloudPtr generateCloud(const DispRawImagePtr disp_raw_img);
+    PointCloudPtr generateCloud(DispRawImagePtr disp_raw_img);
 
     void cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos);
 
