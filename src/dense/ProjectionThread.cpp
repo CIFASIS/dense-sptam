@@ -7,6 +7,8 @@
 #include "dense.hpp"
 #include "../utils/Time.hpp"
 
+#define OUTLIER_VIEWS_THRESHOLD         1
+
 ProjectionThread::ProjectionThread(Dense *dense)
   : dense_(dense)
   , projectionThread_(&ProjectionThread::compute, this)
@@ -157,6 +159,12 @@ PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
             new_pt3d.x = point.x;
             new_pt3d.y = point.y;
             new_pt3d.z = point.z;
+            /*
+             * FIXME: we're using the alpha channel as the view-counter, which is used to
+             * check a point should be discarded when it doesn't match.
+             * We should add and use a different field/variable to points, or change
+             * the way that points are check and discarded.
+             */
             new_pt3d.a = 1;
 
             uint8_t g = image_left.at<uint8_t>(i, j);
@@ -187,6 +195,16 @@ void ProjectionThread::cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr curren
     }
 }
 
+enum stereoscan_status {
+    STATUS_OUT_OF_IMAGE,
+    STATUS_INVALID,
+    STATUS_MATCH,
+    STATUS_UNMATCH,
+    STATUS_OUTLIER,
+    /* Sentinel - Length marker */
+    STATUS_LENGTH,
+};
+
 PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImagePtr disp_img,
                                              FrustumCulling *frustum_left, FrustumCulling *frustum_right,
                                              CameraPose::Ptr current_pos, double stereoscan_threshold,
@@ -197,7 +215,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
 
     PointCloudPtr new_last_cloud(new PointCloud);
 
-    unsigned invisible = 0, corner = 0, match = 0, unmatch = 0, outlier = 0;
+    unsigned int status[STATUS_LENGTH] = { 0 };
 
     for (auto& it: *last_cloud) {
         CameraPose::Position pos(it.x, it.y, it.z);
@@ -207,7 +225,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
          * i.e. kept in its original cloud.
          */
         if (!frustum_left->Contains(pos) || !frustum_right->Contains(pos)) {
-            invisible++;
+            status[STATUS_OUT_OF_IMAGE]++;
             new_last_cloud->push_back(it);
             continue;
         }
@@ -221,7 +239,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
          * However, in some cases it is being satisfied, thus we must check it.
          */
         if (pixel.y < 0 || pixel.x < 0 || disp_img->rows < pixel.y || disp_img->cols < pixel.x) {
-            invisible++;
+            status[STATUS_OUT_OF_IMAGE]++;
             new_last_cloud->push_back(it);
             continue;
         }
@@ -230,7 +248,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
 
         /* Pixels with invalid disparity are omitted */
         if (!finite(disp) || disp <= 0) {
-            corner++;
+            status[STATUS_INVALID]++;
             new_last_cloud->push_back(it);
             continue;
         }
@@ -242,32 +260,46 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
             float new_dist = (dist + cvpos.z) / 2;
             CameraPose::Position new_pos(pos(0), pos(1), new_dist);
             new_pos = current_pos->ToWorld(new_pos);
+
             it.x = new_pos(0);
             it.y = new_pos(1);
             it.z = new_pos(2);
+            /*
+             * Point matched, increment the view-counter.
+             * NOTE: see alpha channel note above.
+             */
             it.a++;
+
             new_last_cloud->push_back(it);
             disp_img->at<float>(pixel.y, pixel.x) = PIXEL_DISP_INVALID;
-            match++;
+
+            status[STATUS_MATCH]++;
             continue;
         }
 
-        /* Decrement point probability (just a simple counter) */
-        if (it.a > 1) {
+        /* Point didn't match, decrement the view-counter. */
+        if (it.a > OUTLIER_VIEWS_THRESHOLD) {
             it.a--;
             new_last_cloud->push_back(it);
-            unmatch++;
+            status[STATUS_UNMATCH]++;
             continue;
-        } else {
-            outlier++;
         }
+
+        /*
+         * Point didn't match and view-counter is below threshold,
+         * thus the point is considered an outlier and discarded.
+         */
+        status[STATUS_OUTLIER]++;
     }
 
-    log_data->match += match;
-    log_data->unmatch += unmatch;
-    log_data->outlier += outlier;
-    ROS_DEBUG("invisible/corner = %u/%u,\tmatch = %u,\tunmatch/outlier = %u/%u",
-             invisible, corner, match, unmatch, outlier);
+    log_data->match += status[STATUS_MATCH];
+    log_data->unmatch += status[STATUS_UNMATCH];
+    log_data->outlier += status[STATUS_OUTLIER];
+
+    ROS_DEBUG("out_of_image/invalid = %u/%u,\tmatch = %u,\tunmatch/outlier = %u/%u",
+              status[STATUS_OUT_OF_IMAGE], status[STATUS_INVALID], status[STATUS_MATCH],
+              status[STATUS_UNMATCH], status[STATUS_OUTLIER]);
+
     return new_last_cloud;
 }
 
