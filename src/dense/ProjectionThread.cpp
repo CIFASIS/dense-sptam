@@ -14,18 +14,16 @@ ProjectionThread::ProjectionThread(Dense *dense)
 
 void ProjectionThread::compute()
 {
-    unsigned int log_data[3];
-    double time_t[3];
-    int i;
+    struct projection_log log_data;
 
     while(1) {
         /* Calls to pop() are blocking */
         DispRawImagePtr disp_raw_img = dense_->disp_images_->pop();
-
         PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(disp_raw_img->first->header.seq);
+        log_data = { 0 };
 
         entry->lock();
-        time_t[0] = GetSeg();
+        log_data.time_t[0] = GetSeg();
 
         CameraPose::Ptr current_pose = entry->get_update_pos();
         if(!current_pose) {
@@ -56,22 +54,20 @@ void ProjectionThread::compute()
                                      dense_->camera_->GetFOV_LH(), dense_->camera_->GetFOV_LV(),
                                      dense_->camera_->getNearPlaneDist(), dense_->camera_->getFarPlaneDist());
 
-        for (i = 0; i < 3; i++)
-            log_data[i] = 0;
-
         for (auto& local_area_entry : dense_->point_clouds_->local_area_queue_) {
             /* No need to lock the entry as no one else will alter its current_pose or cloud */
             PointCloudPtr last_cloud = doStereoscan(local_area_entry->get_cloud(), disp_raw_img->second,
                                                     &frustum_left, &frustum_right,
-                                                    pose_left, dense_->stereoscan_threshold_, log_data);
+                                                    pose_left, dense_->stereoscan_threshold_, &log_data);
             if (last_cloud)
                 local_area_entry->set_cloud(last_cloud);
         }
 
-        time_t[1] = GetSeg();
+        log_data.time_t[1] = GetSeg();
 
         dense_->WriteToLog("stereoscan,%u,%f,%u,%u,%u\n", entry->get_seq(),
-                           time_t[1] - time_t[0], log_data[0], log_data[1], log_data[2]);
+                           log_data.time_t[1] - log_data.time_t[0],
+                           log_data.match, log_data.unmatch, log_data.outlier);
 
         filterDisp(disp_raw_img);
         PointCloudPtr cloud = generateCloud(disp_raw_img);
@@ -79,15 +75,17 @@ void ProjectionThread::compute()
 
         //downsampleCloud(cloud, dense_->voxelLeafSize_);
 
-        time_t[2] = GetSeg();
+        log_data.time_t[2] = GetSeg();
+
         entry->lock();
         entry->set_cloud(cloud);
         dense_->point_clouds_->push_local_area(entry);
         entry->unlock();
 
-        dense_->WriteToLog("projection,%u,%f\n", entry->get_seq(), time_t[2] - time_t[1]);
-        ROS_INFO("Projected seq %u (size = %lu, time = %f)", entry->get_seq(), cloud->size(),
-                 time_t[2] - time_t[0]);
+        dense_->WriteToLog("projection,%u,%f\n", entry->get_seq(),
+                           log_data.time_t[2] - log_data.time_t[1]);
+        ROS_INFO("Projected seq %u (size = %lu, time = %f)", entry->get_seq(),
+                 cloud->size(), log_data.time_t[2] - log_data.time_t[0]);
     }
 }
 
@@ -190,7 +188,7 @@ void ProjectionThread::cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr curren
 PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImagePtr disp_img,
                                              FrustumCulling *frustum_left, FrustumCulling *frustum_right,
                                              CameraPose::Ptr current_pos, double stereoscan_threshold,
-                                             unsigned int log_data[])
+                                             struct projection_log *log_data)
 {
     if (!stereoscan_threshold)
         return nullptr;
@@ -263,9 +261,9 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
         }
     }
 
-    log_data[0] += match;
-    log_data[1] += unmatch;
-    log_data[2] += outlier;
+    log_data->match += match;
+    log_data->unmatch += unmatch;
+    log_data->outlier += outlier;
     ROS_DEBUG("invisible/corner = %u/%u,\tmatch = %u,\tunmatch/outlier = %u/%u",
              invisible, corner, match, unmatch, outlier);
     return new_last_cloud;

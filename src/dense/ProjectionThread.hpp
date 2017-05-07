@@ -26,6 +26,11 @@ public:
 
 private:
 
+    struct projection_log {
+        unsigned int match, unmatch, outlier;
+        double time_t[3];
+    };
+
     Dense *dense_;
     std::thread projectionThread_;
     void compute();
@@ -40,7 +45,7 @@ private:
     PointCloudPtr doStereoscan(PointCloudPtr last_cloud, DispImagePtr disp_img,
                                FrustumCulling *frustum_left, FrustumCulling *frustum_right,
                                CameraPose::Ptr current_pos, double stereoscan_threshold,
-                               unsigned int log_data[]);
+                               struct projection_log *log_data);
 };
 
 void downsampleCloud(PointCloudPtr cloud, double voxelLeafSize);
