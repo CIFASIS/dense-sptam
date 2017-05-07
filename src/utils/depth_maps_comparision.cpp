@@ -271,18 +271,27 @@ static unsigned char colormap[768] = {
 float *loadDepthImage(const char *filename, int *img_height, int *img_width)
 {
     FILE *fp = fopen(filename, "r");
-    int i;
+    int ret, i;
 
     if (!fp) {
         cout << "Failed to open " << filename << endl;
         exit(1);
     }
 
-    fscanf(fp, "%d,%d\n", img_height, img_width);
+    ret = fscanf(fp, "%d,%d\n", img_height, img_width);
+    if (ret != 2) {
+        cout << "loadDepthImage: Failed to read image dimensions!" << endl;
+        exit(1);
+    }
     float *disp_data = (float*)malloc((*img_width) * (*img_height) * sizeof(float));
 
-    for (i = 0; i < (*img_width) * (*img_height); i++)
-        fscanf(fp, "%f,", &disp_data[i]);
+    for (i = 0; i < (*img_width) * (*img_height); i++) {
+        ret = fscanf(fp, "%f,", &disp_data[i]);
+        if (ret != 1) {
+            cout << "loadDepthImage: Failed to read disparity data at " << i << endl;
+            exit(1);
+        }
+    }
 
     fclose(fp);
     return disp_data;
