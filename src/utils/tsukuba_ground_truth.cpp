@@ -314,7 +314,10 @@ int dmap_to_color(const char *in_file, const char *out_file)
     int img_height, img_width;
     int i;
 
-    assert(fp);
+    if (!fp) {
+        std::cout << "ERROR: failed to open " << in_file << std::endl;
+        exit(1);
+    }
 
     fscanf(fp, "%d,%d\n", &img_height, &img_width);
     float *img_data = (float*)malloc(img_width * img_height * sizeof(float));

@@ -29,7 +29,10 @@ Camera::Camera(
     cv::Mat projectionRight = cv::Mat(cameraRight.projectionMatrix());
     cv::Matx33d intrinsicRight = projectionRight(cv::Rect(0,0,3,3));
 
-    assert(intrinsicLeft == intrinsicRight);
+    if (intrinsicLeft != intrinsicRight) {
+        ROS_ERROR_STREAM("DENSE: stereo camera intrinsic matrices differ!");
+        abort();
+    }
 
     /* Save rectified intrinsic Matrix */
     intrinsic_ = intrinsicLeft;

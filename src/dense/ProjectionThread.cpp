@@ -23,7 +23,6 @@ void ProjectionThread::compute()
         DispRawImagePtr disp_raw_img = dense_->disp_images_->pop();
 
         PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(disp_raw_img->first->header.seq);
-        assert(entry);
 
         entry->lock();
         time_t[0] = GetSeg();
@@ -122,7 +121,7 @@ bool ProjectionThread::isValidDisparity(const float disp)
     if (!finite(disp) || disp <= 0)
         return false;
     double dist = dense_->camera_->getStereoModel().getZ(disp);
-    assert(finite(dist));
+
     return dist <= dense_->max_distance_;
 }
 
@@ -230,8 +229,6 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
     if (!stereoscan_threshold)
         return nullptr;
 
-    assert(frustum_left && frustum_right);
-
     PointCloudPtr new_last_cloud(new PointCloud);
 
     CameraPose::Position pos;
@@ -283,7 +280,6 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
 
         /* TODO: check on disparity validity */
         double dist = dense_->camera_->getStereoModel().getZ(disp_img->at<float>(pixel.y, pixel.x));
-        assert(finite(dist) && finite(cvpos.z));
 
         /* StereoScan trick */
         if (std::abs(dist - cvpos.z) < stereoscan_threshold) {

@@ -273,7 +273,10 @@ float *loadDepthImage(const char *filename, int *img_height, int *img_width)
     FILE *fp = fopen(filename, "r");
     int i;
 
-    assert(fp);
+    if (!fp) {
+        cout << "Failed to open " << filename << endl;
+        exit(1);
+    }
 
     fscanf(fp, "%d,%d\n", img_height, img_width);
     float *disp_data = (float*)malloc((*img_width) * (*img_height) * sizeof(float));
@@ -482,7 +485,7 @@ void do_error_graph(float *gt_data, float *our_data, int img_height, int img_wid
         pos = gt_data[j] / size;
         if (pos >= total) {
             std::cout << "FAILED: pos/total: " << pos << "/" << total << std::endl;
-            assert(false);
+            exit(1);
         }
         histogram[pos]++;
     }
@@ -510,7 +513,10 @@ int main(int argc, char* argv[])
 
     data[0] = loadDepthImage(argv[1], &height[0], &width[0]);
     data[1] = loadDepthImage(argv[2], &height[1], &width[1]);
-    assert(height[0] == height[1] && width[0] == width[1]);
+    if (height[0] != height[1] || width[0] != width[1]) {
+        std::cout << "ERROR: dimensions of depth images differ!" << std::endl;
+        exit(1);
+    }
 
     if (strcmp(argv[3], "mae") == 0) {
         do_mae(data[0], data[1], height[0], width[0]);

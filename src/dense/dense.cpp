@@ -1,6 +1,8 @@
 #include "boost/filesystem.hpp"
 #include "dense.hpp"
 
+#define LOG_FILENAME        "dense_node.log"
+
 namespace fs = boost::filesystem;
 
 Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
@@ -35,8 +37,11 @@ Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs
 
     ROS_INFO_STREAM("DENSE: output dir " << output_path);
 
-    log_file_ = fopen("dense_node.log", "w");
-    assert(log_file_);
+    log_file_ = fopen(LOG_FILENAME, "w");
+    if (!log_file_) {
+        ROS_ERROR_STREAM("DENSE: failed to open log file " << LOG_FILENAME);
+        abort();
+    }
 
     camera_ = new Camera(left_info_, right_info_, frustumNearPlaneDist_, frustumFarPlaneDist_);
     raw_image_pairs_ = new ImageQueue();

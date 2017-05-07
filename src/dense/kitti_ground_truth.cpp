@@ -13,11 +13,16 @@ vector<pair<Eigen::Matrix3d, Eigen::Vector3d>> load_poses(const char *filename,
     vector<pair<Eigen::Matrix3d, Eigen::Vector3d>> poses;
     int ret;
 
-    if (!fp)
+    if (!fp) {
+        std::cout << "ERROR: Failed to open poses file" << std::endl;
         exit(1);
+    }
 
     const char *e = strrchr(filename, '.');
-    assert(e);
+    if (!e) {
+        std::cout << "ERROR: Failed to process poses file" << std::endl;
+        exit(1);
+    }
 
     if (strcmp(e, ".txt") == 0) {
         /* Kitti */
@@ -35,8 +40,12 @@ vector<pair<Eigen::Matrix3d, Eigen::Vector3d>> load_poses(const char *filename,
         }
     } else if (strcmp(e, ".csv") == 0) {
         /* Eurocmav */
-        assert(timestamps_file);
         fp_camera = fopen(timestamps_file, "r");
+        if (!fp_camera) {
+            std::cout << "ERROR: Failed to open timestamps file" << std::endl;
+            exit(1);
+        }
+
         Eigen::Quaterniond orientation;
         Eigen::Vector3d position;
 
@@ -179,7 +188,11 @@ int generate_depth_maps_euroc_global(const char *in_poses_path, const char *in_t
     }
 
     sprintf(cloud_path, "%s/%s", in_clouds_path, "data.pcd");
-    assert(fs::is_regular_file(cloud_path));
+    if (!fs::is_regular_file(cloud_path)) {
+        std::cout << "ERROR: File " << cloud_path << " not found!" << std::endl;
+        exit(1);
+    }
+
     PointCloudPtr cloud(new PointCloud);
     pcl::io::loadPCDFile(cloud_path, *cloud);
 

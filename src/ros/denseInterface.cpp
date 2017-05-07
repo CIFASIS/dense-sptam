@@ -153,7 +153,6 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
     for (auto& it: path->poses) {
         CameraPose::Ptr pose(new CameraPose(it.pose.position, it.pose.orientation));
         PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(it.header.seq);
-        assert(entry);
 
         entry->lock();
         entry->set_update_pos(pose);
@@ -196,7 +195,10 @@ void dense::denseInterface::cb_images(
 
     /* Single mode: Load clouds/poses, generate depth maps, then exit */
     if (single_depth_map_clouds_ != "" && single_depth_map_poses_ != "") {
-        assert(single_depth_map_mode_ != "");
+        if (single_depth_map_mode_ == "") {
+            ROS_ERROR_STREAM("DENSE: single depth map mode cannot be null!");
+            abort();
+        }
 
         if (single_depth_map_mode_ == "kitti_global") {
             generate_depth_maps_kitti_global(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(),
@@ -206,7 +208,10 @@ void dense::denseInterface::cb_images(
             generate_depth_maps_kitti_local(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(),
                                             single_depth_map_clouds_.c_str(), pub_area_filter_min_, dense_);
         } else if (single_depth_map_mode_ == "euroc_global") {
-            assert(single_depth_map_timestamps_ != "");
+            if (single_depth_map_timestamps_ == "") {
+                ROS_ERROR_STREAM("DENSE: single depth map timestamps cannot be null!");
+                abort();
+            }
             generate_depth_maps_euroc_global(single_depth_map_poses_.c_str(), single_depth_map_timestamps_.c_str(),
                                              single_depth_map_clouds_.c_str(), single_depth_map_clouds_.c_str(),
                                              pub_area_filter_min_, dense_);
@@ -214,7 +219,8 @@ void dense::denseInterface::cb_images(
             ROS_INFO("##### Bad single depth map mode configuration!");
         }
 
-        assert(false);
+        ROS_ERROR_STREAM("DENSE: single mode has finished! Exiting...");
+        abort();
     }
 
     /* Get the transformation between the base_frame and the camera_frame */
@@ -228,7 +234,6 @@ void dense::denseInterface::cb_images(
     }
 
     PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(img_msg_left->header.seq);
-    assert(entry);
     entry->set_transform(base_to_camera);
 
     ImagePtr img_msg_left_copy = boost::make_shared<Image>(*img_msg_left);
