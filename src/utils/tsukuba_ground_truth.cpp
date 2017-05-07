@@ -312,18 +312,28 @@ int dmap_to_color(const char *in_file, const char *out_file)
 {
     FILE *fp = fopen(in_file, "r");
     int img_height, img_width;
-    int i;
+    int ret, i;
 
     if (!fp) {
         std::cout << "ERROR: failed to open " << in_file << std::endl;
         exit(1);
     }
 
-    fscanf(fp, "%d,%d\n", &img_height, &img_width);
+    ret = fscanf(fp, "%d,%d\n", &img_height, &img_width);
+    if (ret != 2) {
+        cout << "dmap_to_color: Failed to read image dimensions!" << endl;
+        exit(1);
+    }
+
     float *img_data = (float*)malloc(img_width * img_height * sizeof(float));
 
-    for (i = 0; i < img_width * img_height; i++)
-        fscanf(fp, "%f,", &img_data[i]);
+    for (i = 0; i < img_width * img_height; i++) {
+        ret = fscanf(fp, "%f,", &img_data[i]);
+        if (ret != 1) {
+            cout << "dmap_to_color: Failed to read disparity data at " << i << endl;
+            exit(1);
+        }
+    }
 
     fclose(fp);
 
