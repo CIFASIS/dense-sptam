@@ -201,19 +201,8 @@ PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
 
 void ProjectionThread::cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos)
 {
-    CameraPose::Position pos;
-
-    /*
-     * Last point cloud
-     * Filter with this camera -> Frustum culling
-     * Reproject filtered point cloud to disparity
-     * Compare with actual disparity
-     */
-
     for (auto& it: *cloud) {
-        pos(0) = it.x;
-        pos(1) = it.y;
-        pos(2) = it.z;
+        CameraPose::Position pos(it.x, it.y, it.z);
         pos = current_pos->ToWorld(pos);
         it.x = pos(0);
         it.y = pos(1);
