@@ -140,19 +140,22 @@ PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
     DispImagePtr disp_img = disp_raw_img->second;
     PointCloudPtr cloud(new PointCloud);
 
-    cv::Mat image_left(cv_bridge::toCvCopy(raw_left_image, sensor_msgs::image_encodings::MONO8)->image);
+    cv::Mat image_left(cv_bridge::toCvCopy(raw_left_image,
+                                           sensor_msgs::image_encodings::MONO8)->image);
 
     for (unsigned int i = 0; i < raw_left_image->height; i++) {
         for (unsigned int j = 0; j < raw_left_image->width; j++) {
-            if (!isValidDisparity(disp_img->at<float>(i, j)))
+            float disp = disp_img->at<float>(i, j);
+
+            if (!isValidDisparity(disp))
                 continue;
 
-            Point new_pt3d;
             cv::Point3d point;
             cv::Point2d pixel(j, i);
 
-            dense_->camera_->getStereoModel().projectDisparityTo3d(pixel, disp_img->at<float>(i, j), point);
+            dense_->camera_->getStereoModel().projectDisparityTo3d(pixel, disp, point);
 
+            Point new_pt3d;
             new_pt3d.x = point.x;
             new_pt3d.y = point.y;
             new_pt3d.z = point.z;
@@ -160,7 +163,7 @@ PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
 
             uint8_t g = image_left.at<uint8_t>(i, j);
             int32_t rgb = (g << 16) | (g << 8) | g;
-            memcpy(&new_pt3d.rgb, &rgb, sizeof (int32_t));
+            memcpy(&new_pt3d.rgb, &rgb, sizeof(int32_t));
 
             cloud->push_back(new_pt3d);
         }
