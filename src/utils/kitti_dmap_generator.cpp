@@ -14,15 +14,53 @@ void loadParameter(const YAML::Node& config, const std::string key, T& ret, cons
 }
 
 
+sensor_msgs::CameraInfoPtr CreateCameraInfoMsg(const int image_width, const int image_height, const cv::Mat& intrinsic, const cv::Mat& rotation, const cv::Vec3d& traslation) {
+
+  // create cameraInfo pointer message
+  sensor_msgs::CameraInfoPtr cameraInfo( new sensor_msgs::CameraInfo() );
+
+  // fill message
+  cameraInfo->header.frame_id = "stereo";
+  cameraInfo->height = image_height;
+  cameraInfo->width = image_width;
+  cameraInfo->K = {intrinsic.at<double>(0,0), intrinsic.at<double>(0,1), intrinsic.at<double>(0,2),
+                  intrinsic.at<double>(1,0), intrinsic.at<double>(1,1), intrinsic.at<double>(1,2),
+                  intrinsic.at<double>(2,0), intrinsic.at<double>(2,1), intrinsic.at<double>(2,2)};
+
+  std::cout << "rotation: " << rotation << std::endl;
+
+  cameraInfo->R = {rotation.at<double>(0,0), rotation.at<double>(0,1), rotation.at<double>(0,2),
+                  rotation.at<double>(1,0), rotation.at<double>(1,1), rotation.at<double>(1,2),
+                  rotation.at<double>(2,0), rotation.at<double>(2,1), rotation.at<double>(2,2)};
+
+  // construct [R|t] matrix
+  cv::Mat Rt = (cv::Mat_<double>(3,4) << rotation.at<double>(0,0), rotation.at<double>(0,1), rotation.at<double>(0,2), traslation(0),
+                                         rotation.at<double>(1,0), rotation.at<double>(1,1), rotation.at<double>(1,2), traslation(1),
+                                         rotation.at<double>(2,0), rotation.at<double>(2,1), rotation.at<double>(2,2), traslation(2));
+
+  // compute projection matrix
+  cv::Mat projection = intrinsic * Rt;
+  cameraInfo->P = {projection.at<double>(0,0), projection.at<double>(0,1), projection.at<double>(0,2), projection.at<double>(0,3),
+                  projection.at<double>(1,0), projection.at<double>(1,1), projection.at<double>(1,2), projection.at<double>(1,3),
+                  projection.at<double>(2,0), projection.at<double>(2,1), projection.at<double>(2,2), projection.at<double>(2,3)};
+
+  std::cout << "projection: " << projection << std::endl;
+
+  return cameraInfo;
+
+}
+
+
 int main(int argc, char* argv[]){
 
 
-  std::string parametersFileYML, posesFile, pcdPath, output_path;
+  std::string calibrationFile, parametersFileYML, posesFile, pcdPath, output_path;
 
 
   // cargar parametros
   ProgramOptions program_options( argv[0] );
 
+  program_options.addPositionalArgument("calibration", "camera calibration file", calibrationFile);
   program_options.addPositionalArgument("configuration", "configuration file with all the parameters.", parametersFileYML);
   program_options.addPositionalArgument("poses", "poses file", posesFile);
   program_options.addPositionalArgument("pcd_path", "pcd directory path", pcdPath);
@@ -138,35 +176,49 @@ int main(int argc, char* argv[]){
     return EXIT_FAILURE;
   }
 
+
+  /** Load camera calibration */
+
+  int image_width, image_height;
+  cv::Mat_<double> intrinsic;
+  double baseline;
+
+  try
+  {
+    cv::FileStorage config(calibrationFile, cv::FileStorage::READ);
+
+    config["camera_matrix"] >> intrinsic;
+    image_width = (int) config["image_width"];
+    image_height = (int) config["image_height"];
+    baseline = (double) config["baseline"];
+
+    std::cout << "image_width: " << image_width << std::endl;
+    std::cout << "image_height: " << image_height << std::endl;
+    std::cout << "camera_matrix: " << intrinsic << std::endl;
+    std::cout << "baseline: " << baseline << std::endl;
+  }
+  catch(YAML::BadFile& e)
+  {
+    std::cerr << "Could not open calibration file " << calibrationFile << std::endl;
+    return EXIT_FAILURE;
+  }
+  catch(YAML::ParserException& e)
+  {
+    std::cerr << "Could not parse calibration file " << calibrationFile << ". " << e.what() << std::endl;
+    return EXIT_FAILURE;
+  }
+
+
+  // set rotation and translation matrices
+  cv::Mat rotation = cv::Mat::eye(3,3,CV_64FC1);
+  cv::Vec3d traslation(-baseline,0,0);
+
   // Create CameraInfo messages
-  sensor_msgs::CameraInfoConstPtr left_info( new sensor_msgs::CameraInfo() );
-  sensor_msgs::CameraInfoConstPtr right_info( new sensor_msgs::CameraInfo() );
+  sensor_msgs::CameraInfoPtr left_info = CreateCameraInfoMsg(image_width, image_height, intrinsic, rotation, cv::Vec3d(0,0,0));
+  sensor_msgs::CameraInfoPtr right_info = CreateCameraInfoMsg(image_width, image_height, intrinsic, rotation, traslation);;
 
-  std::cout << "left_info->header.seq: " << left_info->header.seq << std::endl;
-
-//  left_info->header.seq = 0;
-//  left_info->header.stamp.sec = 0;
-//  left_info->header.stamp.nsec = 0;
-//  left_info->header.frame_id = "stereo";
-//  left_info->height =;
-//  left_info->width = ;
-//  left_info->K = ;
-//  left_info->R = ;
-//  left_info->P = ;
-//  left_info->binning_x = ;
-//  left_info->binning_y = ;
-//  left_info->roi = ;
-
-
-//  right_info->header.seq = 0;
-//  right_info->header.stamp.sec = 0;
-//  right_info->header.stamp.nsec = 0;
-//  right_info->header.frame_id = "stereo";
-
-
-
-
-
+//  for (int i = 0; i < 12; ++i)
+//      std::cout << left_info->P[i] << std::endl;
 
   // create Dense instance
   Dense *dense = new Dense( left_info, right_info,
@@ -180,12 +232,5 @@ int main(int argc, char* argv[]){
   generate_depth_maps_kitti_global( posesFile.c_str(), pcdPath.c_str(),
                                     pcdPath.c_str(), single_depth_map_region_size,
                                     pub_area_filter_min, dense );
-
-
   return 0;
 }
-
-
-
-
-
