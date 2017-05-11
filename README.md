@@ -85,3 +85,20 @@ Optional arguments `--clim_low` and `--clim_high` to specify the plotter clim bo
 ```
 $ python dense/scripts/plot_depth_map.py ${depth_map}.dmap --clim_low -3 --clim_high 50
 ```
+
+## Process and compare depth maps directories
+
+The following scripts are used to process two sets of depth maps, generated
+from DENSE node output and ground truth. Arguments are the paths to directories
+containing the `.dmap` files:
+
+```
+$ python dense/scripts/depth_map.py path/to/dense/dmaps/ path/to/velodyne/dmaps/
+```
+
+Generated output consists in two files `diff_list.txt` and `output.log`. The former
+can be processed by the following script to plot the results:
+
+```
+$ python dense/scripts/plot_dmap_error.py path/to/diff_list.txt ${sequence_name}
+```
