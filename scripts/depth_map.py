@@ -103,19 +103,6 @@ def plotSaveImage(filename, img):
 	plt.imshow(img)
 	plt.savefig(filename, dpi=300)
 
-def genSpectrum(N):
-	fig = plt.figure()
-	ax = fig.add_subplot(111)
-	plt.axis('scaled')
-	ax.set_xlim([0, N])
-	ax.set_ylim([-1, 1])
-	for i in range(N):
-		col = getRGBcolor01(i, N)
-		rect = plt.Rectangle((i, -1), 2, 2, facecolor=col)
-		ax.add_artist(rect)
-		ax.set_yticks([])
-	plt.savefig('spectrum.png')
-
 def addToDiffList(diffList, newList, step, maxdiff):
 	limit = int(MAXDIFF / STEP)
 	for i in newList:
@@ -148,8 +135,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('dmap_dense', help='dmap dir - dense node')
 parser.add_argument('dmap_gt', help='dmap dir - ground truth')
 parser.add_argument('--max_dist', help='truncate depth maps using this maximum distance')
-parser.add_argument('--max_colors', help='number of colors to use')
-parser.add_argument('--gen_spectrum', help='generate spectrum of N colors')
 args = parser.parse_args()
 
 assert(os.path.isdir(args.dmap_dense))
@@ -158,14 +143,6 @@ assert(os.path.isdir(args.dmap_gt))
 max_dist = 0
 if (args.max_dist):
 	max_dist = int(args.max_dist)
-
-max_colors = 0
-if (args.max_colors):
-	max_colors = int(args.max_colors)
-
-if (args.gen_spectrum):
-	genSpectrum(int(args.gen_spectrum))
-	exit(0)
 
 # Output log
 logfile = open("output.log", "w")
@@ -205,11 +182,6 @@ for f in os.listdir(args.dmap_dense):
 		# log absolute difference valid pixels
 		logfile.write(str(countValid(absdiff_list)) + ',')
 
-		#output_file = os.path.splitext(f)[0] + '_absdiff.png'
-		#dmap_diff_arr = listToArray(absdiff_list, dmap_dense.height, dmap_dense.width)
-		#plotSaveImage(output_file, doColorArray(dmap_diff_arr, max_colors));
-		#saveImage(output_file, doColorArray(dmap_diff_arr, max_colors))
-
 		diff_list = addToDiffList(diff_list, absdiff_list, STEP, MAXDIFF)
 		logfile.write('\n')
 
@@ -221,5 +193,4 @@ for item in diff_list:
 	diff_list_file.write("%s," % item)
 diff_list_file.close()
 
-#histogramPlot(reduce(operator.add, diff_list), 100)
 logfile.close()
