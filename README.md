@@ -67,4 +67,21 @@ TODO
 
 ## plot\_depth\_map: Plot depth maps
 
-TODO
+Show coloured depth map:
+
+```
+$ python dense/scripts/plot_depth_map.py ${original_depth_map}.dmap
+```
+
+Show coloured absolute differences between both maps. Pixels not containing
+valid values on both maps are omitted and assigned a negative value.
+
+```
+$ python dense/scripts/plot_depth_map.py ${depth_map}.dmap --compare ${another_depth_map}.dmap
+```
+
+Optional arguments `--clim_low` and `--clim_high` to specify the plotter clim bounds.
+
+```
+$ python dense/scripts/plot_depth_map.py ${depth_map}.dmap --clim_low -3 --clim_high 50
+```
