@@ -46,10 +46,12 @@ def absoluteDiffList(l_x, l_y):
 	assert(len(l_x) == len(l_y))
 	return map(lambda (a, b): abs(a - b) if a >= 0 and b >= 0 else -1, zip(l_x, l_y))
 
+INVALID_DEPTH = -10;
+
 def absoluteDiffMap(dmap_x, dmap_y):
 	assert(dmap_x.shape[0] == dmap_y.shape[0])
 	assert(dmap_x.shape[1] == dmap_y.shape[1])
-	ret = np.full((dmap_x.shape[0], dmap_x.shape[1]), -1)
+	ret = np.full((dmap_x.shape[0], dmap_x.shape[1]), INVALID_DEPTH)
 	for i in range(0, dmap_x.shape[0]):
 		for j in range(0, dmap_x.shape[1]):
 			if (dmap_x[i, j] >= 0 and dmap_y[i, j] >= 0):
@@ -101,26 +103,38 @@ class DepthMap:
 
 	def parsebody(self, line):
 		self.body = map(float, line.split(",")[:self.height * self.width])
-		self.body = map(lambda x: -3 if x < 0 else x, self.body)
+		self.body = map(lambda x: INVALID_DEPTH if x < 0 else x, self.body)
 
 	def getnparray(self):
 		return listToArray(self.body, self.height, self.width)
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(epilog='NOTE: Invalid (negative) depth values are mapped to ' + str(INVALID_DEPTH))
 parser.add_argument('dmap', help='dmap file')
 parser.add_argument('--compare', help='dmap file to compare')
+parser.add_argument('--clim_low', help='plotter clim low bound')
+parser.add_argument('--clim_high', help='plotter clim high bound')
 args = parser.parse_args()
 
 assert(os.path.isfile(args.dmap))
 dmap_orig = DepthMap(args.dmap)
 dmap_orig_arr = dmap_orig.getnparray()
 
+if args.compare:
+	assert(os.path.isfile(args.compare))
+	dmap_compare = DepthMap(args.compare)
+	dmap_compare_arr = dmap_compare.getnparray()
+	dmap_orig_arr = absoluteDiffMap(dmap_orig_arr, dmap_compare_arr)
+
 fig, ax = plt.subplots()
 ax.set_axis_off()
 
+clim_low = int(args.clim_low) if args.clim_low else None
+clim_high = int(args.clim_high) if args.clim_high else None
+
+# Different color maps can be used to plot the image:
 # NICE: nipy_spectral
 # UGLY: gist_stern, gist_earth, jet
-# NOTE: append _r at the end to reverse
-imgplot = plt.imshow(dmap_orig_arr, clim = (-3.0), cmap=plt.get_cmap('nipy_spectral'))
+# NOTE: append _r at the end of the cmap name to reverse it
+imgplot = plt.imshow(dmap_orig_arr, clim = (clim_low, clim_high), cmap=plt.get_cmap('nipy_spectral'))
 plt.colorbar(orientation ='horizontal')
 plt.show(imgplot)
