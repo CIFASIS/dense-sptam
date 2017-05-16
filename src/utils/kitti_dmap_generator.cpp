@@ -102,11 +102,7 @@ int main(int argc, char* argv[]){
   double frustumNearPlaneDist;
   double frustumFarPlaneDist;
   double voxelLeafSize;
-  double filter_meanK;
-  double filter_stddev;
   std::string disp_calc_method;
-  double filter_radius;
-  double filter_minneighbours;
   double max_distance;
   double stereoscan_threshold;
   int local_area_size;
@@ -128,11 +124,7 @@ int main(int argc, char* argv[]){
       if (key == "FrustumNearPlaneDist") frustumNearPlaneDist = it.second.as<double>();
       else if (key == "FrustumFarPlaneDist") frustumFarPlaneDist = it.second.as<double>();
       else if (key == "VoxelLeafSize") voxelLeafSize = it.second.as<double>();
-      else if (key == "filter_meanK") filter_meanK = it.second.as<double>();
-      else if (key == "filter_stddev") filter_stddev = it.second.as<double>();
       else if (key == "disp_calc_method") disp_calc_method = it.second.as<std::string>();
-      else if (key == "filter_radius") filter_radius = it.second.as<double>();
-      else if (key == "filter_minneighbours") filter_minneighbours = it.second.as<double>();
       else if (key == "max_distance") max_distance = it.second.as<double>();
       else if (key == "stereoscan_threshold") stereoscan_threshold = it.second.as<double>();
       else if (key == "local_area_size") local_area_size = it.second.as<int>();
@@ -149,11 +141,7 @@ int main(int argc, char* argv[]){
     std::cout << "frustumNearPlaneDist: " << frustumNearPlaneDist << std::endl;
     std::cout << "frustumFarPlaneDist: " << frustumFarPlaneDist << std::endl;
     std::cout << "voxelLeafSize: " << voxelLeafSize << std::endl;
-    std::cout << "filter_meanK: " << filter_meanK << std::endl;
-    std::cout << "filter_stddev: " << filter_stddev << std::endl;
     std::cout << "disp_calc_method: " << disp_calc_method << std::endl;
-    std::cout << "filter_radius: " << filter_radius << std::endl;
-    std::cout << "filter_minneighbours: " << filter_minneighbours << std::endl;
     std::cout << "max_distance: " << max_distance << std::endl;
     std::cout << "stereoscan_threshold: " << stereoscan_threshold << std::endl;
     std::cout << "local_area_size: " << local_area_size << std::endl;
@@ -223,8 +211,8 @@ int main(int argc, char* argv[]){
   // create Dense instance
   Dense *dense = new Dense( left_info, right_info,
                             frustumNearPlaneDist, frustumFarPlaneDist, voxelLeafSize,
-                            filter_meanK, filter_stddev, output_path, disp_calc_method,
-                            filter_radius, filter_minneighbours, max_distance, stereoscan_threshold,
+                            output_path, disp_calc_method,
+                            max_distance, stereoscan_threshold,
                             local_area_size, libelas_ipol_gap, add_corners, sigma,
                             refinement_linear_threshold, refinement_angular_threshold );
 

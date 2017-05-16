@@ -1,11 +1,7 @@
 FrustumNearPlaneDist: 0.0001
 FrustumFarPlaneDist: 50
 VoxelLeafSize: 0.1
-filter_meanK: 0
-filter_stddev: 0
 disp_calc_method: 'libelas'
-filter_radius: 0
-filter_minneighbours: 0
 max_distance: 20
 stereoscan_threshold: 0.25
 local_area_size: 10
