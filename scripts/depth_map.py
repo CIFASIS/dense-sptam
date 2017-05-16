@@ -105,7 +105,7 @@ def plotSaveImage(filename, img):
 	plt.savefig(filename, dpi=300)
 
 def addToDiffList(diffList, newList, step, maxdiff):
-	limit = int(MAXDIFF / STEP)
+	limit = int(maxdiff / step)
 	for i in newList:
 		if (i < 0):
 			continue;
@@ -132,67 +132,120 @@ class DepthMap:
 	def parsebody(self, line):
 		self.body = map(float, line.split(",")[:self.height * self.width])
 
-parser = argparse.ArgumentParser()
-parser.add_argument('dmap_dense', help='dmap dir - dense node')
-parser.add_argument('dmap_gt', help='dmap dir - ground truth')
-parser.add_argument('--max_dist', help='truncate depth maps using this maximum distance')
-args = parser.parse_args()
+# put errors according to depth
+def classify_near_far(data, gt, bins, bin_length):
 
-assert(os.path.isdir(args.dmap_dense))
-assert(os.path.isdir(args.dmap_gt))
+	# first compute the error wrt gt
+	err = absoluteDiffList(data, gt)
 
-max_dist = 0
-if (args.max_dist):
-	max_dist = int(args.max_dist)
+	# zip gt with err
+	err = zip(gt, err)
 
-# Output log
-logfile = open("output.log", "w")
-logfile.write("filename,total,valid dense, valid gt, filtered dense, filtered gt, valid absdiff\n")
+	# take out invalid values (== -1)
+	err = filter(lambda x: x[0] >= 0, err)
 
-# Calculate absolute differences with 0.1m of step and a maximum of 100m
-MAXDIFF = 100.0
-STEP = 0.1
-diff_list = [0] * int(MAXDIFF / STEP)
+	res = []
+	for i in range(len(bins)):
+		res.append([])
 
-files_count = 0
-# count the total files .dmap that are available
-files_total = len([f for f in os.listdir(args.dmap_dense) if f.endswith(".dmap")])
-for f in os.listdir(args.dmap_dense):
-	if f.endswith(".dmap") and os.path.isfile(args.dmap_gt + '/' + f):
-		# log filename
-		logfile.write(f + ',')
+	# apply data to its corresponding bin
+	for i in range(len(err)):
+		# err = (gt depth, error wrt gt)
+		gt_depth = err[i][0]
+		error_gt = err[i][1]
 
-		dmap_dense = DepthMap(args.dmap_dense + '/' + f)
-		dmap_gt = DepthMap(args.dmap_gt + '/' + f)
+		# find bin: [0-X] -> 0, (X-2X] -> 1, ....
+		f = int(np.floor(gt_depth / bin_length))
 
-		# log total pixels
-		logfile.write(str(dmap_dense.height * dmap_dense.width) + ',')
-		# log valid pixels
-		logfile.write(str(countValid(dmap_dense.body)) + ',')
-		logfile.write(str(countValid(dmap_gt.body)) + ',')
+		# act
+		if f < len(bins):
+			res[f].append(error_gt)
 
-		if (max_dist):
-			dmap_dense.body = filterList(dmap_dense.body, max_dist)
-			dmap_gt.body = filterList(dmap_gt.body, max_dist)
+	return np.array(res)
 
-		# log valid pixels after filtering
-		logfile.write(str(countValid(dmap_dense.body)) + ',')
-		logfile.write(str(countValid(dmap_gt.body)) + ',')
 
-		absdiff_list = absoluteDiffList(dmap_dense.body, dmap_gt.body)
+def process():
+	parser = argparse.ArgumentParser()
+	parser.add_argument('dmap_dense', help='dmap dir - dense node')
+	parser.add_argument('dmap_gt', help='dmap dir - ground truth')
+	parser.add_argument('--max_dist', help='truncate depth maps using this maximum distance')
+	args = parser.parse_args()
 
-		# log absolute difference valid pixels
-		logfile.write(str(countValid(absdiff_list)) + ',')
+	assert(os.path.isdir(args.dmap_dense))
+	assert(os.path.isdir(args.dmap_gt))
 
-		diff_list = addToDiffList(diff_list, absdiff_list, STEP, MAXDIFF)
-		logfile.write('\n')
+	bin_length = 2
+	max_depth = 60
+	bins = np.array( range(0, max_depth, bin_length) )
 
-		files_count += 1
-		print("Processed: " + f + " - " + str(files_count) + "/" + str(files_total))
+	graph_depth = []
+	# y axis for plotting depth vs errors
+	for i in range(len(bins)):
+		graph_depth.append([])
 
-diff_list_file = open('diff_list.txt', 'w')
-for item in diff_list:
-	diff_list_file.write("%s," % item)
-diff_list_file.close()
+	max_dist = 0
+	if (args.max_dist):
+		max_dist = int(args.max_dist)
 
-logfile.close()
+	# Output log
+	logfile = open("output.log", "w")
+	logfile.write("filename,total,valid dense, valid gt, filtered dense, filtered gt, valid absdiff\n")
+
+	# Calculate absolute differences with 0.1m of step and a maximum of 100m
+	MAXDIFF = 100.0
+	STEP = 0.1
+	diff_list = [0] * int(MAXDIFF / STEP)
+
+	files_count = 0
+	files_total = len(os.listdir(args.dmap_dense))
+	for f in os.listdir(args.dmap_dense):
+		if f.endswith(".dmap") and os.path.isfile(args.dmap_gt + '/' + f):
+			# log filename
+			logfile.write(f + ',')
+
+			dmap_dense = DepthMap(args.dmap_dense + '/' + f)
+			dmap_gt = DepthMap(args.dmap_gt + '/' + f)
+
+			# log total pixels
+			logfile.write(str(dmap_dense.height * dmap_dense.width) + ',')
+			# log valid pixels
+			logfile.write(str(countValid(dmap_dense.body)) + ',')
+			logfile.write(str(countValid(dmap_gt.body)) + ',')
+
+			if (max_dist):
+				dmap_dense.body = filterList(dmap_dense.body, max_dist)
+				dmap_gt.body = filterList(dmap_gt.body, max_dist)
+
+			# log valid pixels after filtering
+			logfile.write(str(countValid(dmap_dense.body)) + ',')
+			logfile.write(str(countValid(dmap_gt.body)) + ',')
+
+			actual_graph = classify_near_far(dmap_dense.body, dmap_gt.body, bins, bin_length)
+			for i in range(len(graph_depth)):
+				graph_depth[i].extend(actual_graph[i])
+
+			absdiff_list = absoluteDiffList(dmap_dense.body, dmap_gt.body)
+
+			# log absolute difference valid pixels
+			logfile.write(str(countValid(absdiff_list)) + ',')
+
+			diff_list = addToDiffList(diff_list, absdiff_list, STEP, MAXDIFF)
+			logfile.write('\n')
+
+			files_count += 1
+			print("Processed: " + f + " - " + str(files_count) + "/" + str(files_total))
+
+			#np.save("graph_depth.npy", np.array([np.array(bins), np.array(graph_depth)]))
+			np.save("graph_depth.npy", [bins, np.array(graph_depth)])
+
+	diff_list_file = open('diff_list.txt', 'w')
+	for item in diff_list:
+		diff_list_file.write("%s," % item)
+	diff_list_file.close()
+
+	logfile.close()
+
+	return error_values
+
+if __name__ == "__main__":
+	process()

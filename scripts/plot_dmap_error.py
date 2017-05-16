@@ -74,3 +74,18 @@ ax.grid(which='major', alpha=1, linewidth=2)
 plt.tight_layout()
 plt.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9)
 plt.show()
+
+# depth vs errors (amount, mean)
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+a = np.load("graph_depth.npy")
+
+# amount
+#plt.plot(a[0], a[1])
+
+print(map(lambda x: np.median(x) if len(x)>0 else 0, a[1]))
+# mean
+plt.plot(a[0], map(lambda x: np.median(x) if len(x)>0 else 0, a[1]))
+plt.show()
