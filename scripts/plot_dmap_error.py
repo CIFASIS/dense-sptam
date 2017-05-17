@@ -82,6 +82,22 @@ import matplotlib.pyplot as plt
 
 a = np.load("graph_depth.npy")
 
+# Create a figure instance
+fig = plt.figure(1, figsize=(9, 6))
+
+# Create an axes instance
+ax = fig.add_subplot(111)
+
+data = np.array(a[1])
+
+# Create the boxplot
+bp = ax.boxplot(data.tolist())
+
+plt.xlabel("Distance to the camera (depth, m)")
+plt.ylabel("Error (m)")
+plt.show()
+
+
 # mean
 plt.plot(a[0], map(lambda x: np.mean(x) if len(x)>0 else 0, a[1]))
 plt.xlabel("Distance to the camera (depth, m)")
@@ -98,11 +114,3 @@ plt.plot(a[0], map(lambda x: np.max(x) if len(x)>0 else 0, a[1]))
 plt.xlabel("Distance to the camera (depth, m)")
 plt.ylabel("Max error (m)")
 plt.show()
-
-bins = a[1]
-for i in range(len(bins)):
-	print i, " of ", len(bins)
-	plt.scatter(np.zeros(len(bins[i])) + a[0][i], bins[i])
-plt.xlabel("Distance to the camera (depth, m)")
-plt.ylabel("Errors (m)")
-plt.savefig("scatter.png")

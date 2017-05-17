@@ -174,8 +174,8 @@ def process():
 	assert(os.path.isdir(args.dmap_dense))
 	assert(os.path.isdir(args.dmap_gt))
 
-	bin_length = 2
-	max_depth = 60
+	bin_length = 1
+	max_depth = 55
 	bins = np.array( range(0, max_depth, bin_length) )
 
 	graph_depth = []
