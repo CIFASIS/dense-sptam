@@ -38,14 +38,14 @@ private:
     void filterDisp(const DispRawImagePtr disp_raw_img);
     bool isValidDisparity(const float disp);
 
-    PointCloudPtr generateCloud(DispRawImagePtr disp_raw_img);
+    PointCloudPtr generateCloud(DispRawImagePtr disp_raw_img, cv::Mat_<int> *match_mat);
 
     void cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos);
 
     PointCloudPtr doStereoscan(PointCloudPtr last_cloud, DispImagePtr disp_img,
                                FrustumCulling *frustum_left, FrustumCulling *frustum_right,
                                CameraPose::Ptr current_pos, double stereoscan_threshold,
-                               struct projection_log *log_data);
+                               struct projection_log *log_data, cv::Mat_<int> *match_mat);
 };
 
 void downsampleCloud(PointCloudPtr cloud, double voxelLeafSize);

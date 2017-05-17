@@ -60,11 +60,17 @@ void ProjectionThread::compute()
                                      dense_->camera_->GetFOV_LH(), dense_->camera_->GetFOV_LV(),
                                      dense_->camera_->getNearPlaneDist(), dense_->camera_->getFarPlaneDist());
 
+        /*
+         * Pixels that were matched/fused are marked in this matrix so they
+         * don't triangulate/add a new point to the map.
+         */
+        cv::Mat_<int> *match_mat = new cv::Mat_<int>(disp_raw_img->second->size(), 0);
+
         for (auto& local_area_entry : dense_->point_clouds_->local_area_queue_) {
             /* No need to lock the entry as no one else will alter its current_pose or cloud */
             PointCloudPtr last_cloud = doStereoscan(local_area_entry->get_cloud(), disp_raw_img->second,
                                                     &frustum_left, &frustum_right,
-                                                    pose_left, dense_->stereoscan_threshold_, &log_data);
+                                                    pose_left, dense_->stereoscan_threshold_, &log_data, match_mat);
             if (last_cloud)
                 local_area_entry->set_cloud(last_cloud);
         }
@@ -76,7 +82,7 @@ void ProjectionThread::compute()
                            log_data.match, log_data.unmatch, log_data.outlier);
 
         filterDisp(disp_raw_img);
-        PointCloudPtr cloud = generateCloud(disp_raw_img);
+        PointCloudPtr cloud = generateCloud(disp_raw_img, match_mat);
         cameraToWorld(cloud, pose_left);
 
         log_data.time_t[2] = GetSeg();
@@ -134,7 +140,7 @@ void ProjectionThread::filterDisp(const DispRawImagePtr disp_raw_img)
  * Generate a point cloud based on a disparity map.
  * Every pixel with a valid disparity is re-projected to the 3D space.
  */
-PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
+PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img, cv::Mat_<int> *match_mat)
 {
     ImagePtr raw_left_image = disp_raw_img->first;
     DispImagePtr disp_img = disp_raw_img->second;
@@ -147,7 +153,8 @@ PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img)
         for (unsigned int j = 0; j < raw_left_image->width; j++) {
             float disp = disp_img->at<float>(i, j);
 
-            if (!isValidDisparity(disp))
+            /* Pixels that were matched/fused don't add new points to the map */
+            if (match_mat->at<int>(i, j) || !isValidDisparity(disp))
                 continue;
 
             cv::Point3d point;
@@ -208,7 +215,7 @@ enum stereoscan_status {
 PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImagePtr disp_img,
                                              FrustumCulling *frustum_left, FrustumCulling *frustum_right,
                                              CameraPose::Ptr current_pos, double stereoscan_threshold,
-                                             struct projection_log *log_data)
+                                             struct projection_log *log_data, cv::Mat_<int> *match_mat)
 {
     if (!stereoscan_threshold)
         return nullptr;
@@ -273,7 +280,8 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
             it.a++;
 
             new_last_cloud->push_back(it);
-            disp_img->at<float>(pixel.y, pixel.x) = PIXEL_DISP_INVALID;
+            /* Mark pixel as matched - Don't triangulate a new point */
+            match_mat->at<int>(pixel.y, pixel.x) = 1;
 
             status[STATUS_MATCH]++;
             continue;
