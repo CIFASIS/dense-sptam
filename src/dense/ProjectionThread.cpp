@@ -287,6 +287,18 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
             continue;
         }
 
+        if (new_cvpos.z < cvpos.z) {
+            /*
+             * Don't discard points that were behind the new one.
+             * We consider that those points belong to different objects, thus
+             * the point is being occluded and that's why is doesn't get projected
+             * on the image plane.
+             */
+            new_last_cloud->push_back(it);
+            status[STATUS_UNMATCH]++;
+            continue;
+        }
+
         /* Point didn't match, decrement the view-counter. */
         if (it.a > OUTLIER_VIEWS_THRESHOLD) {
             it.a--;
