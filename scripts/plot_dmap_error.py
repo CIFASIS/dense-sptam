@@ -82,10 +82,6 @@ import matplotlib.pyplot as plt
 
 a = np.load("graph_depth.npy")
 
-# amount
-#plt.plot(a[0], a[1])
-
-print(map(lambda x: np.median(x) if len(x)>0 else 0, a[1]))
 # mean
 plt.plot(a[0], map(lambda x: np.mean(x) if len(x)>0 else 0, a[1]))
 plt.xlabel("Distance to the camera (depth, m)")
@@ -102,3 +98,11 @@ plt.plot(a[0], map(lambda x: np.max(x) if len(x)>0 else 0, a[1]))
 plt.xlabel("Distance to the camera (depth, m)")
 plt.ylabel("Max error (m)")
 plt.show()
+
+bins = a[1]
+for i in range(len(bins)):
+	print i, " of ", len(bins)
+	plt.scatter(np.zeros(len(bins[i])) + a[0][i], bins[i])
+plt.xlabel("Distance to the camera (depth, m)")
+plt.ylabel("Errors (m)")
+plt.savefig("scatter.png")
