@@ -87,5 +87,18 @@ a = np.load("graph_depth.npy")
 
 print(map(lambda x: np.median(x) if len(x)>0 else 0, a[1]))
 # mean
+plt.plot(a[0], map(lambda x: np.mean(x) if len(x)>0 else 0, a[1]))
+plt.xlabel("Distance to the camera (depth, m)")
+plt.ylabel("Mean error (m)")
+plt.show()
+
 plt.plot(a[0], map(lambda x: np.median(x) if len(x)>0 else 0, a[1]))
+plt.xlabel("Distance to the camera (depth, m)")
+plt.ylabel("Median error (m)")
+plt.show()
+
+
+plt.plot(a[0], map(lambda x: np.max(x) if len(x)>0 else 0, a[1]))
+plt.xlabel("Distance to the camera (depth, m)")
+plt.ylabel("Max error (m)")
 plt.show()
