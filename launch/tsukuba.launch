@@ -22,7 +22,7 @@
   <node name="nodelet_manager" pkg="nodelet" type="nodelet" args="manager" output="screen" clear_params="true" />
 
   <!-- S-PTAM node -->
-  <node pkg="nodelet" type="nodelet" name="sptam" args="load sptam/SPTAMNodelet nodelet_manager" output="screen" clear_params="true">
+  <node pkg="nodelet" type="nodelet" name="sptam" args="load sptam/sptam_nodelet nodelet_manager" output="screen" clear_params="true">
 
     <!-- Read S-PTAM parameters file -->
     <rosparam command="load" file="$(find sptam)/configurationFiles/tsukuba.yaml" />
@@ -52,7 +52,7 @@
 
 	<param name="stereoscan_threshold" value="0.25"/>
 	<param name="FrustumNearPlaneDist" value="0.0001"/>
-	<param name="FrustumFarPlaneDist" value="50"/>
+  <param name="FrustumFarPlaneDist" value="20"/>
 	<param name="libelas_ipol_gap" value="1000"/>
 
 	<param name="local_area_size" value="10"/>
