@@ -345,6 +345,8 @@ int dmap_to_color(const char *in_file, const char *out_file)
     /* Dmap must come in meters */
     saveColorImage(img_data, 1 * 20, img_height, img_width, out_file);
 
+    std::cout << "Generated color image " << out_file << std::endl;
+
     return 0;
 }
 
@@ -364,6 +366,8 @@ int xml_to_color(const char *in_file, const char *out_file)
     saveColorImage((float*)img.data, 0.01 * 20, img.rows, img.cols, out_file);
     storage.release();
 
+    std::cout << "Generated color map " << out_file << std::endl;
+
     return 0;
 }
 
@@ -382,6 +386,8 @@ int xml_to_depth(const char *in_file, const char *out_file)
     /* Tsukuba depth images are in cm */
     saveDepthImage((float*)img.data, 0.01, img.rows, img.cols, out_file);
     storage.release();
+
+    std::cout << "Generated depth map " << out_file << std::endl;
 
     return 0;
 }
