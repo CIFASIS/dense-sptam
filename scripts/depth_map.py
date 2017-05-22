@@ -142,7 +142,7 @@ def classify_near_far(data, gt, bins, bin_length):
 	err = zip(gt, err)
 
 	# take out invalid values (== -1)
-	err = filter(lambda x: x[0] >= 0, err)
+	err = filter(lambda x: x[0] >= 0 or x[1] >=0, err)
 
 	res = []
 	for i in range(len(bins)):
@@ -154,12 +154,13 @@ def classify_near_far(data, gt, bins, bin_length):
 		gt_depth = err[i][0]
 		error_gt = err[i][1]
 
-		# find bin: [0-X] -> 0, (X-2X] -> 1, ....
-		f = int(np.floor(gt_depth / bin_length))
+		if error_gt != -1:
+			# find bin: [0-X] -> 0, (X-2X] -> 1, ....
+			f = int(np.floor(gt_depth / bin_length))
 
-		# act
-		if f < len(bins):
-			res[f].append(error_gt)
+			# act
+			if f < len(bins):
+				res[f].append(error_gt)
 
 	return np.array(res)
 
@@ -174,9 +175,10 @@ def process():
 	assert(os.path.isdir(args.dmap_dense))
 	assert(os.path.isdir(args.dmap_gt))
 
+	# TODO: take as argument
 	bin_length = 1
-	max_depth = 55
-	bins = np.array( range(0, max_depth, bin_length) )
+	max_depth = 20
+	bins = range(0, max_depth, bin_length)
 
 	graph_depth = []
 	# y axis for plotting depth vs errors
@@ -198,6 +200,7 @@ def process():
 
 	files_count = 0
 	files_total = len(os.listdir(args.dmap_dense))
+
 	for f in os.listdir(args.dmap_dense):
 		if f.endswith(".dmap") and os.path.isfile(args.dmap_gt + '/' + f):
 			# log filename
@@ -236,16 +239,16 @@ def process():
 			print("Processed: " + f + " - " + str(files_count) + "/" + str(files_total))
 
 			#np.save("graph_depth.npy", np.array([np.array(bins), np.array(graph_depth)]))
-			np.save("graph_depth.npy", [bins, np.array(graph_depth)])
+			# check that it is not empty data
+			if len(np.array(graph_depth).shape) == 1 :
+				np.save("graph_depth.npy", [bins, np.array(graph_depth)])
 
-	diff_list_file = open('diff_list.txt', 'w')
-	for item in diff_list:
-		diff_list_file.write("%s," % item)
-	diff_list_file.close()
+		diff_list_file = open('diff_list.txt', 'w')
+		for item in diff_list:
+			diff_list_file.write("%s," % item)
+		diff_list_file.close()
 
 	logfile.close()
-
-	return error_values
 
 if __name__ == "__main__":
 	process()
