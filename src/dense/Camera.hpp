@@ -80,9 +80,9 @@ public:
     inline double distance(CameraPose& pose)
     { return (this->get_position() - pose.get_position()).norm(); }
 
-    inline Position ToWorld(const Position& x) const
+    inline Eigen::Vector3d ToWorld(const Eigen::Vector3d& x) const
     { return orientation_matrix_ * x + position_; }
-    inline Position ToCamera(const Position& x) const
+    inline Eigen::Vector3d ToCamera(const Eigen::Vector3d& x) const
     { return orientation_matrix_.transpose() * (x - position_); }
 
     int save(const char *filename, const char *mode="w+");

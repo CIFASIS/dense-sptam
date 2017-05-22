@@ -194,7 +194,7 @@ PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img, cv::
 void ProjectionThread::cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos)
 {
     for (auto& it: *cloud) {
-        CameraPose::Position pos(it.x, it.y, it.z);
+        Eigen::Vector3d pos(it.x, it.y, it.z);
         pos = current_pos->ToWorld(pos);
         it.x = pos(0);
         it.y = pos(1);
@@ -225,7 +225,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
     unsigned int status[STATUS_LENGTH] = { 0 };
 
     for (auto& it: *last_cloud) {
-        CameraPose::Position pos(it.x, it.y, it.z);
+        Eigen::Vector3d pos(it.x, it.y, it.z);
 
         /*
          * Points outside current -stereo- frustum of view are omitted,
@@ -267,7 +267,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
         /* StereoScan part */
         if (cv::norm(diff) < stereoscan_threshold) {
             cvpos += diff / 2;
-            CameraPose::Position new_pos(cvpos.x, cvpos.y, cvpos.z);
+            Eigen::Vector3d new_pos(cvpos.x, cvpos.y, cvpos.z);
             new_pos = current_pos->ToWorld(new_pos);
 
             it.x = new_pos(0);
