@@ -6,11 +6,44 @@
 #include <condition_variable>
 #include <unordered_map>
 #include <pcl_ros/point_cloud.h>
+#include "pcl/impl/point_types.hpp"
 
 #include "Camera.hpp"
 #include "DispImageQueue.hpp"
 
-typedef pcl::PointXYZRGB Point;
+inline Eigen::Vector3d CVToEigen(const cv::Point3d& pt)
+{ return Eigen::Vector3d(pt.x, pt.y, pt.z); }
+
+inline cv::Point3d EigenToCV(const Eigen::Vector3d& pt)
+{ return cv::Point3d(pt(0), pt(1), pt(2)); }
+
+class Point : public pcl::PointXYZRGB
+{
+public:
+
+    inline cv::Point3d asCV(void)
+    { return cv::Point3d(this->x, this->y, this->z); }
+
+    inline Eigen::Vector3d asEigen(void)
+    { return Eigen::Vector3d(this->x, this->y, this->z); }
+
+    inline void fromCV(const cv::Point3d& pt)
+    { this->x = pt.x; this->y = pt.y; this->z = pt.z; }
+
+    inline void fromEigen(const Eigen::Vector3d& pt)
+    { this->x = pt(0); this->y = pt(1); this->z = pt(2); }
+
+private:
+
+};
+
+POINT_CLOUD_REGISTER_POINT_STRUCT (Point,
+                                   (float, x, x)
+                                   (float, y, y)
+                                   (float, z, z)
+                                   (float, rgb, rgb)
+)
+
 typedef pcl::PointCloud<Point> PointCloud;
 typedef PointCloud::Ptr PointCloudPtr;
 
