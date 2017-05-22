@@ -203,6 +203,12 @@ enum stereoscan_status {
     STATUS_LENGTH,
 };
 
+Eigen::Vector3d ProjectionThread::fuseSimpleMean(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
+                                                 CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt)
+{
+    return (prev_pt + current_pt) / 2;
+}
+
 void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePtr disp_img,
                                     FrustumCulling *frustum_left, FrustumCulling *frustum_right,
                                     CameraPose::Ptr current_pos, double stereoscan_threshold,
@@ -211,12 +217,11 @@ void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePt
     if (!stereoscan_threshold)
         return;
 
-    PointCloudPtr prev_cloud = prev_entry->get_cloud();
     PointCloudPtr new_prev_cloud(new PointCloud);
 
     unsigned int status[STATUS_LENGTH] = { 0 };
 
-    for (auto& it: *prev_cloud) {
+    for (auto& it: *prev_entry->get_cloud()) {
         /*
          * Points outside current -stereo- frustum of view are omitted,
          * i.e. kept in its original cloud.
@@ -249,14 +254,15 @@ void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePt
             continue;
         }
 
-        cv::Point3d new_pt;
-        dense_->camera_->getStereoModel().projectDisparityTo3d(pixel, disp, new_pt);
+        cv::Point3d new_pt_cv;
+        dense_->camera_->getStereoModel().projectDisparityTo3d(pixel, disp, new_pt_cv);
 
         /* StereoScan part */
-        if (cv::norm(new_pt - prev_pt) < stereoscan_threshold) {
-            prev_pt = (prev_pt + new_pt) / 2;
+        if (cv::norm(new_pt_cv - prev_pt) < stereoscan_threshold) {
+            CameraPose::Ptr prev_pos = prev_entry->get_current_pos();
+            Eigen::Vector3d new_pt_eigen = current_pos->ToWorld(CVToEigen(new_pt_cv));
 
-            it.fromEigen(current_pos->ToWorld(CVToEigen(prev_pt)));
+            it.fromEigen(fuseSimpleMean(current_pos, new_pt_eigen, prev_pos, it.asEigen()));
             /*
              * Point matched, increment the view-counter.
              * NOTE: see alpha channel note above.
@@ -271,7 +277,7 @@ void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePt
             continue;
         }
 
-        if (new_pt.z < prev_pt.z) {
+        if (new_pt_cv.z < prev_pt.z) {
             /*
              * Don't discard points that were behind the new one.
              * We consider that those points belong to different objects, thus

@@ -42,6 +42,9 @@ private:
 
     void cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos);
 
+    Eigen::Vector3d fuseSimpleMean(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
+                                   CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt);
+
     void doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePtr disp_img,
                       FrustumCulling *frustum_left, FrustumCulling *frustum_right,
                       CameraPose::Ptr current_pos, double stereoscan_threshold,
