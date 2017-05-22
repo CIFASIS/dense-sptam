@@ -298,11 +298,15 @@ void saveColorImage(float *disp_data, float scale, int img_height, int img_width
 void saveDepthImage(float *disp_data, float scale, int img_height, int img_width, const char *filename)
 {
     FILE *fp = fopen(filename, "w+");
-    int i;
+
+    if (!fp) {
+        std::cout << "ERROR: failed to open file " << filename << std::endl;
+        exit(1);
+    }
 
     fprintf(fp, "%d,%d\n", img_height, img_width);
 
-    for (i = 0; i < img_width * img_height; i++)
+    for (int i = 0; i < img_width * img_height; i++)
         fprintf(fp, "%f,", disp_data[i] * scale);
 
     fclose(fp);
