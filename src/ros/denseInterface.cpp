@@ -33,6 +33,7 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     nhp.param<double>("VoxelLeafSize", voxelLeafSize_, 0);
     nhp.param<double>("max_distance", max_distance_, 0);
     nhp.param<double>("stereoscan_threshold", stereoscan_threshold_, 0);
+    nhp.param<std::string>("fusion_heuristic", fusion_heuristic_, "");
     nhp.param<int>("local_area_size", local_area_size_, 1);
     nhp.param<double>("pub_area_filter_min", pub_area_filter_min_, 0);
 
@@ -189,8 +190,8 @@ void dense::denseInterface::cb_images(
 
     if (!dense_)
         dense_ = new Dense(left_info, right_info, frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_,
-                           output_dir_, disp_calc_method_,
-                           max_distance_, stereoscan_threshold_, local_area_size_, libelas_ipol_gap_, add_corners_,
+                           output_dir_, disp_calc_method_, max_distance_, stereoscan_threshold_, fusion_heuristic_,
+                           local_area_size_, libelas_ipol_gap_, add_corners_,
                            sigma_, refinement_linear_threshold_, refinement_angular_threshold_);
 
     /* Single mode: Load clouds/poses, generate depth maps, then exit */

@@ -13,9 +13,8 @@ public:
 
     Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
           double frustumNearPlaneDist, double frustumFarPlaneDist, double voxelLeafSize,
-          std::string output_dir, std::string disp_calc_method,
-          double max_distance,
-          double stereoscan_threshold, int local_area_size, int libelas_ipol_gap,
+          std::string output_dir, std::string disp_calc_method, double max_distance,
+          double stereoscan_threshold, std::string fusion_heuristic, int local_area_size, int libelas_ipol_gap,
           bool add_corners, double sigma, double refinement_linear_threshold, double refinement_angular_threshold
     );
     ~Dense();
@@ -26,6 +25,7 @@ public:
     double frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_;
     std::string output_dir_, disp_calc_method_;
     double max_distance_, stereoscan_threshold_;
+    std::string fusion_heuristic_;
     int local_area_size_;
     int libelas_ipol_gap_;
     bool add_corners_;

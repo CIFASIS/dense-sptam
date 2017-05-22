@@ -38,7 +38,7 @@ namespace dense
         std::string base_frame_, camera_frame_, map_frame_;
         double frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_;
         double max_distance_, stereoscan_threshold_, sigma_;
-        std::string disp_calc_method_;
+        std::string disp_calc_method_, fusion_heuristic_;
         int local_area_size_, libelas_ipol_gap_;
         bool add_corners_;
         std::string single_cloud_path_, single_depth_map_clouds_, single_depth_map_poses_,

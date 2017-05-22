@@ -8,7 +8,7 @@ namespace fs = boost::filesystem;
 Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
              double frustumNearPlaneDist, double frustumFarPlaneDist, double voxelLeafSize,
              std::string output_dir, std::string disp_calc_method,
-             double max_distance, double stereoscan_threshold,
+             double max_distance, double stereoscan_threshold, std::string fusion_heuristic,
              int local_area_size, int libelas_ipol_gap, bool add_corners, double sigma,
              double refinement_linear_threshold, double refinement_angular_threshold)
   : left_info_(left_info)
@@ -20,6 +20,7 @@ Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs
   , disp_calc_method_(disp_calc_method)
   , max_distance_(max_distance)
   , stereoscan_threshold_(stereoscan_threshold)
+  , fusion_heuristic_(fusion_heuristic)
   , local_area_size_(local_area_size)
   , libelas_ipol_gap_(libelas_ipol_gap)
   , add_corners_(add_corners)

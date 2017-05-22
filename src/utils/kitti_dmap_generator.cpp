@@ -105,6 +105,7 @@ int main(int argc, char* argv[]){
   std::string disp_calc_method;
   double max_distance;
   double stereoscan_threshold;
+  std::string fusion_heuristic;
   int local_area_size;
   int libelas_ipol_gap;
   bool add_corners;
@@ -127,6 +128,7 @@ int main(int argc, char* argv[]){
       else if (key == "disp_calc_method") disp_calc_method = it.second.as<std::string>();
       else if (key == "max_distance") max_distance = it.second.as<double>();
       else if (key == "stereoscan_threshold") stereoscan_threshold = it.second.as<double>();
+      else if (key == "fusion_heuristic") fusion_heuristic = it.second.as<std::string>();
       else if (key == "local_area_size") local_area_size = it.second.as<int>();
       else if (key == "libelas_ipol_gap") libelas_ipol_gap = it.second.as<double>();
       else if (key == "add_corners") add_corners = it.second.as<bool>();
@@ -212,7 +214,7 @@ int main(int argc, char* argv[]){
   Dense *dense = new Dense( left_info, right_info,
                             frustumNearPlaneDist, frustumFarPlaneDist, voxelLeafSize,
                             output_path, disp_calc_method,
-                            max_distance, stereoscan_threshold,
+                            max_distance, stereoscan_threshold, fusion_heuristic,
                             local_area_size, libelas_ipol_gap, add_corners, sigma,
                             refinement_linear_threshold, refinement_angular_threshold );
 

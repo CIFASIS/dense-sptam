@@ -9,10 +9,26 @@
 
 #define OUTLIER_VIEWS_THRESHOLD         1
 
+Eigen::Vector3d fuseSimpleMean(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
+                               CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt);
+Eigen::Vector3d fuseWeigthDistances(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
+                                    CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt);
+
 ProjectionThread::ProjectionThread(Dense *dense)
   : dense_(dense)
   , projectionThread_(&ProjectionThread::compute, this)
-{}
+{
+    if (dense->fusion_heuristic_ == "simpleMean") {
+        this->fusionHeuristic = fuseSimpleMean;
+    } else if (dense->fusion_heuristic_ == "weigthDistances") {
+        this->fusionHeuristic = fuseWeigthDistances;
+    } else {
+        ROS_ERROR_STREAM("ProjectionThread: bad parameter fusion_heuristic!");
+        abort();
+    }
+
+    ROS_INFO_STREAM("ProjectionThread: using fusion heuristic " << dense->fusion_heuristic_);
+}
 
 void ProjectionThread::compute()
 {
@@ -203,14 +219,14 @@ enum stereoscan_status {
     STATUS_LENGTH,
 };
 
-Eigen::Vector3d ProjectionThread::fuseSimpleMean(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
-                                                 CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt)
+Eigen::Vector3d fuseSimpleMean(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
+                               CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt)
 {
     return (prev_pt + current_pt) / 2;
 }
 
-Eigen::Vector3d ProjectionThread::fuseWeigthDistances(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
-                                                      CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt)
+Eigen::Vector3d fuseWeigthDistances(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
+                                    CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt)
 {
     double dist_near, dist_far, alpha;
     Eigen::Vector3d pt_near, pt_far;
@@ -291,8 +307,8 @@ void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePt
             CameraPose::Ptr prev_pos = prev_entry->get_current_pos();
             Eigen::Vector3d new_pt_eigen = current_pos->ToWorld(CVToEigen(new_pt_cv));
 
-            //it.fromEigen(fuseSimpleMean(current_pos, new_pt_eigen, prev_pos, it.asEigen()));
-            it.fromEigen(fuseWeigthDistances(current_pos, new_pt_eigen, prev_pos, it.asEigen()));
+            if (fusionHeuristic)
+                it.fromEigen(fusionHeuristic(current_pos, new_pt_eigen, prev_pos, it.asEigen()));
             /*
              * Point matched, increment the view-counter.
              * NOTE: see alpha channel note above.
