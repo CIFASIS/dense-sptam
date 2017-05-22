@@ -63,6 +63,9 @@
     <param name="VoxelLeafSize" value="0.1"/>
 
     <param name="stereoscan_threshold" value="0.25"/>
+    <!--param name="fusion_heuristic" value="simpleMean"/-->
+    <param name="fusion_heuristic" value="weigthDistances"/>
+
     <param name="FrustumNearPlaneDist" value="0.0001"/>
     <param name="FrustumFarPlaneDist" value="50"/>
     <param name="libelas_ipol_gap" value="1000"/>
