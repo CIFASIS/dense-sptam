@@ -42,7 +42,7 @@ private:
 
     void cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos);
 
-    PointCloudPtr doStereoscan(PointCloudPtr last_cloud, DispImagePtr disp_img,
+    PointCloudPtr doStereoscan(PointCloudEntry::Ptr last_entry, DispImagePtr disp_img,
                                FrustumCulling *frustum_left, FrustumCulling *frustum_right,
                                CameraPose::Ptr current_pos, double stereoscan_threshold,
                                struct projection_log *log_data, cv::Mat_<int> *match_mat);

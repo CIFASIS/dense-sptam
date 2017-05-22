@@ -68,7 +68,7 @@ void ProjectionThread::compute()
 
         for (auto& local_area_entry : dense_->point_clouds_->local_area_queue_) {
             /* No need to lock the entry as no one else will alter its current_pose or cloud */
-            PointCloudPtr last_cloud = doStereoscan(local_area_entry->get_cloud(), disp_raw_img->second,
+            PointCloudPtr last_cloud = doStereoscan(local_area_entry, disp_raw_img->second,
                                                     &frustum_left, &frustum_right,
                                                     pose_left, dense_->stereoscan_threshold_, &log_data, match_mat);
             if (last_cloud)
@@ -212,7 +212,7 @@ enum stereoscan_status {
     STATUS_LENGTH,
 };
 
-PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImagePtr disp_img,
+PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr last_entry, DispImagePtr disp_img,
                                              FrustumCulling *frustum_left, FrustumCulling *frustum_right,
                                              CameraPose::Ptr current_pos, double stereoscan_threshold,
                                              struct projection_log *log_data, cv::Mat_<int> *match_mat)
@@ -220,6 +220,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
     if (!stereoscan_threshold)
         return nullptr;
 
+    PointCloudPtr last_cloud = last_entry->get_cloud();
     PointCloudPtr new_last_cloud(new PointCloud);
 
     unsigned int status[STATUS_LENGTH] = { 0 };
@@ -267,6 +268,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudPtr last_cloud, DispImage
         /* StereoScan part */
         if (cv::norm(diff) < stereoscan_threshold) {
             cvpos += diff / 2;
+
             Eigen::Vector3d new_pos(cvpos.x, cvpos.y, cvpos.z);
             new_pos = current_pos->ToWorld(new_pos);
 
