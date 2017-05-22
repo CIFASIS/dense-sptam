@@ -381,7 +381,7 @@ int main(int argc, char* argv[])
 {
     int ret = 0;
 
-    if (argc < 3)
+    if (argc < 4)
         return usage(argv[0]);
 
     if (strcmp(argv[1], "color") == 0) {
