@@ -66,11 +66,11 @@ void ProjectionThread::compute()
 
         for (auto& local_area_entry : dense_->point_clouds_->local_area_queue_) {
             /* No need to lock the entry as no one else will alter its current_pose or cloud */
-            PointCloudPtr last_cloud = doStereoscan(local_area_entry, disp_raw_img->second,
+            PointCloudPtr prev_cloud = doStereoscan(local_area_entry, disp_raw_img->second,
                                                     &frustum_left, &frustum_right,
                                                     pose_left, dense_->stereoscan_threshold_, match_mat);
-            if (last_cloud)
-                local_area_entry->set_cloud(last_cloud);
+            if (prev_cloud)
+                local_area_entry->set_cloud(prev_cloud);
         }
 
         log_data.time_t[1] = GetSeg();
@@ -210,7 +210,7 @@ enum stereoscan_status {
     STATUS_LENGTH,
 };
 
-PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr last_entry, DispImagePtr disp_img,
+PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePtr disp_img,
                                              FrustumCulling *frustum_left, FrustumCulling *frustum_right,
                                              CameraPose::Ptr current_pos, double stereoscan_threshold,
                                              cv::Mat_<int> *match_mat)
@@ -218,12 +218,12 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr last_entry, Di
     if (!stereoscan_threshold)
         return nullptr;
 
-    PointCloudPtr last_cloud = last_entry->get_cloud();
-    PointCloudPtr new_last_cloud(new PointCloud);
+    PointCloudPtr prev_cloud = prev_entry->get_cloud();
+    PointCloudPtr new_prev_cloud(new PointCloud);
 
     unsigned int status[STATUS_LENGTH] = { 0 };
 
-    for (auto& it: *last_cloud) {
+    for (auto& it: *prev_cloud) {
         Eigen::Vector3d pos(it.x, it.y, it.z);
 
         /*
@@ -232,7 +232,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr last_entry, Di
          */
         if (!frustum_left->Contains(pos) || !frustum_right->Contains(pos)) {
             status[STATUS_OUT_OF_IMAGE]++;
-            new_last_cloud->push_back(it);
+            new_prev_cloud->push_back(it);
             continue;
         }
 
@@ -246,7 +246,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr last_entry, Di
          */
         if (pixel.y < 0 || pixel.x < 0 || disp_img->rows < pixel.y || disp_img->cols < pixel.x) {
             status[STATUS_OUT_OF_IMAGE]++;
-            new_last_cloud->push_back(it);
+            new_prev_cloud->push_back(it);
             continue;
         }
 
@@ -255,7 +255,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr last_entry, Di
         /* Pixels with invalid disparity are omitted */
         if (!finite(disp) || disp <= 0) {
             status[STATUS_INVALID]++;
-            new_last_cloud->push_back(it);
+            new_prev_cloud->push_back(it);
             continue;
         }
 
@@ -279,7 +279,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr last_entry, Di
              */
             it.a++;
 
-            new_last_cloud->push_back(it);
+            new_prev_cloud->push_back(it);
             /* Mark pixel as matched - Don't triangulate a new point */
             match_mat->at<int>(pixel.y, pixel.x) = 1;
 
@@ -294,7 +294,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr last_entry, Di
              * the point is being occluded and that's why is doesn't get projected
              * on the image plane.
              */
-            new_last_cloud->push_back(it);
+            new_prev_cloud->push_back(it);
             status[STATUS_UNMATCH]++;
             continue;
         }
@@ -302,7 +302,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr last_entry, Di
         /* Point didn't match, decrement the view-counter. */
         if (it.a > OUTLIER_VIEWS_THRESHOLD) {
             it.a--;
-            new_last_cloud->push_back(it);
+            new_prev_cloud->push_back(it);
             status[STATUS_UNMATCH]++;
             continue;
         }
@@ -322,7 +322,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr last_entry, Di
               status[STATUS_OUT_OF_IMAGE], status[STATUS_INVALID], status[STATUS_MATCH],
               status[STATUS_UNMATCH], status[STATUS_OUTLIER]);
 
-    return new_last_cloud;
+    return new_prev_cloud;
 }
 
 /*
