@@ -161,9 +161,7 @@ PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img, cv::
             dense_->camera_->getStereoModel().projectDisparityTo3d(pixel, disp, point);
 
             Point new_pt3d;
-            new_pt3d.x = point.x;
-            new_pt3d.y = point.y;
-            new_pt3d.z = point.z;
+            new_pt3d.fromCV(point);
             /*
              * FIXME: we're using the alpha channel as the view-counter, which is used to
              * check a point should be discarded when it doesn't match.
@@ -191,13 +189,8 @@ PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img, cv::
  */
 void ProjectionThread::cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos)
 {
-    for (auto& it: *cloud) {
-        Eigen::Vector3d pos(it.x, it.y, it.z);
-        pos = current_pos->ToWorld(pos);
-        it.x = pos(0);
-        it.y = pos(1);
-        it.z = pos(2);
-    }
+    for (auto& it: *cloud)
+        it.fromEigen(current_pos->ToWorld(it.asEigen()));
 }
 
 enum stereoscan_status {
@@ -224,21 +217,18 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, Di
     unsigned int status[STATUS_LENGTH] = { 0 };
 
     for (auto& it: *prev_cloud) {
-        Eigen::Vector3d pos(it.x, it.y, it.z);
-
         /*
          * Points outside current -stereo- frustum of view are omitted,
          * i.e. kept in its original cloud.
          */
-        if (!frustum_left->Contains(pos) || !frustum_right->Contains(pos)) {
+        if (!frustum_left->Contains(it.asEigen()) || !frustum_right->Contains(it.asEigen())) {
             status[STATUS_OUT_OF_IMAGE]++;
             new_prev_cloud->push_back(it);
             continue;
         }
 
-        pos = current_pos->ToCamera(pos);
-        cv::Point3d cvpos(pos(0), pos(1), pos(2));
-        cv::Point2i pixel = dense_->camera_->getStereoModel().left().project3dToPixel(cvpos);
+        cv::Point3d prev_pt = EigenToCV(current_pos->ToCamera(it.asEigen()));
+        cv::Point2i pixel = dense_->camera_->getStereoModel().left().project3dToPixel(prev_pt);
 
         /*
          * FIXME: this condition shouldn't be satisfied after applying FrustumCulling.
@@ -259,20 +249,14 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, Di
             continue;
         }
 
-        cv::Point3d new_cvpos, diff;
-        dense_->camera_->getStereoModel().projectDisparityTo3d(pixel, disp, new_cvpos);
-        diff = new_cvpos - cvpos;
+        cv::Point3d new_pt;
+        dense_->camera_->getStereoModel().projectDisparityTo3d(pixel, disp, new_pt);
 
         /* StereoScan part */
-        if (cv::norm(diff) < stereoscan_threshold) {
-            cvpos += diff / 2;
+        if (cv::norm(new_pt - prev_pt) < stereoscan_threshold) {
+            prev_pt = (prev_pt + new_pt) / 2;
 
-            Eigen::Vector3d new_pos(cvpos.x, cvpos.y, cvpos.z);
-            new_pos = current_pos->ToWorld(new_pos);
-
-            it.x = new_pos(0);
-            it.y = new_pos(1);
-            it.z = new_pos(2);
+            it.fromEigen(current_pos->ToWorld(CVToEigen(prev_pt)));
             /*
              * Point matched, increment the view-counter.
              * NOTE: see alpha channel note above.
@@ -287,7 +271,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, Di
             continue;
         }
 
-        if (new_cvpos.z < cvpos.z) {
+        if (new_pt.z < prev_pt.z) {
             /*
              * Don't discard points that were behind the new one.
              * We consider that those points belong to different objects, thus
