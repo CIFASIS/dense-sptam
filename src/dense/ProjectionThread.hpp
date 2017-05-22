@@ -42,10 +42,10 @@ private:
 
     void cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr current_pos);
 
-    PointCloudPtr doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePtr disp_img,
-                               FrustumCulling *frustum_left, FrustumCulling *frustum_right,
-                               CameraPose::Ptr current_pos, double stereoscan_threshold,
-                               cv::Mat_<int> *match_mat);
+    void doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePtr disp_img,
+                      FrustumCulling *frustum_left, FrustumCulling *frustum_right,
+                      CameraPose::Ptr current_pos, double stereoscan_threshold,
+                      cv::Mat_<int> *match_mat, PointCloudPtr current_cloud);
 };
 
 void downsampleCloud(PointCloudPtr cloud, double voxelLeafSize);

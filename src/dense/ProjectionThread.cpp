@@ -64,13 +64,12 @@ void ProjectionThread::compute()
          */
         cv::Mat_<int> *match_mat = new cv::Mat_<int>(disp_raw_img->second->size(), 0);
 
+        PointCloudPtr current_cloud(new PointCloud);
+
         for (auto& local_area_entry : dense_->point_clouds_->local_area_queue_) {
             /* No need to lock the entry as no one else will alter its current_pose or cloud */
-            PointCloudPtr prev_cloud = doStereoscan(local_area_entry, disp_raw_img->second,
-                                                    &frustum_left, &frustum_right,
-                                                    pose_left, dense_->stereoscan_threshold_, match_mat);
-            if (prev_cloud)
-                local_area_entry->set_cloud(prev_cloud);
+            doStereoscan(local_area_entry, disp_raw_img->second, &frustum_left, &frustum_right,
+                         pose_left, dense_->stereoscan_threshold_, match_mat, current_cloud);
         }
 
         log_data.time_t[1] = GetSeg();
@@ -82,6 +81,7 @@ void ProjectionThread::compute()
         filterDisp(disp_raw_img);
         PointCloudPtr cloud = generateCloud(disp_raw_img, match_mat);
         cameraToWorld(cloud, pose_left);
+        *cloud += *current_cloud;
 
         log_data.time_t[2] = GetSeg();
 
@@ -203,13 +203,13 @@ enum stereoscan_status {
     STATUS_LENGTH,
 };
 
-PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePtr disp_img,
-                                             FrustumCulling *frustum_left, FrustumCulling *frustum_right,
-                                             CameraPose::Ptr current_pos, double stereoscan_threshold,
-                                             cv::Mat_<int> *match_mat)
+void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePtr disp_img,
+                                    FrustumCulling *frustum_left, FrustumCulling *frustum_right,
+                                    CameraPose::Ptr current_pos, double stereoscan_threshold,
+                                    cv::Mat_<int> *match_mat, PointCloudPtr current_cloud)
 {
     if (!stereoscan_threshold)
-        return nullptr;
+        return;
 
     PointCloudPtr prev_cloud = prev_entry->get_cloud();
     PointCloudPtr new_prev_cloud(new PointCloud);
@@ -263,7 +263,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, Di
              */
             it.a++;
 
-            new_prev_cloud->push_back(it);
+            current_cloud->push_back(it);
             /* Mark pixel as matched - Don't triangulate a new point */
             match_mat->at<int>(pixel.y, pixel.x) = 1;
 
@@ -306,7 +306,7 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, Di
               status[STATUS_OUT_OF_IMAGE], status[STATUS_INVALID], status[STATUS_MATCH],
               status[STATUS_UNMATCH], status[STATUS_OUTLIER]);
 
-    return new_prev_cloud;
+    prev_entry->set_cloud(new_prev_cloud);
 }
 
 /*
