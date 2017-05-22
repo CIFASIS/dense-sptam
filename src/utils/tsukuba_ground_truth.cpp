@@ -3,6 +3,7 @@
 #include "../dense/Camera.hpp"
 
 using namespace std;
+namespace fs = boost::filesystem;
 
 static unsigned char colormap[768] = {
     150, 150, 150,
@@ -347,10 +348,15 @@ int dmap_to_color(const char *in_file, const char *out_file)
     return 0;
 }
 
-
 int xml_to_color(const char *in_file, const char *out_file)
 {
     cv::Mat img;
+
+    if (!fs::exists(in_file) || !fs::is_regular_file(in_file)) {
+        std::cout << "ERROR: failed to open " << in_file << std::endl;
+        exit(1);
+    }
+
     cv::FileStorage storage(in_file, cv::FileStorage::READ);
     storage["depth"] >> img;
 
@@ -364,6 +370,12 @@ int xml_to_color(const char *in_file, const char *out_file)
 int xml_to_depth(const char *in_file, const char *out_file)
 {
     cv::Mat img;
+
+    if (!fs::exists(in_file) || !fs::is_regular_file(in_file)) {
+        std::cout << "ERROR: failed to open " << in_file << std::endl;
+        exit(1);
+    }
+
     cv::FileStorage storage(in_file, cv::FileStorage::READ);
     storage["depth"] >> img;
 
