@@ -209,6 +209,35 @@ Eigen::Vector3d ProjectionThread::fuseSimpleMean(CameraPose::Ptr current_pos, Ei
     return (prev_pt + current_pt) / 2;
 }
 
+Eigen::Vector3d ProjectionThread::fuseWeigthDistances(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
+                                                      CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt)
+{
+    double dist_near, dist_far, alpha;
+    Eigen::Vector3d pt_near, pt_far;
+
+    Eigen::Vector3d current_pos_eigen = current_pos->get_position();
+    Eigen::Vector3d prev_pos_eigen = prev_pos->get_position();
+
+    double current_pos_dist = cv::norm(EigenToCV(current_pos_eigen - current_pt));
+    double prev_pos_dist = cv::norm(EigenToCV(prev_pos_eigen - prev_pt));
+
+    if (current_pos_dist < prev_pos_dist) {
+        dist_near = current_pos_dist;
+        pt_near = current_pt;
+        dist_far = prev_pos_dist;
+        pt_far = prev_pt;
+    } else {
+        dist_near = prev_pos_dist;
+        pt_near = prev_pt;
+        dist_far = current_pos_dist;
+        pt_far = current_pt;
+    }
+
+    alpha = dist_near / (2 * dist_far);
+
+    return ((1 - alpha) * pt_near + alpha * pt_far);
+}
+
 void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePtr disp_img,
                                     FrustumCulling *frustum_left, FrustumCulling *frustum_right,
                                     CameraPose::Ptr current_pos, double stereoscan_threshold,
@@ -262,7 +291,8 @@ void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePt
             CameraPose::Ptr prev_pos = prev_entry->get_current_pos();
             Eigen::Vector3d new_pt_eigen = current_pos->ToWorld(CVToEigen(new_pt_cv));
 
-            it.fromEigen(fuseSimpleMean(current_pos, new_pt_eigen, prev_pos, it.asEigen()));
+            //it.fromEigen(fuseSimpleMean(current_pos, new_pt_eigen, prev_pos, it.asEigen()));
+            it.fromEigen(fuseWeigthDistances(current_pos, new_pt_eigen, prev_pos, it.asEigen()));
             /*
              * Point matched, increment the view-counter.
              * NOTE: see alpha channel note above.
