@@ -16,8 +16,6 @@ ProjectionThread::ProjectionThread(Dense *dense)
 
 void ProjectionThread::compute()
 {
-    struct projection_log log_data;
-
     while(1) {
         /* Calls to pop() are blocking */
         DispRawImagePtr disp_raw_img = dense_->disp_images_->pop();
@@ -70,7 +68,7 @@ void ProjectionThread::compute()
             /* No need to lock the entry as no one else will alter its current_pose or cloud */
             PointCloudPtr last_cloud = doStereoscan(local_area_entry, disp_raw_img->second,
                                                     &frustum_left, &frustum_right,
-                                                    pose_left, dense_->stereoscan_threshold_, &log_data, match_mat);
+                                                    pose_left, dense_->stereoscan_threshold_, match_mat);
             if (last_cloud)
                 local_area_entry->set_cloud(last_cloud);
         }
@@ -215,7 +213,7 @@ enum stereoscan_status {
 PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr last_entry, DispImagePtr disp_img,
                                              FrustumCulling *frustum_left, FrustumCulling *frustum_right,
                                              CameraPose::Ptr current_pos, double stereoscan_threshold,
-                                             struct projection_log *log_data, cv::Mat_<int> *match_mat)
+                                             cv::Mat_<int> *match_mat)
 {
     if (!stereoscan_threshold)
         return nullptr;
@@ -316,9 +314,9 @@ PointCloudPtr ProjectionThread::doStereoscan(PointCloudEntry::Ptr last_entry, Di
         status[STATUS_OUTLIER]++;
     }
 
-    log_data->match += status[STATUS_MATCH];
-    log_data->unmatch += status[STATUS_UNMATCH];
-    log_data->outlier += status[STATUS_OUTLIER];
+    log_data.match += status[STATUS_MATCH];
+    log_data.unmatch += status[STATUS_UNMATCH];
+    log_data.outlier += status[STATUS_OUTLIER];
 
     ROS_DEBUG("out_of_image/invalid = %u/%u,\tmatch = %u,\tunmatch/outlier = %u/%u",
               status[STATUS_OUT_OF_IMAGE], status[STATUS_INVALID], status[STATUS_MATCH],
