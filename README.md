@@ -61,9 +61,19 @@ $ ./devel/lib/dense/kitti_ground_truth \
     ../../datasets/kitti/sequences/${sequence}/velodyne/pcd/
 ```
 
-## kitti\_dmap\_generator: Generate depth maps from DENSE node output for KITTI dataset
+## kitti\_dmap\_generator: Generate depth maps (`.dmap`) from DENSE node output for KITTI dataset
 
-TODO
+
+```
+$ ./devel/lib/dense/kitti_dmap_generator
+  usage: ./devel/lib/dense/kitti_ground_truth [in-cam-calib] [in-dense-configuration] [in-poses] [out-dmap]
+
+$ ./devel/lib/dense/kitti_dmap_generator \
+    dense/configurationFiles/kitti_cam.yaml \
+    dense/configurationFiles/configuration.yaml \
+    path/to/poses.txt \
+    ../../datasets/kitti/sequences/${sequence}/dmap/
+```
 
 ## plot\_depth\_map: Plot depth maps
 
