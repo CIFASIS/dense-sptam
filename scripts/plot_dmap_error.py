@@ -76,9 +76,6 @@ plt.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9)
 plt.show()
 
 # depth vs errors (amount, mean)
-import numpy as np
-import matplotlib.pyplot as plt
-
 
 a = np.load("graph_depth.npy")
 
