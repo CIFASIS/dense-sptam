@@ -10,6 +10,7 @@ import numpy as np
 import operator
 import os
 import pickle
+import re
 
 def simplePlot(data):
 	plt.plot(data)
@@ -154,7 +155,8 @@ STEP = 0.1
 diff_list = [0] * int(MAXDIFF / STEP)
 
 files_count = 0
-files_total = len(os.listdir(args.dmap_dense))
+# count the total files .dmap that are available
+files_total = len([f for f in os.listdir(args.dmap_dense) if f.endswith(".dmap")])
 for f in os.listdir(args.dmap_dense):
 	if f.endswith(".dmap") and os.path.isfile(args.dmap_gt + '/' + f):
 		# log filename
