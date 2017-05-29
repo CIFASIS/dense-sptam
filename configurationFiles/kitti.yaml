@@ -4,6 +4,7 @@ VoxelLeafSize: 0.1
 disp_calc_method: 'libelas'
 max_distance: 20
 stereoscan_threshold: 0.25
+fusion_heuristic: "weigthDistances"
 local_area_size: 10
 libelas_ipol_gap: 1000
 add_corners: false
