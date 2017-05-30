@@ -229,7 +229,7 @@ Eigen::Vector3d fuseWeigthDistances(CameraPose::Ptr current_pos, Eigen::Vector3d
                                     CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt)
 {
     double dist_near, dist_far, alpha;
-    Eigen::Vector3d pt_near, pt_far;
+    Eigen::Vector3d pt_near, pt_far, pt_fusion;
 
     Eigen::Vector3d current_pos_eigen = current_pos->get_position();
     Eigen::Vector3d prev_pos_eigen = prev_pos->get_position();
@@ -249,9 +249,20 @@ Eigen::Vector3d fuseWeigthDistances(CameraPose::Ptr current_pos, Eigen::Vector3d
         pt_far = current_pt;
     }
 
-    alpha = dist_near / (2 * dist_far);
+    // Compute the z component of the fusion point using inverse-depth representation
+    double inverse_depth_near = 1.0 / pt_near[2];
+    double inverse_depth_far = 1.0 / pt_far[2];
 
-    return ((1 - alpha) * pt_near + alpha * pt_far);
+    pt_fusion[2] = 1.0 / ((inverse_depth_near + inverse_depth_far) / 2.0);
+
+    alpha = (pt_far[2] - pt_fusion[2]) / (pt_far[2] - pt_near[2]);
+
+    assert(alpha >= 0);
+
+    pt_fusion[0] = ( alpha * pt_near[0] + (1 - alpha) * pt_far[0]);
+    pt_fusion[1] = ( alpha * pt_near[1] + (1 - alpha) * pt_far[1]);
+
+    return pt_fusion;
 }
 
 void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePtr disp_img,
