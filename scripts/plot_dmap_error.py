@@ -10,12 +10,11 @@ def utf8(data):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('diff_list', help='diff_list file - output from depth_map.py')
-parser.add_argument('graph_depth', help='graph_depth file - output from depth_map.py')
+#parser.add_argument('graph_depth', help='graph_depth file - output from depth_map.py')
 parser.add_argument('sequence_name', help='dataset sequence name')
 args = parser.parse_args()
 
 assert(os.path.isfile(args.diff_list))
-assert(os.path.isfile(args.graph_depth))
 sequence_name = args.sequence_name
 
 #TODO: don't hardcode this values...
@@ -76,15 +75,28 @@ plt.tight_layout()
 plt.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9)
 
 # depth vs errors (amount, mean)
-a = np.load(args.graph_depth)
+# load all graph_depth*.npy files
+import glob
+npys = glob.glob('./graph_depth*.npy')
+
+assert(len(npys)>0)
+a = np.load(npys[0])
+bins = a[0]
+graph_depth = []
+for i in range(len(bins)):
+	graph_depth.append([])
+
+
+
+for npy in npys:
+	actual_graph = np.load(npy)[1]
+	for i in range(len(bins)):
+		graph_depth[i].extend(actual_graph[i])
+
 
 fig = plt.figure(2)
-
 ax = fig.add_subplot(111)
-
-data = np.array(a[1])
-
-bp = ax.boxplot(data.tolist())
+bp = ax.boxplot(graph_depth)
 
 plt.xlabel("Distance to the camera (depth, m)")
 plt.ylabel("Error (m)")
@@ -92,17 +104,17 @@ plt.ylabel("Error (m)")
 
 # mean
 plt.figure(3)
-plt.plot(a[0], map(lambda x: np.mean(x) if len(x)>0 else 0, a[1]))
+plt.plot(bins, map(lambda x: np.mean(x) if len(x)>0 else 0, graph_depth))
 plt.xlabel("Distance to the camera (depth, m)")
 plt.ylabel("Mean error (m)")
 
 plt.figure(4)
-plt.plot(a[0], map(lambda x: np.median(x) if len(x)>0 else 0, a[1]))
+plt.plot(bins, map(lambda x: np.median(x) if len(x)>0 else 0, graph_depth))
 plt.xlabel("Distance to the camera (depth, m)")
 plt.ylabel("Median error (m)")
 
 plt.figure(5)
-plt.plot(a[0], map(lambda x: np.max(x) if len(x)>0 else 0, a[1]))
+plt.plot(bins, map(lambda x: np.max(x) if len(x)>0 else 0, graph_depth))
 plt.xlabel("Distance to the camera (depth, m)")
 plt.ylabel("Max error (m)")
 

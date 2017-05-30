@@ -197,6 +197,7 @@ def process():
 
 	files_count = 0
 	files_total = len(os.listdir(args.dmap_dense))
+	i=0
 
 	for f in os.listdir(args.dmap_dense):
 		if f.endswith(".dmap") and os.path.isfile(args.dmap_gt + '/' + f):
@@ -224,9 +225,6 @@ def process():
 			absdiff_list = absoluteDiffList(dmap_dense.body, dmap_gt.body)
 
 			actual_graph = classify_near_far(dmap_dense.body, dmap_gt.body, bins, bin_length, absdiff_list)
-			for i in range(len(graph_depth)):
-				graph_depth[i].extend(actual_graph[i])
-
 
 			# log absolute difference valid pixels
 			logfile.write(str(countValid(absdiff_list)) + ',')
@@ -240,9 +238,11 @@ def process():
 			print("Processed: " + f + " - " + str(files_count) + "/" + str(files_total))
 
 			# check that it is not empty data
-			if len(np.array(graph_depth).shape) == 1 :
-				np.save("graph_depth.npy", [bins, np.array(graph_depth)])
-				np.save("diff_list.npy", diff_list[:limit])
+			if len(np.array(actual_graph).shape) == 1:
+				np.save("graph_depth"+str(i)+".npy", [bins, np.array(actual_graph)])
+
+			np.save("diff_list.npy", diff_list[:limit])
+			i+=1
 
 
 	logfile.close()
