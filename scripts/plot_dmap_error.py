@@ -10,11 +10,12 @@ def utf8(data):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('diff_list', help='diff_list file - output from depth_map.py')
+parser.add_argument('graph_depth', help='graph_depth file - output from depth_map.py')
 parser.add_argument('sequence_name', help='dataset sequence name')
 args = parser.parse_args()
 
 assert(os.path.isfile(args.diff_list))
-diff_list_file = open(args.diff_list, "r")
+assert(os.path.isfile(args.graph_depth))
 sequence_name = args.sequence_name
 
 #TODO: don't hardcode this values...
@@ -24,8 +25,8 @@ STEP = 0.1
 limit = int(MAXDIFF / STEP)
 domain = map(lambda x: x * STEP, range(0, limit))
 
-diff_list = diff_list_file.readline().split(',')
-diff_list = map(int, diff_list[:limit])
+# read from npy
+diff_list = np.load(args.diff_list)
 
 # Discard 0 values at the end
 diff_list_max = 0
@@ -75,7 +76,7 @@ plt.tight_layout()
 plt.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9)
 
 # depth vs errors (amount, mean)
-a = np.load("graph_depth.npy")
+a = np.load(args.graph_depth)
 
 fig = plt.figure(2)
 

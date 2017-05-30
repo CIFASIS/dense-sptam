@@ -133,10 +133,7 @@ class DepthMap:
 		self.body = map(float, line.split(",")[:self.height * self.width])
 
 # put errors according to depth
-def classify_near_far(data, gt, bins, bin_length):
-
-	# first compute the error wrt gt
-	err = absoluteDiffList(data, gt)
+def classify_near_far(data, gt, bins, bin_length, err):
 
 	# zip gt with err
 	err = zip(gt, err)
@@ -223,30 +220,30 @@ def process():
 			logfile.write(str(countValid(dmap_dense.body)) + ',')
 			logfile.write(str(countValid(dmap_gt.body)) + ',')
 
-			actual_graph = classify_near_far(dmap_dense.body, dmap_gt.body, bins, bin_length)
+
+			absdiff_list = absoluteDiffList(dmap_dense.body, dmap_gt.body)
+
+			actual_graph = classify_near_far(dmap_dense.body, dmap_gt.body, bins, bin_length, absdiff_list)
 			for i in range(len(graph_depth)):
 				graph_depth[i].extend(actual_graph[i])
 
-			absdiff_list = absoluteDiffList(dmap_dense.body, dmap_gt.body)
 
 			# log absolute difference valid pixels
 			logfile.write(str(countValid(absdiff_list)) + ',')
 
 			diff_list = addToDiffList(diff_list, absdiff_list, STEP, MAXDIFF)
+			limit = int(MAXDIFF / STEP)
+
 			logfile.write('\n')
 
 			files_count += 1
 			print("Processed: " + f + " - " + str(files_count) + "/" + str(files_total))
 
-			#np.save("graph_depth.npy", np.array([np.array(bins), np.array(graph_depth)]))
 			# check that it is not empty data
 			if len(np.array(graph_depth).shape) == 1 :
 				np.save("graph_depth.npy", [bins, np.array(graph_depth)])
+				np.save("diff_list.npy", diff_list[:limit])
 
-		diff_list_file = open('diff_list.txt', 'w')
-		for item in diff_list:
-			diff_list_file.write("%s," % item)
-		diff_list_file.close()
 
 	logfile.close()
 
