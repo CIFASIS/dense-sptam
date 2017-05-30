@@ -142,7 +142,8 @@ def classify_near_far(data, gt, bins, bin_length):
 	err = zip(gt, err)
 
 	# take out invalid values (== -1)
-	err = filter(lambda x: x[0] >= 0 or x[1] >=0, err)
+	err = filter(lambda x: x[0] >= 0 and x[1] >=0, err)
+
 
 	res = []
 	for i in range(len(bins)):
@@ -154,13 +155,12 @@ def classify_near_far(data, gt, bins, bin_length):
 		gt_depth = err[i][0]
 		error_gt = err[i][1]
 
-		if error_gt != -1:
-			# find bin: [0-X] -> 0, (X-2X] -> 1, ....
-			f = int(np.floor(gt_depth / bin_length))
+		# find bin: [0-X] -> 0, (X-2X] -> 1, ....
+		f = int(np.floor(gt_depth / bin_length))
 
-			# act
-			if f < len(bins):
-				res[f].append(error_gt)
+		# act
+		if f < len(bins):
+			res[f].append(error_gt)
 
 	return np.array(res)
 
