@@ -73,41 +73,37 @@ ax.grid(which='major', alpha=1, linewidth=2)
 
 plt.tight_layout()
 plt.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9)
-plt.show()
 
 # depth vs errors (amount, mean)
-
 a = np.load("graph_depth.npy")
 
-# Create a figure instance
-fig = plt.figure(1, figsize=(9, 6))
+fig = plt.figure(2)
 
-# Create an axes instance
 ax = fig.add_subplot(111)
 
 data = np.array(a[1])
 
-# Create the boxplot
 bp = ax.boxplot(data.tolist())
 
 plt.xlabel("Distance to the camera (depth, m)")
 plt.ylabel("Error (m)")
-plt.show()
 
 
 # mean
+plt.figure(3)
 plt.plot(a[0], map(lambda x: np.mean(x) if len(x)>0 else 0, a[1]))
 plt.xlabel("Distance to the camera (depth, m)")
 plt.ylabel("Mean error (m)")
-plt.show()
 
+plt.figure(4)
 plt.plot(a[0], map(lambda x: np.median(x) if len(x)>0 else 0, a[1]))
 plt.xlabel("Distance to the camera (depth, m)")
 plt.ylabel("Median error (m)")
-plt.show()
 
-
+plt.figure(5)
 plt.plot(a[0], map(lambda x: np.max(x) if len(x)>0 else 0, a[1]))
 plt.xlabel("Distance to the camera (depth, m)")
 plt.ylabel("Max error (m)")
+
+
 plt.show()
