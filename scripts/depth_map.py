@@ -64,7 +64,13 @@ def intersectMask(dmap_x, dmap_y):
 
 def absoluteDiffList(l_x, l_y):
 	assert(len(l_x) == len(l_y))
-	return map(lambda (a, b): abs(a - b) if a >= 0 and b >= 0 else -1, zip(l_x, l_y))
+	l_x = np.array(l_x)
+	l_y = np.array(l_y)
+	abs_arr = np.abs(l_x - l_y)
+
+	idxs = np.logical_and(l_x > 0, l_y > 0)
+	abs_arr[~idxs] = -1
+	return abs_arr.tolist()
 
 def absoluteDiffMap(dmap_x, dmap_y):
 	assert(dmap_x.shape[0] == dmap_y.shape[0])
