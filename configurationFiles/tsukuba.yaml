@@ -1,0 +1,15 @@
+FrustumNearPlaneDist: 0.0001
+FrustumFarPlaneDist: 20
+VoxelLeafSize: 0.1
+disp_calc_method: 'libelas'
+max_distance: 20
+stereoscan_threshold: 0.25
+fusion_heuristic: "inverseDepthDistances"
+local_area_size: 10
+libelas_ipol_gap: 1000
+add_corners: false
+sigma: 0
+refinement_linear_threshold: 0.01
+refinement_angular_threshold: 0.001
+single_depth_map_region_size: 30
+pub_area_filter_min: 0
