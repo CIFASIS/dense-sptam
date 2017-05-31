@@ -263,6 +263,8 @@ def process():
 
 			np.save("diff_list.npy", diff_list[:limit])
 			i+=1
+		else:
+			print "Warning, no match for file :", f
 
 
 	if debug:
