@@ -13,6 +13,9 @@ Eigen::Vector3d fuseSimpleMean(CameraPose::Ptr current_pos, Eigen::Vector3d curr
                                CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt);
 Eigen::Vector3d fuseWeigthDistances(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
                                     CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt);
+Eigen::Vector3d fuseInverseDepth(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
+                                    CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt);
+
 
 ProjectionThread::ProjectionThread(Dense *dense)
   : dense_(dense)
@@ -21,6 +24,8 @@ ProjectionThread::ProjectionThread(Dense *dense)
     if (dense->fusion_heuristic_ == "simpleMean") {
         this->fusionHeuristic = fuseSimpleMean;
     } else if (dense->fusion_heuristic_ == "weigthDistances") {
+        this->fusionHeuristic = fuseWeigthDistances;
+    } else if (dense->fusion_heuristic_ == "inverseDepthDistances") {
         this->fusionHeuristic = fuseWeigthDistances;
     } else {
         ROS_ERROR_STREAM("ProjectionThread: bad parameter fusion_heuristic!");
@@ -225,8 +230,38 @@ Eigen::Vector3d fuseSimpleMean(CameraPose::Ptr current_pos, Eigen::Vector3d curr
     return (prev_pt + current_pt) / 2;
 }
 
+
 Eigen::Vector3d fuseWeigthDistances(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
                                     CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt)
+{
+    double dist_near, dist_far, alpha;
+    Eigen::Vector3d pt_near, pt_far;
+
+    Eigen::Vector3d current_pos_eigen = current_pos->get_position();
+    Eigen::Vector3d prev_pos_eigen = prev_pos->get_position();
+
+    double current_pos_dist = cv::norm(EigenToCV(current_pos_eigen - current_pt));
+    double prev_pos_dist = cv::norm(EigenToCV(prev_pos_eigen - prev_pt));
+
+    if (current_pos_dist < prev_pos_dist) {
+        dist_near = current_pos_dist;
+        pt_near = current_pt;
+        dist_far = prev_pos_dist;
+        pt_far = prev_pt;
+    } else {
+        dist_near = prev_pos_dist;
+        pt_near = prev_pt;
+        dist_far = current_pos_dist;
+        pt_far = current_pt;
+    }
+
+    alpha = dist_near / (2 * dist_far);
+
+    return ((1 - alpha) * pt_near + alpha * pt_far);
+}
+
+Eigen::Vector3d fuseInverseDepth(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
+                                 CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt)
 {
     double dist_near, dist_far, alpha;
     Eigen::Vector3d pt_near, pt_far, pt_fusion;
