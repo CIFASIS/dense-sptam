@@ -196,7 +196,8 @@ def process():
 	diff_list = [0] * int(MAXDIFF / STEP)
 
 	files_count = 0
-	files_total = len(os.listdir(args.dmap_dense))
+	# count the total files .dmap that are available
+	files_total = len([f for f in os.listdir(args.dmap_dense) if f.endswith(".dmap")])
 	i=0
 
 	for f in os.listdir(args.dmap_dense):
