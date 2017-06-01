@@ -151,16 +151,15 @@ class DepthMap:
 def classify_near_far(gt, bins, bin_length, err):
 	res = [[] for i in range(len(bins))]
 
+	# find bin: [0-X] -> 0, (X-2X] -> 1, ....
+	gt2 = np.floor(np.array(gt) / bin_length)
 	# apply data to its corresponding bin
 	for i in range(len(err)):
 		if err[i] >= 0:
 
-			# find bin: [0-X] -> 0, (X-2X] -> 1, ....
-			f = int(np.floor(gt[i] / bin_length))
-
 			# act
-			if f < len(bins):
-				res[f].append(err[i])
+			if gt2[i] < len(bins):
+				res[int(gt2[i])].append(err[i])
 
 	return np.array(res)
 
