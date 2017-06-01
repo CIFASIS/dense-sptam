@@ -112,3 +112,28 @@ can be processed by the following script to plot the results:
 ```
 $ python dense/scripts/plot_dmap_error.py path/to/diff_list.txt ${sequence_name}
 ```
+## Process and compare two depth maps
+
+```
+$ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense_depth_map}.dmap mae
+```
+
+```
+$ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense_depth_map}.dmap rmse
+```
+
+```
+$ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense_depth_map}.dmap silmse
+```
+
+```
+$ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense_depth_map}.dmap intersect
+```
+
+```
+$ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense_depth_map}.dmap error_color
+```
+
+```
+$ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense_depth_map}.dmap error_graph size
+```

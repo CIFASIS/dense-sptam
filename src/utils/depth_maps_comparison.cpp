@@ -1,4 +1,4 @@
-#include "depth_maps_comparision.hpp"
+#include "depth_maps_comparison.hpp"
 
 #include <math.h>
 #include <boost/smart_ptr.hpp>
