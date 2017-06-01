@@ -12,6 +12,7 @@ import os
 import pickle
 import re
 import time
+import sys
 
 def simplePlot(data):
 	plt.plot(data)
@@ -121,6 +122,13 @@ def addToDiffList(diffList, newList, step, maxdiff):
 			pos = limit
 		diffList[pos] = diffList[pos] + 1
 	return diffList
+
+
+class MyParser(argparse.ArgumentParser):
+    def error(self, message):
+        sys.stderr.write('error: %s\n' % message)
+        self.print_help()
+        sys.exit(2)
 
 class DepthMap:
 
@@ -259,7 +267,8 @@ def process(args, bin_length, max_depth, max_dist, debug, show_time):
 def main():
 	t_orig = time.time()
 
-	parser = argparse.ArgumentParser()
+
+	parser = MyParser()
 	parser.add_argument('dmap_dense', help='dmap dir - dense node')
 	parser.add_argument('dmap_gt', help='dmap dir - ground truth')
 	parser.add_argument('--debug', help='bool - true if output a log')
