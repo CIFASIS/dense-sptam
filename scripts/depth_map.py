@@ -141,9 +141,7 @@ class DepthMap:
 
 # put errors according to depth
 def classify_near_far(gt, bins, bin_length, err):
-	res = []
-	for i in range(len(bins)):
-		res.append([])
+	res = [[] for i in range(len(bins))]
 
 	# apply data to its corresponding bin
 	for i in range(len(err)):
@@ -159,18 +157,12 @@ def classify_near_far(gt, bins, bin_length, err):
 	return np.array(res)
 
 
-def process(args, bin_length, max_depth, debug, show_time):
+def process(args, bin_length, max_depth, max_dist, debug, show_time):
 
 	bins = range(0, max_depth, bin_length)
 
-	graph_depth = []
 	# y axis for plotting depth vs errors
-	for i in range(len(bins)):
-		graph_depth.append([])
-
-	max_dist = 0
-	if (args.max_dist):
-		max_dist = int(args.max_dist)
+	graph_depth = [[] for i in range(len(bins))]
 
 	logfile = ''
 	if debug:
@@ -294,8 +286,12 @@ def main():
 	if args.show_time in true_values:
 		show_time = True
 
+	max_dist = 0
+	if (args.max_dist):
+		max_dist = int(args.max_dist)
 
-	process(args, bin_length, max_depth, debug, show_time)
+
+	process(args, bin_length, max_depth, max_dist, debug, show_time)
 
 	print "Total Time: ", time.time() - t_orig
 
