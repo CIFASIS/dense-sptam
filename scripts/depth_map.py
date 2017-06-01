@@ -153,15 +153,19 @@ def classify_near_far(gt, bins, bin_length, err):
 
 	# find bin: [0-X] -> 0, (X-2X] -> 1, ....
 	gt2 = np.floor(np.array(gt) / bin_length)
+
+	err = np.array(err)
+
+	idxs = np.logical_and(err >= 0, gt2 < len(bins))
+
+	arr = np.vstack((gt2[idxs], err[idxs]))
+
 	# apply data to its corresponding bin
-	for i in range(len(err)):
-		if err[i] >= 0:
+	for i in range(arr.shape[1]):
+		res[int(arr[0][i])].append(arr[1][i])
 
-			# act
-			if gt2[i] < len(bins):
-				res[int(gt2[i])].append(err[i])
+	return np.array(map(lambda x : np.round(x, 6), res))
 
-	return np.array(res)
 
 
 def process(args, bin_length, max_depth, max_dist, output_log, show_time):
