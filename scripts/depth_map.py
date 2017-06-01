@@ -165,7 +165,7 @@ def classify_near_far(gt, bins, bin_length, err):
 	return np.array(res)
 
 
-def process(args, bin_length, max_depth, max_dist, debug, show_time):
+def process(args, bin_length, max_depth, max_dist, output_log, show_time):
 
 	bins = range(0, max_depth, bin_length)
 
@@ -173,7 +173,7 @@ def process(args, bin_length, max_depth, max_dist, debug, show_time):
 	graph_depth = [[] for i in range(len(bins))]
 
 	logfile = ''
-	if debug:
+	if output_log:
 		# Output log
 		logfile = open("output.log", "w")
 		logfile.write("filename,total,valid dense, valid gt, filtered dense, filtered gt, valid absdiff\n")
@@ -192,14 +192,14 @@ def process(args, bin_length, max_depth, max_dist, debug, show_time):
 		if f.endswith(".dmap") and os.path.isfile(args.dmap_gt + '/' + f):
 			t = time.time()
 
-			if debug:
+			if output_log:
 				# log filename
 				logfile.write(f + ',')
 
 			dmap_dense = DepthMap(args.dmap_dense + '/' + f)
 			dmap_gt = DepthMap(args.dmap_gt + '/' + f)
 
-			if debug:
+			if output_log:
 				# log total pixels
 				logfile.write(str(dmap_dense.height * dmap_dense.width) + ',')
 				# log valid pixels
@@ -210,7 +210,7 @@ def process(args, bin_length, max_depth, max_dist, debug, show_time):
 				dmap_dense.body = filterList(dmap_dense.body, max_dist)
 				dmap_gt.body = filterList(dmap_gt.body, max_dist)
 
-			if debug:
+			if output_log:
 				# log valid pixels after filtering
 				logfile.write(str(countValid(dmap_dense.body)) + ',')
 				logfile.write(str(countValid(dmap_gt.body)) + ',')
@@ -229,7 +229,7 @@ def process(args, bin_length, max_depth, max_dist, debug, show_time):
 			if show_time:
 				print "Time after: ", time.time() - t
 
-			if debug:
+			if output_log:
 				# log absolute difference valid pixels
 				logfile.write(str(countValid(absdiff_list)) + ',')
 
@@ -240,7 +240,7 @@ def process(args, bin_length, max_depth, max_dist, debug, show_time):
 				print "Time before end: ", time.time() - t
 
 
-			if debug:
+			if output_log:
 				logfile.write('\n')
 
 			files_count += 1
@@ -261,7 +261,7 @@ def process(args, bin_length, max_depth, max_dist, debug, show_time):
 
 
 
-	if debug:
+	if output_log:
 		logfile.close()
 
 def main():
@@ -271,8 +271,8 @@ def main():
 	parser = MyParser()
 	parser.add_argument('dmap_dense', help='dmap dir - dense node')
 	parser.add_argument('dmap_gt', help='dmap dir - ground truth')
-	parser.add_argument('--debug', help='bool - true if output a log')
-	parser.add_argument('--show_time', help='bool - debug with times')
+	parser.add_argument('--output_log', help='bool - true if output a log')
+	parser.add_argument('--show_time', help='bool - show computation times')
 
 	parser.add_argument('--max_dist', help='truncate depth maps using this maximum distance')
 	args = parser.parse_args()
@@ -287,9 +287,9 @@ def main():
 
 	true_values = ['True', 'true', 't', '1']
 
-	debug = False
-	if args.debug in true_values:
-		debug = True
+	output_log = False
+	if args.output_log in true_values:
+		output_log = True
 
 	show_time = False
 	if args.show_time in true_values:
@@ -300,7 +300,7 @@ def main():
 		max_dist = int(args.max_dist)
 
 
-	process(args, bin_length, max_depth, max_dist, debug, show_time)
+	process(args, bin_length, max_depth, max_dist, output_log, show_time)
 
 	print "Total Time: ", time.time() - t_orig
 
