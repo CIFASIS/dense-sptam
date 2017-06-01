@@ -145,7 +145,7 @@ class DepthMap:
 		self.width = int(data[1])
 
 	def parsebody(self, line):
-		self.body = map(float, line.split(",")[:self.height * self.width])
+		self.body = np.array(line.split(",")[:self.height * self.width], dtype = np.float)
 
 # put errors according to depth
 def classify_near_far(gt, bins, bin_length, err):
