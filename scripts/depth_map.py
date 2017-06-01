@@ -140,7 +140,7 @@ class DepthMap:
 		self.body = map(float, line.split(",")[:self.height * self.width])
 
 # put errors according to depth
-def classify_near_far(data, gt, bins, bin_length, err):
+def classify_near_far(gt, bins, bin_length, err):
 	res = []
 	for i in range(len(bins)):
 		res.append([])
@@ -224,7 +224,7 @@ def process(args, bin_length, max_depth, debug, show_time):
 			if show_time:
 				print "Time before classify_near_far: ", time.time() - t
 
-			actual_graph = classify_near_far(dmap_dense.body, dmap_gt.body, bins, bin_length, absdiff_list)
+			actual_graph = classify_near_far(dmap_gt.body, bins, bin_length, absdiff_list)
 
 			if show_time:
 				print "Time after: ", time.time() - t
