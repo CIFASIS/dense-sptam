@@ -11,6 +11,7 @@ import operator
 import os
 import pickle
 import re
+import time
 
 def simplePlot(data):
 	plt.plot(data)
@@ -140,53 +141,27 @@ class DepthMap:
 
 # put errors according to depth
 def classify_near_far(data, gt, bins, bin_length, err):
-
-	# zip gt with err
-	err = zip(gt, err)
-
-	# take out invalid values (== -1)
-	err = filter(lambda x: x[0] >= 0 and x[1] >=0, err)
-
-
 	res = []
 	for i in range(len(bins)):
 		res.append([])
 
 	# apply data to its corresponding bin
 	for i in range(len(err)):
-		# err = (gt depth, error wrt gt)
-		gt_depth = err[i][0]
-		error_gt = err[i][1]
+		if err[i] >= 0:
 
-		# find bin: [0-X] -> 0, (X-2X] -> 1, ....
-		f = int(np.floor(gt_depth / bin_length))
+			# find bin: [0-X] -> 0, (X-2X] -> 1, ....
+			f = int(np.floor(gt[i] / bin_length))
 
-		# act
-		if f < len(bins):
-			res[f].append(error_gt)
+			# act
+			if f < len(bins):
+				res[f].append(err[i])
 
 	return np.array(res)
 
 
-def process():
-	parser = argparse.ArgumentParser()
-	parser.add_argument('dmap_dense', help='dmap dir - dense node')
-	parser.add_argument('dmap_gt', help='dmap dir - ground truth')
-	parser.add_argument('--debug', help='bool - true if output a log')
-	parser.add_argument('--max_dist', help='truncate depth maps using this maximum distance')
-	args = parser.parse_args()
+def process(args, bin_length, max_depth, debug, show_time):
 
-	assert(os.path.isdir(args.dmap_dense))
-	assert(os.path.isdir(args.dmap_gt))
-
-	# TODO: take as argument
-	bin_length = 1
-	max_depth = 20
 	bins = range(0, max_depth, bin_length)
-	debug = False
-	if args.debug:
-		debug = True
-
 
 	graph_depth = []
 	# y axis for plotting depth vs errors
@@ -215,6 +190,7 @@ def process():
 
 	for f in os.listdir(args.dmap_dense):
 		if f.endswith(".dmap") and os.path.isfile(args.dmap_gt + '/' + f):
+			t = time.time()
 
 			if debug:
 				# log filename
@@ -239,10 +215,19 @@ def process():
 				logfile.write(str(countValid(dmap_dense.body)) + ',')
 				logfile.write(str(countValid(dmap_gt.body)) + ',')
 
+			if show_time:
+				print "Time before absoluteDiffList: ", time.time() - t
+
 
 			absdiff_list = absoluteDiffList(dmap_dense.body, dmap_gt.body)
 
+			if show_time:
+				print "Time before classify_near_far: ", time.time() - t
+
 			actual_graph = classify_near_far(dmap_dense.body, dmap_gt.body, bins, bin_length, absdiff_list)
+
+			if show_time:
+				print "Time after: ", time.time() - t
 
 			if debug:
 				# log absolute difference valid pixels
@@ -250,6 +235,10 @@ def process():
 
 			diff_list = addToDiffList(diff_list, absdiff_list, STEP, MAXDIFF)
 			limit = int(MAXDIFF / STEP)
+
+			if show_time:
+				print "Time before end: ", time.time() - t
+
 
 			if debug:
 				logfile.write('\n')
@@ -263,12 +252,52 @@ def process():
 
 			np.save("diff_list.npy", diff_list[:limit])
 			i+=1
+
+			if show_time:
+				print "Iteration time: ", time.time() - t
+
 		else:
 			print "Warning, no match for file :", f
+
 
 
 	if debug:
 		logfile.close()
 
+def main():
+	t_orig = time.time()
+
+	parser = argparse.ArgumentParser()
+	parser.add_argument('dmap_dense', help='dmap dir - dense node')
+	parser.add_argument('dmap_gt', help='dmap dir - ground truth')
+	parser.add_argument('--debug', help='bool - true if output a log')
+	parser.add_argument('--show_time', help='bool - debug with times')
+
+	parser.add_argument('--max_dist', help='truncate depth maps using this maximum distance')
+	args = parser.parse_args()
+
+	assert(os.path.isdir(args.dmap_dense))
+	assert(os.path.isdir(args.dmap_gt))
+
+	# TODO: take as argument
+	bin_length = 1
+	max_depth = 20
+
+
+	true_values = ['True', 'true', 't', '1']
+
+	debug = False
+	if args.debug in true_values:
+		debug = True
+
+	show_time = False
+	if args.show_time in true_values:
+		show_time = True
+
+
+	process(args, bin_length, max_depth, debug, show_time)
+
+	print "Total Time: ", time.time() - t_orig
+
 if __name__ == "__main__":
-	process()
+	main()
