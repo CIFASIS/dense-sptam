@@ -158,11 +158,12 @@ def classify_near_far(gt, bins, bin_length, err):
 
 	idxs = np.logical_and(err >= 0, gt2 < len(bins))
 
-	arr = np.vstack((gt2[idxs], err[idxs]))
+	gt2 = gt2[idxs]
+	err = err[idxs]
 
 	# apply data to its corresponding bin
-	for i in range(arr.shape[1]):
-		res[int(arr[0][i])].append(arr[1][i])
+	for i in range(len(err)):
+		res[int(gt2[i])].append(err[i])
 
 	return np.array(map(lambda x : np.round(x, 6), res))
 
