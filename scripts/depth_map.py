@@ -121,7 +121,6 @@ def addToDiffList(diffList, newList, step, maxdiff):
 		if pos > limit:
 			pos = limit
 		diffList[pos] += 1
-	return diffList
 
 
 class MyParser(argparse.ArgumentParser):
@@ -236,12 +235,10 @@ def process(args, bin_length, max_depth, max_dist, output_log, show_time):
 				# log absolute difference valid pixels
 				logfile.write(str(countValid(absdiff_list)) + ',')
 
-			diff_list = addToDiffList(diff_list, absdiff_list, STEP, MAXDIFF)
-			limit = int(MAXDIFF / STEP)
+			addToDiffList(diff_list, absdiff_list, STEP, MAXDIFF)
 
 			if show_time:
 				print "Time before end: ", time.time() - t
-
 
 			if output_log:
 				logfile.write('\n')
@@ -253,6 +250,7 @@ def process(args, bin_length, max_depth, max_dist, output_log, show_time):
 			if len(actual_graph.shape) == 1:
 				np.save("graph_depth"+str(files_count)+".npy", [bins, actual_graph])
 
+			limit = int(MAXDIFF / STEP)
 			np.save("diff_list.npy", diff_list[:limit])
 
 			if show_time:
