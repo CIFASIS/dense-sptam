@@ -115,12 +115,12 @@ def plotSaveImage(filename, img):
 def addToDiffList(diffList, newList, step, maxdiff):
 	limit = int(maxdiff / step)
 	for i in newList:
-		if (i < 0):
+		if i < 0:
 			continue;
 		pos = int(i / step)
-		if (pos > limit):
+		if pos > limit:
 			pos = limit
-		diffList[pos] = diffList[pos] + 1
+		diffList[pos] += 1
 	return diffList
 
 
@@ -190,7 +190,6 @@ def process(args, bin_length, max_depth, max_dist, output_log, show_time):
 	files_count = 0
 	# count the total files .dmap that are available
 	files_total = len([f for f in os.listdir(args.dmap_dense) if f.endswith(".dmap")])
-	i=0
 
 	for f in os.listdir(args.dmap_dense):
 		if f.endswith(".dmap") and os.path.isfile(args.dmap_gt + '/' + f):
@@ -252,10 +251,9 @@ def process(args, bin_length, max_depth, max_dist, output_log, show_time):
 
 			# check that it is not empty data
 			if len(actual_graph.shape) == 1:
-				np.save("graph_depth"+str(i)+".npy", [bins, actual_graph])
+				np.save("graph_depth"+str(files_count)+".npy", [bins, actual_graph])
 
 			np.save("diff_list.npy", diff_list[:limit])
-			i+=1
 
 			if show_time:
 				print "Iteration time: ", time.time() - t
