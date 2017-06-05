@@ -114,13 +114,14 @@ def plotSaveImage(filename, img):
 
 def addToDiffList(diffList, newList, step, maxdiff):
 	limit = int(maxdiff / step)
-	for i in newList:
-		if i < 0:
-			continue;
-		pos = int(i / step)
-		if pos > limit:
-			pos = limit
-		diffList[pos] += 1
+
+	newList = np.array(newList)
+	l = newList[newList >= 0] / step
+	l = l.clip(max=limit).astype(np.int)
+
+	diffList = np.array(diffList)
+	np.add.at(diffList, l, 1)
+	return diffList
 
 
 class MyParser(argparse.ArgumentParser):
@@ -235,7 +236,7 @@ def process(args, bin_length, max_depth, max_dist, output_log, show_time):
 				# log absolute difference valid pixels
 				logfile.write(str(countValid(absdiff_list)) + ',')
 
-			addToDiffList(diff_list, absdiff_list, STEP, MAXDIFF)
+			diff_list = addToDiffList(diff_list, absdiff_list, STEP, MAXDIFF)
 
 			if show_time:
 				print "Time before end: ", time.time() - t
