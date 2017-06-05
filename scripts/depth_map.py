@@ -72,7 +72,7 @@ def absoluteDiffList(l_x, l_y):
 
 	idxs = np.logical_and(l_x > 0, l_y > 0)
 	abs_arr[~idxs] = -1
-	return abs_arr.tolist()
+	return l_y[idxs], abs_arr[idxs].tolist()
 
 def absoluteDiffMap(dmap_x, dmap_y):
 	assert(dmap_x.shape[0] == dmap_y.shape[0])
@@ -116,7 +116,7 @@ def addToDiffList(diffList, newList, step, maxdiff):
 	limit = int(maxdiff / step)
 
 	newList = np.array(newList)
-	l = newList[newList >= 0] / step
+	l = newList / step
 	l = l.clip(max=limit).astype(np.int)
 
 	diffList = np.array(diffList)
@@ -156,7 +156,7 @@ def classify_near_far(gt, bins, bin_length, err):
 
 	err = np.array(err)
 
-	idxs = np.logical_and(err >= 0, gt2 < len(bins))
+	idxs = gt2 < len(bins)
 
 	gt2 = gt2[idxs]
 	err = err[idxs]
@@ -222,12 +222,12 @@ def process(args, bin_length, max_depth, max_dist, output_log, show_time):
 				print "Time before absoluteDiffList: ", time.time() - t
 
 
-			absdiff_list = absoluteDiffList(dmap_dense.body, dmap_gt.body)
+			dmap_gt, absdiff_list = absoluteDiffList(dmap_dense.body, dmap_gt.body)
 
 			if show_time:
 				print "Time before classify_near_far: ", time.time() - t
 
-			actual_graph = classify_near_far(dmap_gt.body, bins, bin_length, absdiff_list)
+			actual_graph = classify_near_far(dmap_gt, bins, bin_length, absdiff_list)
 
 			if show_time:
 				print "Time after: ", time.time() - t
