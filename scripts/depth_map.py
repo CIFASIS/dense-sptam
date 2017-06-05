@@ -251,8 +251,8 @@ def process(args, bin_length, max_depth, max_dist, output_log, show_time):
 			print("Processed: " + f + " - " + str(files_count) + "/" + str(files_total))
 
 			# check that it is not empty data
-			if len(np.array(actual_graph).shape) == 1:
-				np.save("graph_depth"+str(i)+".npy", [bins, np.array(actual_graph)])
+			if len(actual_graph.shape) == 1:
+				np.save("graph_depth"+str(i)+".npy", [bins, actual_graph])
 
 			np.save("diff_list.npy", diff_list[:limit])
 			i+=1
