@@ -82,6 +82,10 @@ class DepthMap:
 
 
 def process(args, bin_length, max_dist, output_log, show_time):
+	if not(os.path.isdir("depth_info")):
+		if os.system("mkdir depth_info"):
+			print "Cannot create dir depth_info"
+			return
 
 	bins = range(0, max_dist, bin_length)
 
@@ -154,10 +158,10 @@ def process(args, bin_length, max_dist, output_log, show_time):
 
 			# check that it is not empty data
 			if len(actual_graph.shape) == 1:
-				np.save("graph_depth"+str(files_count)+".npy", [bins, actual_graph])
+				np.save("depth_info/graph_depth"+str(files_count)+".npy", [bins, actual_graph])
 
 			limit = int(dmu.MAXDIFF_FIRST_GRAPH / dmu.STEP_FIRST_GRAPH)
-			np.save("diff_list.npy", diff_list[:limit])
+			np.save("depth_info/diff_list.npy", diff_list[:limit])
 
 			if show_time:
 				print "Iteration time: ", time.time() - t

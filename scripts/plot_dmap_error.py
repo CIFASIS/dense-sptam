@@ -20,7 +20,7 @@ limit = int(dmu.MAXDIFF_FIRST_GRAPH / dmu.STEP_FIRST_GRAPH)
 domain = map(lambda x: x * dmu.STEP_FIRST_GRAPH, range(0, limit))
 
 # read from npy
-diff_list = np.load("diff_list.npy")
+diff_list = np.load("depth_info/diff_list.npy")
 
 # Discard 0 values at the end
 diff_list_max = 0
@@ -72,7 +72,7 @@ plt.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9)
 # depth vs errors (amount, mean)
 # load all graph_depth*.npy files
 import glob
-npys = glob.glob('./graph_depth*.npy')
+npys = glob.glob('./depth_info/graph_depth*.npy')
 
 assert(len(npys)>0)
 a = np.load(npys[0])
@@ -87,7 +87,7 @@ for npy in npys:
 	actual_graph = np.load(npy)[1]
 	for i in range(len(bins)):
 		graph_depth[i].extend(actual_graph[i])
-
+plt.savefig(sequence_name+"1.png")
 
 fig = plt.figure(2)
 ax = fig.add_subplot(111)
@@ -95,23 +95,23 @@ bp = ax.boxplot(graph_depth)
 
 plt.xlabel("Distance to the camera (depth, m)")
 plt.ylabel("Error (m)")
-
+plt.savefig(sequence_name+"2.png")
 
 # mean
 plt.figure(3)
 plt.plot(bins, map(lambda x: np.mean(x) if len(x)>0 else 0, graph_depth))
 plt.xlabel("Distance to the camera (depth, m)")
 plt.ylabel("Mean error (m)")
+plt.savefig(sequence_name+"3.png")
 
 plt.figure(4)
 plt.plot(bins, map(lambda x: np.median(x) if len(x)>0 else 0, graph_depth))
 plt.xlabel("Distance to the camera (depth, m)")
 plt.ylabel("Median error (m)")
+plt.savefig(sequence_name+"4.png")
 
 plt.figure(5)
 plt.plot(bins, map(lambda x: np.max(x) if len(x)>0 else 0, graph_depth))
 plt.xlabel("Distance to the camera (depth, m)")
 plt.ylabel("Max error (m)")
-
-
-plt.show()
+plt.savefig(sequence_name+"5.png")

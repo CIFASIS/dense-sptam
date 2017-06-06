@@ -98,6 +98,14 @@ $ python dense/scripts/plot_depth_map.py ${depth_map}.dmap --clim_low -3 --clim_
 
 ## Process and compare depth maps directories
 
+This script accounts for all computation and plotting at the same time:
+
+```
+$ python dense/scripts/compute_and_plot.py
+```
+
+You should edit it with your paths and sequence to make it work. This script basically calls the following ones..
+
 The following scripts are used to process two sets of depth maps, generated
 from DENSE node output and ground truth. Arguments are the paths to directories
 containing the `.dmap` files:
