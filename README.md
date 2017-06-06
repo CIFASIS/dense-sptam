@@ -106,11 +106,12 @@ containing the `.dmap` files:
 $ python dense/scripts/depth_map.py path/to/dense/dmaps/ path/to/velodyne/dmaps/
 ```
 
-Generated output consists in two files `diff_list.txt` and `output.log`. The former
-can be processed by the following script to plot the results:
+(Check other parameters)
+
+Generated output consists in several npy files, used by the following script to plot the results:
 
 ```
-$ python dense/scripts/plot_dmap_error.py path/to/diff_list.txt ${sequence_name}
+$ python dense/scripts/plot_dmap_error.py ${sequence_name}
 ```
 ## Process and compare two depth maps
 

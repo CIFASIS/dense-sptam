@@ -11,19 +11,16 @@ def utf8(data):
 	return unicode(data, 'utf-8')
 
 parser = argparse.ArgumentParser()
-parser.add_argument('diff_list', help='diff_list file - output from depth_map.py')
-#parser.add_argument('graph_depth', help='graph_depth file - output from depth_map.py')
 parser.add_argument('sequence_name', help='dataset sequence name')
 args = parser.parse_args()
 
-assert(os.path.isfile(args.diff_list))
 sequence_name = args.sequence_name
 
 limit = int(dmu.MAXDIFF_FIRST_GRAPH / dmu.STEP_FIRST_GRAPH)
 domain = map(lambda x: x * dmu.STEP_FIRST_GRAPH, range(0, limit))
 
 # read from npy
-diff_list = np.load(args.diff_list)
+diff_list = np.load("diff_list.npy")
 
 # Discard 0 values at the end
 diff_list_max = 0
