@@ -10,15 +10,7 @@ import glob
 def utf8(data):
 	return unicode(data, 'utf-8')
 
-def main():
-	parser = argparse.ArgumentParser()
-	parser.add_argument('sequence_name', help='dataset sequence name')
-	parser.add_argument('--diff_list', help='string - name of diff_list file')
-	parser.add_argument('--graph_depths', help='directory - graph files')
-	args = parser.parse_args()
-
-	sequence_name = args.sequence_name
-
+def make_fig_1(args):
 	limit = int(dmu.MAXDIFF_FIRST_GRAPH / dmu.STEP_FIRST_GRAPH)
 	domain = map(lambda x: x * dmu.STEP_FIRST_GRAPH, range(0, limit))
 
@@ -63,7 +55,7 @@ def main():
 
 	plt.xlabel('Error (metros)', **axis_font)
 	plt.ylabel(utf8('Cantidad de píxeles'), **axis_font)
-	plt.title(utf8('Error - mapas de profundidad (dense vs. GT) para ' + sequence_name),
+	plt.title(utf8('Error - mapas de profundidad (dense vs. GT) para ' + args.sequence_name),
 			  **title_font)
 
 	ax.set_frame_on(False)
@@ -83,7 +75,16 @@ def main():
 	plt.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9)
 
 
-	plt.savefig(sequence_name+"1.png")
+	plt.savefig(args.sequence_name+"1.png")
+
+def main():
+	parser = argparse.ArgumentParser()
+	parser.add_argument('sequence_name', help='dataset sequence name')
+	parser.add_argument('--diff_list', help='string - name of diff_list file')
+	parser.add_argument('--graph_depths', help='directory - graph files')
+	args = parser.parse_args()
+
+	make_fig_1(args)
 
 	# depth vs errors (amount, mean)
 	# load all graph_depth*.npy files
@@ -98,7 +99,7 @@ def main():
 	if len(npys)<=0 :
 		print "No data to collect.."
 		return
-		
+
 	a = np.load(npys[0])
 	bins = a[0]
 	graph_depth = [[] for i in range(len(bins))]
@@ -114,26 +115,26 @@ def main():
 
 	plt.xlabel("Distance to the camera (depth, m)")
 	plt.ylabel("Error (m)")
-	plt.savefig(sequence_name+"2.png")
+	plt.savefig(args.sequence_name+"2.png")
 
 	# mean
 	plt.figure(3)
 	plt.plot(bins, map(lambda x: np.mean(x) if len(x)>0 else 0, graph_depth))
 	plt.xlabel("Distance to the camera (depth, m)")
 	plt.ylabel("Mean error (m)")
-	plt.savefig(sequence_name+"3.png")
+	plt.savefig(args.sequence_name+"3.png")
 
 	plt.figure(4)
 	plt.plot(bins, map(lambda x: np.median(x) if len(x)>0 else 0, graph_depth))
 	plt.xlabel("Distance to the camera (depth, m)")
 	plt.ylabel("Median error (m)")
-	plt.savefig(sequence_name+"4.png")
+	plt.savefig(args.sequence_name+"4.png")
 
 	plt.figure(5)
 	plt.plot(bins, map(lambda x: np.max(x) if len(x)>0 else 0, graph_depth))
 	plt.xlabel("Distance to the camera (depth, m)")
 	plt.ylabel("Max error (m)")
-	plt.savefig(sequence_name+"5.png")
+	plt.savefig(args.sequence_name+"5.png")
 
 
 if __name__ == "__main__":
