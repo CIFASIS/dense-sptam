@@ -13,8 +13,7 @@ import pickle
 import re
 import time
 import sys
-import depth_map_utilities
-
+import depth_map_utilities as dmu
 
 # filter l1 and l2 where 0 <= l1 <= limit and 0 <= l2 <= limit
 def filterLists(l1, l2, limit):
@@ -95,10 +94,9 @@ def process(args, bin_length, max_dist, output_log, show_time):
 		logfile = open("output.log", "w")
 		logfile.write("filename,total,valid dense, valid gt, filtered dense, filtered gt, valid absdiff\n")
 
-	# Calculate absolute differences with 0.1m of step and a maximum of 100m
-	MAXDIFF = 100.0
-	STEP = 0.1
-	diff_list = [0] * int(MAXDIFF / STEP)
+	# Calculate absolute differences with 0.1m of step and a maximum of MAXDIFF
+
+	diff_list = [0] * int(dmu.MAXDIFF_FIRST_GRAPH / dmu.STEP_FIRST_GRAPH)
 
 	files_count = 0
 	# count the total files .dmap that are available
@@ -143,7 +141,7 @@ def process(args, bin_length, max_dist, output_log, show_time):
 				# log absolute difference valid pixels
 				logfile.write(str(countValid(absdiff_list)) + ',')
 
-			diff_list = addToDiffList(diff_list, absdiff_list.tolist(), STEP, MAXDIFF)
+			diff_list = addToDiffList(diff_list, absdiff_list.tolist(), dmu.STEP_FIRST_GRAPH, dmu.MAXDIFF_FIRST_GRAPH)
 
 			if show_time:
 				print "Time before end: ", time.time() - t
@@ -158,7 +156,7 @@ def process(args, bin_length, max_dist, output_log, show_time):
 			if len(actual_graph.shape) == 1:
 				np.save("graph_depth"+str(files_count)+".npy", [bins, actual_graph])
 
-			limit = int(MAXDIFF / STEP)
+			limit = int(dmu.MAXDIFF_FIRST_GRAPH / dmu.STEP_FIRST_GRAPH)
 			np.save("diff_list.npy", diff_list[:limit])
 
 			if show_time:

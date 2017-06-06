@@ -1,3 +1,5 @@
+MAXDIFF_FIRST_GRAPH = 100.0
+STEP_FIRST_GRAPH = 0.1
 
 def simplePlot(data):
 	plt.plot(data)

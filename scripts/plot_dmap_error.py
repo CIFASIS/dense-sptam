@@ -4,6 +4,8 @@ import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import depth_map_utilities as dmu
+
 
 def utf8(data):
 	return unicode(data, 'utf-8')
@@ -17,12 +19,8 @@ args = parser.parse_args()
 assert(os.path.isfile(args.diff_list))
 sequence_name = args.sequence_name
 
-#TODO: don't hardcode this values...
-MAXDIFF = 100.0
-STEP = 0.1
-
-limit = int(MAXDIFF / STEP)
-domain = map(lambda x: x * STEP, range(0, limit))
+limit = int(dmu.MAXDIFF_FIRST_GRAPH / dmu.STEP_FIRST_GRAPH)
+domain = map(lambda x: x * dmu.STEP_FIRST_GRAPH, range(0, limit))
 
 # read from npy
 diff_list = np.load(args.diff_list)
@@ -34,8 +32,8 @@ for i in range(0, len(diff_list)):
 		diff_list_max = i + 1
 diff_list = diff_list[0:diff_list_max]
 
-major_ticks = np.arange(0, float(diff_list_max) * STEP, 1)
-minor_ticks = np.arange(0, float(diff_list_max) * STEP, STEP)
+major_ticks = np.arange(0, float(diff_list_max) * dmu.STEP_FIRST_GRAPH, 1)
+minor_ticks = np.arange(0, float(diff_list_max) * dmu.STEP_FIRST_GRAPH, dmu.STEP_FIRST_GRAPH)
 
 fig, ax = plt.subplots()
 
@@ -49,7 +47,7 @@ title_font = {
 }
 axis_font = {'fontname':'Ubuntu', 'size':'18'}
 
-rects1 = ax.bar(index * STEP, diff_list, width=bar_width,
+rects1 = ax.bar(index * dmu.STEP_FIRST_GRAPH, diff_list, width=bar_width,
 				 align='edge', log=True,
                  alpha=opacity, color='b', edgecolor='b')
 
