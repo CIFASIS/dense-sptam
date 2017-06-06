@@ -22,16 +22,12 @@ def filterLists(l1, l2, limit):
 
 	l1 = np.array(l1)
 	l2 = np.array(l2)
-	l1[l1 > limit] = -1
-	l2[l2 > limit] = -1
+	l1[l1 >= limit] = -1
+	l2[l2 >= limit] = -1
 
 	idxs = np.logical_and(l1 >= 0, l2 >= 0)
 
 	return l1[idxs], l2[idxs]
-
-# compute abs (l_x - l_y)
-def absoluteDiffList(l_x, l_y):
-	return np.abs(l_x - l_y)
 
 # add newList values to diffList
 def addToDiffList(diffList, newList, step, maxdiff):
@@ -47,16 +43,11 @@ def addToDiffList(diffList, newList, step, maxdiff):
 
 
 # put errors according to depth
-def classify_near_far(gt, bins, bin_length, err):
+def classify_near_far(gt, err, bins, bin_length):
 	res = [[] for i in range(len(bins))]
 
 	# find bin: [0-X] -> 0, (X-2X] -> 1, ....
 	gt2 = np.floor(np.array(gt) / bin_length).astype(np.int)
-
-	idxs = gt2 < len(bins)
-
-	gt2 = gt2[idxs]
-	err = err[idxs]
 
 	# apply data to its corresponding bin
 	for i in range(len(err)):
@@ -121,33 +112,29 @@ def process(args, bin_length, max_dist, output_log, show_time):
 				# log filename
 				logfile.write(f + ',')
 
-			dmap_dense = DepthMap(args.dmap_dense + '/' + f)
-			dmap_gt = DepthMap(args.dmap_gt + '/' + f)
+			dmap_dense_o = DepthMap(args.dmap_dense + '/' + f)
+			dmap_gt_o = DepthMap(args.dmap_gt + '/' + f)
 
 			if output_log:
 				# log total pixels
-				logfile.write(str(dmap_dense.height * dmap_dense.width) + ',')
+				logfile.write(str(dmap_dense_o.height * dmap_dense_o.width) + ',')
 				# log valid pixels
-				logfile.write(str(countValid(dmap_dense.body)) + ',')
-				logfile.write(str(countValid(dmap_gt.body)) + ',')
+				logfile.write(str(countValid(dmap_dense_o.body)) + ',')
+				logfile.write(str(countValid(dmap_gt_o.body)) + ',')
 
-			dmap_dense, dmap_gt = filterLists(dmap_dense.body, dmap_gt.body, max_dist)
+			dmap_dense, dmap_gt = filterLists(dmap_dense_o.body, dmap_gt_o.body, max_dist)
 
 			if output_log:
 				# log valid pixels after filtering
 				logfile.write(str(countValid(dmap_dense)) + ',')
 				logfile.write(str(countValid(dmap_gt)) + ',')
 
-			if show_time:
-				print "Time before absoluteDiffList: ", time.time() - t
-
-
-			absdiff_list = absoluteDiffList(dmap_dense, dmap_gt)
+			absdiff_list = np.abs(dmap_dense - dmap_gt)
 
 			if show_time:
 				print "Time before classify_near_far: ", time.time() - t
 
-			actual_graph = classify_near_far(dmap_gt, bins, bin_length, absdiff_list)
+			actual_graph = classify_near_far(dmap_gt, absdiff_list, bins, bin_length)
 
 			if show_time:
 				print "Time after: ", time.time() - t
