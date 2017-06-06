@@ -13,105 +13,27 @@ import pickle
 import re
 import time
 import sys
+import depth_map_utilities
 
-def simplePlot(data):
-	plt.plot(data)
-	plt.show()
 
-def boxPlot(data):
-	plt.boxplot(data, 0, 'bo')
-	plt.show()
+# filter l1 and l2 where 0 <= l1 <= limit and 0 <= l2 <= limit
+def filterLists(l1, l2, limit):
+	assert(len(l1) == len(l2))
 
-def histogramPlot(data, bin_factor):
-	bins = int(np.amax(data)) * bin_factor
-	plt.hist(data, bins)
-	plt.show()
+	l1 = np.array(l1)
+	l2 = np.array(l2)
+	l1[l1 > limit] = -1
+	l2[l2 > limit] = -1
 
-def listToArray(data, height, width):
-	ret = np.zeros((height, width))
-	for i in range(0, height):
-		for j in range(0, width):
-			ret[i, j] = data[i * width + j]
-	return ret
+	idxs = np.logical_and(l1 >= 0, l2 >= 0)
 
-def arrayToList(arr):
-	return reduce(operator.add, arr.tolist())
+	return l1[idxs], l2[idxs]
 
-def applyMask(l, mask):
-	assert(len(l) == len(mask))
-	l_mask = zip(l, mask)
-	return map(lambda (x, y): x if y else -1, l_mask)
-
-def filterList(l, limit):
-	return map(lambda x: x if x <= limit else -1, l)
-
-def filterMap(dmap, limit):
-	for i in range(0, dmap.shape[0]):
-		for j in range(0, dmap.shape[1]):
-			if (dmap[i, j] > limit):
-				dmap[i, j] = -1
-
-def countValid(l):
-	return len(filter(lambda x: x >= 0, l))
-
-def intersectMask(dmap_x, dmap_y):
-	assert(dmap_x.shape[0] == dmap_y.shape[0])
-	assert(dmap_x.shape[1] == dmap_y.shape[1])
-	ret = np.zeros(dmap_x.shape[0], dmap_x.shape[1])
-	for i in range(0, dmap_x.shape[0]):
-		for j in range(0, dmap_x.shape[1]):
-			if (dmap_x[i, j] >= 0 and dmap_y[i, j] >= 0):
-				ret[i, j] = 1
-	return ret
-
+# compute abs (l_x - l_y)
 def absoluteDiffList(l_x, l_y):
-	assert(len(l_x) == len(l_y))
-	l_x = np.array(l_x)
-	l_y = np.array(l_y)
-	abs_arr = np.abs(l_x - l_y)
+	return np.abs(l_x - l_y)
 
-	idxs = np.logical_and(l_x > 0, l_y > 0)
-	abs_arr[~idxs] = -1
-	return l_y[idxs], abs_arr[idxs].tolist()
-
-def absoluteDiffMap(dmap_x, dmap_y):
-	assert(dmap_x.shape[0] == dmap_y.shape[0])
-	assert(dmap_x.shape[1] == dmap_y.shape[1])
-	ret = np.full((dmap_x.shape[0], dmap_x.shape[1]), -1)
-	for i in range(0, dmap_x.shape[0]):
-		for j in range(0, dmap_x.shape[1]):
-			if (dmap_x[i, j] >= 0 and dmap_y[i, j] >= 0):
-				ret[i, j] = abs(dmap_x[i, j] - dmap_y[i, j])
-	return ret
-
-def getRGBcolor01(val, high, hsv_s = 0.8, hsv_v = 0.8, factor = 1):
-	hsv = ((1 - float(val) / float(high)) * factor, hsv_s, hsv_v)
-	return colorsys.hsv_to_rgb(*hsv)
-
-def getRGBcolor(val, high, hsv_s = 0.8, hsv_v = 0.8, factor = 1):
-	return tuple(int(i * 255) for i in getRGBcolor01(val, high, hsv_s, hsv_v, factor))
-
-def genRGBcolors(N):
-	return map(lambda x: getRGBcolor(x, N), range(N))
-
-def doColorArray(arr, limit = 0):
-	background = (127, 127, 127)
-	if (not limit):
-		limit = np.amax(arr)
-	img = np.full((arr.shape[0], arr.shape[1], 3), background, np.uint8)
-	for i in range(0, arr.shape[0]):
-		for j in range(0, arr.shape[1]):
-			if (arr[i, j] >= 0):
-				img[i, j] = getRGBcolor(arr[i, j], limit)
-	return img
-
-def saveImage(filename, img):
-	cv2.imwrite(filename, img)
-
-def plotSaveImage(filename, img):
-	plt.imshow(img)
-	plt.savefig(filename, dpi=300)
-
+# add newList values to diffList
 def addToDiffList(diffList, newList, step, maxdiff):
 	limit = int(maxdiff / step)
 
@@ -122,6 +44,25 @@ def addToDiffList(diffList, newList, step, maxdiff):
 	diffList = np.array(diffList)
 	np.add.at(diffList, l, 1)
 	return diffList
+
+
+# put errors according to depth
+def classify_near_far(gt, bins, bin_length, err):
+	res = [[] for i in range(len(bins))]
+
+	# find bin: [0-X] -> 0, (X-2X] -> 1, ....
+	gt2 = np.floor(np.array(gt) / bin_length).astype(np.int)
+
+	idxs = gt2 < len(bins)
+
+	gt2 = gt2[idxs]
+	err = err[idxs]
+
+	# apply data to its corresponding bin
+	for i in range(len(err)):
+		res[gt2[i]].append(err[i])
+
+	return np.array(map(lambda x : np.round(x, 6), res))
 
 
 class MyParser(argparse.ArgumentParser):
@@ -147,31 +88,12 @@ class DepthMap:
 	def parsebody(self, line):
 		self.body = np.array(line.split(",")[:self.height * self.width], dtype = np.float)
 
-# put errors according to depth
-def classify_near_far(gt, bins, bin_length, err):
-	res = [[] for i in range(len(bins))]
-
-	# find bin: [0-X] -> 0, (X-2X] -> 1, ....
-	gt2 = np.floor(np.array(gt) / bin_length).astype(np.int)
-
-	err = np.array(err)
-
-	idxs = gt2 < len(bins)
-
-	gt2 = gt2[idxs]
-	err = err[idxs]
-
-	# apply data to its corresponding bin
-	for i in range(len(err)):
-		res[gt2[i]].append(err[i])
-
-	return np.array(map(lambda x : np.round(x, 6), res))
 
 
 
-def process(args, bin_length, max_depth, max_dist, output_log, show_time):
+def process(args, bin_length, max_dist, output_log, show_time):
 
-	bins = range(0, max_depth, bin_length)
+	bins = range(0, max_dist, bin_length)
 
 	# y axis for plotting depth vs errors
 	graph_depth = [[] for i in range(len(bins))]
@@ -209,20 +131,18 @@ def process(args, bin_length, max_depth, max_dist, output_log, show_time):
 				logfile.write(str(countValid(dmap_dense.body)) + ',')
 				logfile.write(str(countValid(dmap_gt.body)) + ',')
 
-			if (max_dist):
-				dmap_dense.body = filterList(dmap_dense.body, max_dist)
-				dmap_gt.body = filterList(dmap_gt.body, max_dist)
+			dmap_dense, dmap_gt = filterLists(dmap_dense.body, dmap_gt.body, max_dist)
 
 			if output_log:
 				# log valid pixels after filtering
-				logfile.write(str(countValid(dmap_dense.body)) + ',')
-				logfile.write(str(countValid(dmap_gt.body)) + ',')
+				logfile.write(str(countValid(dmap_dense)) + ',')
+				logfile.write(str(countValid(dmap_gt)) + ',')
 
 			if show_time:
 				print "Time before absoluteDiffList: ", time.time() - t
 
 
-			dmap_gt, absdiff_list = absoluteDiffList(dmap_dense.body, dmap_gt.body)
+			absdiff_list = absoluteDiffList(dmap_dense, dmap_gt)
 
 			if show_time:
 				print "Time before classify_near_far: ", time.time() - t
@@ -236,7 +156,7 @@ def process(args, bin_length, max_depth, max_dist, output_log, show_time):
 				# log absolute difference valid pixels
 				logfile.write(str(countValid(absdiff_list)) + ',')
 
-			diff_list = addToDiffList(diff_list, absdiff_list, STEP, MAXDIFF)
+			diff_list = addToDiffList(diff_list, absdiff_list.tolist(), STEP, MAXDIFF)
 
 			if show_time:
 				print "Time before end: ", time.time() - t
@@ -266,25 +186,19 @@ def process(args, bin_length, max_depth, max_dist, output_log, show_time):
 		logfile.close()
 
 def main():
-	t_orig = time.time()
-
-
 	parser = MyParser()
 	parser.add_argument('dmap_dense', help='dmap dir - dense node')
 	parser.add_argument('dmap_gt', help='dmap dir - ground truth')
 	parser.add_argument('--output_log', help='bool - true if output a log')
 	parser.add_argument('--show_time', help='bool - show computation times')
+	parser.add_argument('--bin_length', help='float - length of bin in graphs')
+	parser.add_argument('--max_dist', help='int - truncate depth maps using this maximum distance')
 
-	parser.add_argument('--max_dist', help='truncate depth maps using this maximum distance')
 	args = parser.parse_args()
 
-	assert(os.path.isdir(args.dmap_dense))
-	assert(os.path.isdir(args.dmap_gt))
-
-	# TODO: take as argument
-	bin_length = 1
-	max_depth = 20
-
+	if not(os.path.isdir(args.dmap_dense)) or not (os.path.isdir(args.dmap_gt)):
+		print "Some of the provided dirs does not exist"
+		return
 
 	true_values = ['True', 'true', 't', '1']
 
@@ -296,12 +210,18 @@ def main():
 	if args.show_time in true_values:
 		show_time = True
 
-	max_dist = 0
+	max_dist = 20
 	if (args.max_dist):
 		max_dist = int(args.max_dist)
 
+	bin_length = 1
+	if (args.bin_length):
+		bin_length = float(args.bin_length)
 
-	process(args, bin_length, max_depth, max_dist, output_log, show_time)
+
+	t_orig = time.time()
+
+	process(args, bin_length, max_dist, output_log, show_time)
 
 	print "Total Time: ", time.time() - t_orig
 
