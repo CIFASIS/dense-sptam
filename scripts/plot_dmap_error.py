@@ -5,13 +5,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import depth_map_utilities as dmu
-
+import glob
 
 def utf8(data):
 	return unicode(data, 'utf-8')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('sequence_name', help='dataset sequence name')
+parser.add_argument('--diff_list', help='string - name of diff_list file')
+parser.add_argument('--graph_depths', help='directory - graph files')
 args = parser.parse_args()
 
 sequence_name = args.sequence_name
@@ -19,8 +21,14 @@ sequence_name = args.sequence_name
 limit = int(dmu.MAXDIFF_FIRST_GRAPH / dmu.STEP_FIRST_GRAPH)
 domain = map(lambda x: x * dmu.STEP_FIRST_GRAPH, range(0, limit))
 
+diff_list_file = "depth_info/diff_list.npy"
+if args.diff_list:
+	diff_list_file = args.diff_list
+
+print "Using diff list file ", diff_list_file
+
 # read from npy
-diff_list = np.load("depth_info/diff_list.npy")
+diff_list = np.load(diff_list_file)
 
 # Discard 0 values at the end
 diff_list_max = 0
@@ -71,8 +79,13 @@ plt.subplots_adjust(left=0.05, right=0.95, bottom=0.1, top=0.9)
 
 # depth vs errors (amount, mean)
 # load all graph_depth*.npy files
-import glob
-npys = glob.glob('./depth_info/graph_depth*.npy')
+
+graph_depth_dir = "./depth_info/"
+if args.graph_depths:
+	graph_depth_dir = args.graph_depths
+
+print "Using graph depth dir: ", graph_depth_dir
+npys = glob.glob(graph_depth_dir+'graph_depth*.npy')
 
 assert(len(npys)>0)
 a = np.load(npys[0])
