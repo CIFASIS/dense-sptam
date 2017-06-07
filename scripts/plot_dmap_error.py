@@ -6,6 +6,7 @@ import numpy as np
 import os
 import depth_map_utilities as dmu
 import glob
+import matplotlib.cbook as cbook
 
 def utf8(data):
 	return unicode(data, 'utf-8')
@@ -104,34 +105,46 @@ def main():
 	bins = a[0]
 	graph_depth = [[] for i in range(len(bins))]
 
+	fig, ax = plt.subplots(1,1)
+	bxpstats = list()
+	graphs = []
 	for npy in npys:
-		actual_graph = np.load(npy)[1]
-		for i in range(len(bins)):
-			graph_depth[i].extend(actual_graph[i])
+		graphs.append(np.load(npy)[1])
 
-	fig = plt.figure(2)
-	ax = fig.add_subplot(111)
-	bp = ax.boxplot(graph_depth)
+	means = np.zeros(len(bins))
+	medians = np.zeros(len(bins))
+	maxs = np.zeros(len(bins))
+	for i in range(len(bins)):
+		graph_depth = []
 
-	plt.xlabel("Distance to the camera (depth, m)")
-	plt.ylabel("Error (m)")
+		for j in range(len(npys)):
+			graph_depth.extend(graphs[j][i])
+
+		means[i] = np.mean(graph_depth)
+		medians[i] = np.median(graph_depth)
+		maxs[i] = np.max(graph_depth)
+
+		if len(graph_depth) > 0:
+			bxpstats.extend(cbook.boxplot_stats(np.ravel(graph_depth)))
+
+	ax.bxp(bxpstats)
 	plt.savefig(args.sequence_name+"2.png")
 
 	# mean
 	plt.figure(3)
-	plt.plot(bins, map(lambda x: np.mean(x) if len(x)>0 else 0, graph_depth))
+	plt.plot(bins, means)
 	plt.xlabel("Distance to the camera (depth, m)")
 	plt.ylabel("Mean error (m)")
 	plt.savefig(args.sequence_name+"3.png")
 
 	plt.figure(4)
-	plt.plot(bins, map(lambda x: np.median(x) if len(x)>0 else 0, graph_depth))
+	plt.plot(bins, medians)
 	plt.xlabel("Distance to the camera (depth, m)")
 	plt.ylabel("Median error (m)")
 	plt.savefig(args.sequence_name+"4.png")
 
 	plt.figure(5)
-	plt.plot(bins, map(lambda x: np.max(x) if len(x)>0 else 0, graph_depth))
+	plt.plot(bins, maxs)
 	plt.xlabel("Distance to the camera (depth, m)")
 	plt.ylabel("Max error (m)")
 	plt.savefig(args.sequence_name+"5.png")
