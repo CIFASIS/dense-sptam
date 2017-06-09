@@ -11,5 +11,5 @@ add_corners: false
 sigma: 0
 refinement_linear_threshold: 0.01
 refinement_angular_threshold: 0.001
-single_depth_map_region_size: 30
+single_depth_map_region_size: 0
 pub_area_filter_min: 0
