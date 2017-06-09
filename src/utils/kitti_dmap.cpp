@@ -94,7 +94,7 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
         return 1;
     }
 
-    for (i = 0; i < (int)poses.size(); i++) {
+    for (i = 0; i < (int)poses.size(); ++i) {
         cv::Mat_<float> image(dense_->left_info_->height, dense_->left_info_->width);
         for (r = 0; r < image.rows; r++) {
             for (c = 0; c < image.cols; c++) {
@@ -103,12 +103,17 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
         }
 
         sprintf(cloud_path, "%s/cloud_%06d.pcd", in_clouds_path, i);
+        if (!fs::is_regular_file(cloud_path)) {
+          std::cout << "File " << cloud_path << " does not exist \n";
+          continue;
+        }
         std::cout << "Processing: " << cloud_path << "\n";
-        if (!fs::is_regular_file(cloud_path))
-            continue;
 
         Eigen::Matrix3d orientation = poses.at(i).first;
         Eigen::Vector3d position = poses.at(i).second;
+
+        std::cout << "position: " << position << std::endl;
+
         FrustumCulling frustum_left(position, orientation,
                                     dense_->camera_->GetFOV_LH(), dense_->camera_->GetFOV_LV(),
                                     dense_->camera_->getNearPlaneDist(), dense_->camera_->getFarPlaneDist());
@@ -268,9 +273,13 @@ int generate_depth_maps_kitti_local(const char *in_poses_path, const char *in_cl
 
     for (i = 0; i < poses.size(); i++) {
         sprintf(cloud_path, "%s/cloud_%06d.pcd", in_clouds_path, i);
+
+        if (!fs::is_regular_file(cloud_path)) {
+          std::cout << "File " << cloud_path << " does not exist \n";
+          continue;
+        }
+
         std::cout << "Processing: " << cloud_path << "\n";
-        if (!fs::is_regular_file(cloud_path))
-            continue;
 
         cv::Mat_<float> image(dense_->left_info_->height, dense_->left_info_->width);
         for (r = 0; r < image.rows; r++) {

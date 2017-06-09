@@ -101,7 +101,10 @@ void PointCloudQueue::generate_poses_txt(const char *output_dir)
     // maps are sorted, so we take the last key and fill the blanks
     uint32_t last_key = poses_.rbegin()->first;
 
-    for (uint32_t i = 1; i <= last_key; i++)
+    // we are considering that rosbag seq start with 0
+    // (in KITTI the rosbag seq start with 1, this should be taking into account during comparison with Ground-Truth)
+
+    for (uint32_t i = 0; i <= last_key; i++)
     {
         if ( poses_.find(i) == poses_.end() )
         {
