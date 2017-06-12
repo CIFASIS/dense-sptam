@@ -79,8 +79,8 @@ def make_fig_1(args):
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('sequence_name', help='dataset sequence name')
-	parser.add_argument('--diff_list', help='string - name of diff_list file')
-	parser.add_argument('--graph_depths', help='directory - graph files')
+	parser.add_argument('--diff_list', help='string - name of diff_list file (needed for Graph 1, output of depth_map.py)')
+	parser.add_argument('--graph_depths', help='directory - graph files (needed for Graphs 2-5, output of depth_map.py)')
 	args = parser.parse_args()
 
 	make_fig_1(args)
@@ -150,6 +150,9 @@ def main():
 	plt.xlabel("Distance to the camera (depth, m)")
 	plt.ylabel("Max error (m)")
 	plt.savefig(args.sequence_name+"5.png")
+
+	print ""
+	print "Saved " + args.sequence_name + "{1-5}.png files"
 
 
 if __name__ == "__main__":

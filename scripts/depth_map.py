@@ -54,13 +54,14 @@ def classify_near_far(gt, err, bins, bin_length):
 
 	return np.array(map(lambda x : np.round(x, 6), res))
 
-
+# class for showing info on bad usage
 class MyParser(argparse.ArgumentParser):
     def error(self, message):
         sys.stderr.write('error: %s\n' % message)
         self.print_help()
         sys.exit(2)
 
+# class for reading dmap files
 class DepthMap:
 
 	def __init__(self, filename):
@@ -80,13 +81,10 @@ class DepthMap:
 
 
 
-
+# main process
 def process(args, bin_length, max_dist, output_log, show_time):
-	if not(os.path.isdir("depth_info")):
-		if os.system("mkdir depth_info"):
-			print "Cannot create dir depth_info"
-			return
 
+	# x axis of graphs
 	bins = range(0, max_dist, bin_length)
 
 	# y axis for plotting depth vs errors
@@ -98,15 +96,17 @@ def process(args, bin_length, max_dist, output_log, show_time):
 		logfile = open("output.log", "w")
 		logfile.write("filename,total,valid dense, valid gt, filtered dense, filtered gt, valid absdiff\n")
 
-	# Calculate absolute differences with 0.1m of step and a maximum of MAXDIFF
-
-	diff_list = [0] * int(dmu.MAXDIFF_FIRST_GRAPH / dmu.STEP_FIRST_GRAPH)
+	# Calculate absolute differences with dmu.STEP_FIRST_GRAPH (m) of step and a maximum of dmu.MAXDIFF_FIRST_GRAPH (m)
+	limit = int(dmu.MAXDIFF_FIRST_GRAPH / dmu.STEP_FIRST_GRAPH)
+	diff_list = [0] * limit
 
 	files_count = 0
 	# count the total files .dmap that are available
 	files_total = len([f for f in os.listdir(args.dmap_dense) if f.endswith(".dmap")])
 
+	# loop through files
 	for f in os.listdir(args.dmap_dense):
+		# see if file is a depth map
 		if f.endswith(".dmap") and os.path.isfile(args.dmap_gt + '/' + f):
 			t = time.time()
 
@@ -114,6 +114,7 @@ def process(args, bin_length, max_dist, output_log, show_time):
 				# log filename
 				logfile.write(f + ',')
 
+			# convert file to DepthMap class
 			dmap_dense_o = DepthMap(args.dmap_dense + '/' + f)
 			dmap_gt_o = DepthMap(args.dmap_gt + '/' + f)
 
@@ -124,6 +125,7 @@ def process(args, bin_length, max_dist, output_log, show_time):
 				logfile.write(str(countValid(dmap_dense_o.body)) + ',')
 				logfile.write(str(countValid(dmap_gt_o.body)) + ',')
 
+			# filter dmap_dense and dmap_gt bodies where 0 <= dmap_dense <= max_dist and 0 <= dmap_gt <= max_dist
 			dmap_dense, dmap_gt = filterLists(dmap_dense_o.body, dmap_gt_o.body, max_dist)
 
 			if output_log:
@@ -131,11 +133,14 @@ def process(args, bin_length, max_dist, output_log, show_time):
 				logfile.write(str(countValid(dmap_dense)) + ',')
 				logfile.write(str(countValid(dmap_gt)) + ',')
 
+
+			# compute absolute diff between gt and dense output
 			absdiff_list = np.abs(dmap_dense - dmap_gt)
 
 			if show_time:
 				print "Time before classify_near_far: ", time.time() - t
 
+			# make data for the graphs, according to its distance to the camera (depth)
 			actual_graph = classify_near_far(dmap_gt, absdiff_list, bins, bin_length)
 
 			if show_time:
@@ -145,6 +150,7 @@ def process(args, bin_length, max_dist, output_log, show_time):
 				# log absolute difference valid pixels
 				logfile.write(str(countValid(absdiff_list)) + ',')
 
+			# add data to diff_list.npy (first graph)
 			diff_list = addToDiffList(diff_list, absdiff_list.tolist(), dmu.STEP_FIRST_GRAPH, dmu.MAXDIFF_FIRST_GRAPH)
 
 			if show_time:
@@ -156,12 +162,13 @@ def process(args, bin_length, max_dist, output_log, show_time):
 			files_count += 1
 			print("Processed: " + f + " - " + str(files_count) + "/" + str(files_total))
 
+			# save data for first graph
+			np.save("depth_info/diff_list.npy", diff_list[:limit])
+
+			# save data for graphs 2-5
 			# check that it is not empty data
 			if len(actual_graph.shape) == 1:
 				np.save("depth_info/graph_depth"+str(files_count)+".npy", [bins, actual_graph])
-
-			limit = int(dmu.MAXDIFF_FIRST_GRAPH / dmu.STEP_FIRST_GRAPH)
-			np.save("depth_info/diff_list.npy", diff_list[:limit])
 
 			if show_time:
 				print "Iteration time: ", time.time() - t
@@ -175,6 +182,7 @@ def process(args, bin_length, max_dist, output_log, show_time):
 		logfile.close()
 
 def main():
+	# Handle arguments
 	parser = MyParser()
 	parser.add_argument('dmap_dense', help='dmap dir - dense node')
 	parser.add_argument('dmap_gt', help='dmap dir - ground truth')
@@ -185,12 +193,14 @@ def main():
 
 	args = parser.parse_args()
 
+	# Mandatory arguments
 	if not(os.path.isdir(args.dmap_dense)) or not (os.path.isdir(args.dmap_gt)):
 		print "Some of the provided dirs does not exist"
 		return
 
 	true_values = ['True', 'true', 't', '1']
 
+	# Optional arguments
 	output_log = False
 	if args.output_log in true_values:
 		output_log = True
@@ -207,12 +217,20 @@ def main():
 	if (args.bin_length):
 		bin_length = float(args.bin_length)
 
+	# Make sure depth_info path exists, otherwise create it
+	if not(os.path.isdir("depth_info")):
+		if os.system("mkdir depth_info"):
+			print "Cannot create dir depth_info"
+			return
 
 	t_orig = time.time()
 
+	# Main process
 	process(args, bin_length, max_dist, output_log, show_time)
 
 	print "Total Time: ", time.time() - t_orig
+
+	# END
 
 if __name__ == "__main__":
 	main()
