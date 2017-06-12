@@ -66,8 +66,6 @@ def make_fig_1(args):
 	ax.set_xticks(minor_ticks, minor=True)
 	ax.set_yticks([], minor=True)
 
-	plt.legend()
-
 	ax.grid(which='both')
 	ax.grid(which='minor', alpha=0.7)
 	ax.grid(which='major', alpha=1, linewidth=2)
