@@ -146,3 +146,93 @@ $ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense
 ```
 $ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense_depth_map}.dmap error_graph size
 ```
+
+## Examples of use : compile, run, and plot of kitti04 and tsukuba
+
+# KITTI 04
+
+```
+$ cd ~/catkin_ws
+```
+
+## COMPILE DENSE AND SPTAM
+```
+$ catkin clean
+$ catkin build
+```
+
+## LAUNCH DENSE
+```
+$ roscore &
+$ roslaunch dense kitti.launch
+$ rosbag play --clock ~/ariel/datasets/bags/kitti_04.bag -r0.1
+```
+
+## PCD -> DMAP
+```
+$ ./devel/lib/dense/kitti_dmap_generator ~/catkin_ws/src/dense/configurationFiles/kitti_cam_04_to_12.yaml ~/catkin_ws/src/dense/configurationFiles/kitti.yaml ~/.ros/clouds/poses.txt ~/.ros/clouds/
+```
+
+## PLOT
+```
+$ mkdir ~/.ros/clouds/dmap/
+```
+
+- move the .dmap from ~/ros/clouds/ to ~/.ros/clouds/dmap
+- edit scripts/compute_and_plot.py with the new directory
+
+```
+$ dir_dense = "~/.ros/clouds/dmap/"
+$ dir_gt = "~/ariel/datasets/kitti04GT/dmap/"
+$ sequence = "kitti"
+```
+
+```
+$ cd scripts
+$ python compute_and_plot.py
+```
+This will generate 5 png files in the scripts directory with the names kitti{1-5}.png
+
+
+# TSUKUBA
+
+```
+cd ~/catkin_ws
+```
+
+## COMPILE DENSE AND SPTAM
+```
+catkin clean
+catkin build
+```
+
+## LAUNCH DENSE
+```
+roscore &
+roslaunch dense tsukuba.launch
+rosbag play --clock ~/ariel/datasets/bags/tsukuba_daylight.bag -r0.05
+```
+
+## PCD -> DMAP
+```
+./devel/lib/dense/kitti_dmap_generator  ~/Downloads/tsukuba_cam.yaml ~/catkin_ws/src/dense/configurationFiles/tsukuba.yaml  ~/.ros/clouds/poses.txt ~/.ros/clouds/
+```
+
+## PLOT
+```
+cd ~/catkin_ws/src/dense/scripts
+```
+
+- Edit scripts/compute_and_plot.py with the new directory and the gt directory
+
+```
+dir_dense = "~/.ros/clouds/dmap/"
+dir_gt = "~/ariel/datasets/tsukuba_dataset/depth_maps/left/dmap/"
+sequence = "tsukuba"
+```
+
+```
+cd scripts
+python compute_and_plot.py
+```
+This will generate 5 png files in the scripts directory with the names tsukuba{1-5}.png
