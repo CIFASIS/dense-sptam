@@ -147,33 +147,33 @@ $ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense
 $ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense_depth_map}.dmap error_graph size
 ```
 
-## Examples of use : compile, run, and plot of kitti04 and tsukuba
+# Examples of use : compile, run, and plot of kitti04 and tsukuba
 
-# KITTI 04
+## KITTI 04
 
 ```
 $ cd ~/catkin_ws
 ```
 
-## COMPILE DENSE AND SPTAM
+- COMPILE DENSE AND SPTAM
 ```
 $ catkin clean
 $ catkin build
 ```
 
-## LAUNCH DENSE
+- LAUNCH DENSE
 ```
 $ roscore &
 $ roslaunch dense kitti.launch
 $ rosbag play --clock ~/ariel/datasets/bags/kitti_04.bag -r0.1
 ```
 
-## PCD -> DMAP
+- PCD -> DMAP
 ```
 $ ./devel/lib/dense/kitti_dmap_generator ~/catkin_ws/src/dense/configurationFiles/kitti_cam_04_to_12.yaml ~/catkin_ws/src/dense/configurationFiles/kitti.yaml ~/.ros/clouds/poses.txt ~/.ros/clouds/
 ```
 
-## PLOT
+- PLOT
 ```
 $ mkdir ~/.ros/clouds/dmap/
 ```
@@ -194,31 +194,31 @@ $ python compute_and_plot.py
 This will generate 5 png files in the scripts directory with the names kitti{1-5}.png
 
 
-# TSUKUBA
+## TSUKUBA
 
 ```
 cd ~/catkin_ws
 ```
 
-## COMPILE DENSE AND SPTAM
+- COMPILE DENSE AND SPTAM
 ```
 catkin clean
 catkin build
 ```
 
-## LAUNCH DENSE
+- LAUNCH DENSE
 ```
 roscore &
 roslaunch dense tsukuba.launch
 rosbag play --clock ~/ariel/datasets/bags/tsukuba_daylight.bag -r0.05
 ```
 
-## PCD -> DMAP
+- PCD -> DMAP
 ```
 ./devel/lib/dense/kitti_dmap_generator  ~/Downloads/tsukuba_cam.yaml ~/catkin_ws/src/dense/configurationFiles/tsukuba.yaml  ~/.ros/clouds/poses.txt ~/.ros/clouds/
 ```
 
-## PLOT
+- PLOT
 ```
 cd ~/catkin_ws/src/dense/scripts
 ```
