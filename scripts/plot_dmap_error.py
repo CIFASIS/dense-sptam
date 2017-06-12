@@ -130,6 +130,8 @@ def main():
 			bxpstats.extend(cbook.boxplot_stats(np.ravel(graph_depth)))
 
 	ax.bxp(bxpstats)
+	plt.xlabel("Distance to the camera (depth, m)")
+	plt.ylabel("Error (m)")
 	plt.savefig(args.sequence_name+"2.png")
 
 	# mean
