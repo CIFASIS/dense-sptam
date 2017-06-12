@@ -109,7 +109,9 @@ def main():
 	bxpstats = list()
 	graphs = []
 	for npy in npys:
-		graphs.append(np.load(npy)[1])
+		g = np.load(npy)[1]
+		if len(g) > 0:
+			graphs.append(g)
 
 	means = np.zeros(len(bins))
 	medians = np.zeros(len(bins))
@@ -118,13 +120,13 @@ def main():
 		graph_depth = []
 
 		for j in range(len(npys)):
-			graph_depth.extend(graphs[j][i])
-
-		means[i] = np.mean(graph_depth)
-		medians[i] = np.median(graph_depth)
-		maxs[i] = np.max(graph_depth)
+			if len(graphs[j][i]) > 0:
+				graph_depth.extend(graphs[j][i])
 
 		if len(graph_depth) > 0:
+			means[i] = np.mean(graph_depth)
+			medians[i] = np.median(graph_depth)
+			maxs[i] = np.max(graph_depth)
 			bxpstats.extend(cbook.boxplot_stats(np.ravel(graph_depth)))
 
 	ax.bxp(bxpstats)
