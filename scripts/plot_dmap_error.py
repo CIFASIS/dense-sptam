@@ -126,8 +126,10 @@ def main():
 			medians[i] = np.median(graph_depth)
 			maxs[i] = np.max(graph_depth)
 			bxpstats.extend(cbook.boxplot_stats(np.ravel(graph_depth)))
+		else:
+			bxpstats.extend(cbook.boxplot_stats(np.ravel([0])))
 
-	ax.bxp(bxpstats)
+	ax.bxp(bxpstats, positions=bins)
 	plt.xlabel("Distance to the camera (depth, m)")
 	plt.ylabel("Error (m)")
 	plt.savefig(args.sequence_name+"2.png")

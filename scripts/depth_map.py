@@ -19,12 +19,7 @@ import depth_map_utilities as dmu
 def filterLists(l1, l2, limit):
 	assert(len(l1) == len(l2))
 
-	l1 = np.array(l1)
-	l2 = np.array(l2)
-	l1[l1 >= limit] = -1
-	l2[l2 >= limit] = -1
-
-	idxs = np.logical_and(l1 >= 0, l2 >= 0)
+	idxs = np.logical_and(np.logical_and(l1 >= 0, l2 >= 0) , l2 < limit)
 
 	return l1[idxs], l2[idxs]
 
@@ -85,7 +80,7 @@ class DepthMap:
 def process(args, bin_length, max_dist, output_log, show_time):
 
 	# x axis of graphs
-	bins = range(0, max_dist, bin_length)
+	bins = np.arange(0, max_dist, bin_length)
 
 	# y axis for plotting depth vs errors
 	graph_depth = [[] for i in range(len(bins))]
@@ -125,7 +120,7 @@ def process(args, bin_length, max_dist, output_log, show_time):
 				logfile.write(str(countValid(dmap_dense_o.body)) + ',')
 				logfile.write(str(countValid(dmap_gt_o.body)) + ',')
 
-			# filter dmap_dense and dmap_gt bodies where 0 <= dmap_dense <= max_dist and 0 <= dmap_gt <= max_dist
+			# filter dmap_dense and dmap_gt bodies where 0 <= dmap_dense and 0 <= dmap_gt <= max_dist
 			dmap_dense, dmap_gt = filterLists(dmap_dense_o.body, dmap_gt_o.body, max_dist)
 
 			if output_log:
@@ -209,11 +204,11 @@ def main():
 	if args.show_time in true_values:
 		show_time = True
 
-	max_dist = 20
+	max_dist = 20.0
 	if (args.max_dist):
-		max_dist = int(args.max_dist)
+		max_dist = float(args.max_dist)
 
-	bin_length = 1
+	bin_length = 1.0
 	if (args.bin_length):
 		bin_length = float(args.bin_length)
 
