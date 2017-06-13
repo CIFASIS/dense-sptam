@@ -27,7 +27,6 @@ def filterLists(l1, l2, limit):
 def addToDiffList(diffList, newList, step, maxdiff):
 	limit = int(maxdiff / step)
 
-	newList = np.array(newList)
 	l = newList / step
 	l = l.clip(max=limit).astype(np.int)
 
@@ -71,8 +70,18 @@ class DepthMap:
 		self.height = int(data[0])
 		self.width = int(data[1])
 
+	# check if there are negative values other than -1
+	def check_sanity(self):
+		body = self.body
+		body = body[body < 0]
+		body = body[body != -1]
+		if len(body) > 0:
+			print "WARNING: there are negative values in the dmap!! (different from -1, " + self.filename + ")"
+
+
 	def parsebody(self, line):
 		self.body = np.array(line.split(",")[:self.height * self.width], dtype = np.float)
+		self.check_sanity()
 
 
 
@@ -146,7 +155,7 @@ def process(args, bin_length, max_dist, output_log, show_time):
 				logfile.write(str(countValid(absdiff_list)) + ',')
 
 			# add data to diff_list.npy (first graph)
-			diff_list = addToDiffList(diff_list, absdiff_list.tolist(), dmu.STEP_FIRST_GRAPH, dmu.MAXDIFF_FIRST_GRAPH)
+			diff_list = addToDiffList(diff_list, absdiff_list, dmu.STEP_FIRST_GRAPH, dmu.MAXDIFF_FIRST_GRAPH)
 
 			if show_time:
 				print "Time before end: ", time.time() - t
