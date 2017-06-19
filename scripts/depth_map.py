@@ -15,11 +15,11 @@ import time
 import sys
 import depth_map_utilities as dmu
 
-# filter l1 and l2 where 0 <= l1 <= limit and 0 <= l2 <= limit
-def filterLists(l1, l2, limit):
+# filter l1 and l2 where 0 <= l1 <= limit and min_dist <= l2 <= limit
+def filterLists(l1, l2, min_dist, limit):
 	assert(len(l1) == len(l2))
 
-	idxs = np.logical_and(np.logical_and(l1 >= 0, l2 >= 0) , l2 < limit)
+	idxs = np.logical_and(np.logical_and(l1 >= 0, l2 >= min_dist) , l2 < limit)
 
 	return l1[idxs], l2[idxs]
 
@@ -36,11 +36,11 @@ def addToDiffList(diffList, newList, step, maxdiff):
 
 
 # put errors according to depth
-def classify_near_far(gt, err, bins, bin_length):
+def classify_near_far(gt, err, bins, bin_length, min_dist):
 	res = [[] for i in range(len(bins))]
 
 	# find bin: [0-X] -> 0, (X-2X] -> 1, ....
-	gt2 = np.floor(np.array(gt) / bin_length).astype(np.int)
+	gt2 = np.floor(np.array(gt) / bin_length).astype(np.int) - np.int(min_dist)
 
 	# apply data to its corresponding bin
 	for i in range(len(err)):
@@ -86,10 +86,10 @@ class DepthMap:
 
 
 # main process
-def process(args, bin_length, max_dist, output_log, show_time):
+def process(args, bin_length, min_dist, max_dist, output_log, show_time):
 
 	# x axis of graphs
-	bins = np.arange(0, max_dist, bin_length)
+	bins = np.arange(min_dist, max_dist, bin_length)
 
 	# y axis for plotting depth vs errors
 	graph_depth = [[] for i in range(len(bins))]
@@ -130,7 +130,7 @@ def process(args, bin_length, max_dist, output_log, show_time):
 				logfile.write(str(countValid(dmap_gt_o.body)) + ',')
 
 			# filter dmap_dense and dmap_gt bodies where 0 <= dmap_dense and 0 <= dmap_gt <= max_dist
-			dmap_dense, dmap_gt = filterLists(dmap_dense_o.body, dmap_gt_o.body, max_dist)
+			dmap_dense, dmap_gt = filterLists(dmap_dense_o.body, dmap_gt_o.body, min_dist, max_dist)
 
 			if output_log:
 				# log valid pixels after filtering
@@ -145,7 +145,7 @@ def process(args, bin_length, max_dist, output_log, show_time):
 				print "Time before classify_near_far: ", time.time() - t
 
 			# make data for the graphs, according to its distance to the camera (depth)
-			actual_graph = classify_near_far(dmap_gt, absdiff_list, bins, bin_length)
+			actual_graph = classify_near_far(dmap_gt, absdiff_list, bins, bin_length, min_dist)
 
 			if show_time:
 				print "Time after: ", time.time() - t
@@ -194,6 +194,7 @@ def main():
 	parser.add_argument('--show_time', help='bool - show computation times')
 	parser.add_argument('--bin_length', help='float - length of bin in graphs')
 	parser.add_argument('--max_dist', help='int - truncate depth maps using this maximum distance')
+	parser.add_argument('--min_dist', help='int - truncate depth maps using this minimum distance')
 
 	args = parser.parse_args()
 
@@ -213,6 +214,10 @@ def main():
 	if args.show_time in true_values:
 		show_time = True
 
+	min_dist = 0.0
+	if (args.min_dist):
+		min_dist = float(args.min_dist)
+
 	max_dist = 20.0
 	if (args.max_dist):
 		max_dist = float(args.max_dist)
@@ -230,7 +235,7 @@ def main():
 	t_orig = time.time()
 
 	# Main process
-	process(args, bin_length, max_dist, output_log, show_time)
+	process(args, bin_length, min_dist, max_dist, output_log, show_time)
 
 	print "Total Time: ", time.time() - t_orig
 

@@ -129,6 +129,8 @@ def main():
 		else:
 			bxpstats.extend(cbook.boxplot_stats(np.ravel([0])))
 
+		print "ITEM : " , i, len(graph_depth)
+
 	ax.bxp(bxpstats, positions=bins)
 	plt.xlabel("Distance to the camera (depth, m)")
 	plt.ylabel("Error (m)")
