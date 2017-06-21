@@ -99,8 +99,8 @@ def main():
 		print "No data to collect.."
 		return
 
-	a = np.load(npys[0])
-	bins = a[0]
+	bins = np.load(graph_depth_dir+'bins.npy')
+	print bins
 	graph_depth = [[] for i in range(len(bins))]
 
 	fig, ax = plt.subplots(1,1)
@@ -118,8 +118,9 @@ def main():
 		graph_depth = []
 
 		for j in range(len(npys)):
-			if len(graphs[j][i]) > 0:
-				graph_depth.extend(graphs[j][i])
+			if i < len(graphs[j]):
+				if len(graphs[j][i]) > 0:
+					graph_depth.extend(graphs[j][i])
 
 		if len(graph_depth) > 0:
 			means[i] = np.mean(graph_depth)
