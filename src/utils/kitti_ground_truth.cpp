@@ -61,7 +61,8 @@ vector<pair<Eigen::Matrix3d, Eigen::Vector3d>> load_poses(const char *filename)
 }
 
 PointCloudPtr load_velodyne(const char *filename, pair<Eigen::Matrix3d, Eigen::Vector3d> calib,
-                            Eigen::Matrix3d orientation, Eigen::Vector3d position)
+                            Eigen::Matrix3d orientation, Eigen::Vector3d position,
+                            float min_distance)
 {
     PointCloudPtr ret(new PointCloud);
     Eigen::Matrix3d calib_orientation = calib.first;
@@ -86,6 +87,11 @@ PointCloudPtr load_velodyne(const char *filename, pair<Eigen::Matrix3d, Eigen::V
         pt3d(0) = *px;
         pt3d(1) = *py;
         pt3d(2) = *pz;
+
+        // Omit points that are beyond the min_distance threshold
+        if (pt3d(2) < min_distance)
+            continue;
+
         pt3d = orientation * (calib_orientation * pt3d + calib_position) + position;
         Point pt;
         pt.x = pt3d(0);
@@ -109,7 +115,8 @@ namespace fs = boost::filesystem;
 
 int generate_clouds(const char *in_path, const char *out_path,
                     pair<Eigen::Matrix3d, Eigen::Vector3d> calib,
-                    vector<pair<Eigen::Matrix3d, Eigen::Vector3d>> poses)
+                    vector<pair<Eigen::Matrix3d, Eigen::Vector3d>> poses,
+                    float min_distance)
 {
     unsigned int count = 0, i;
     char cloud_path[256];
@@ -132,7 +139,8 @@ int generate_clouds(const char *in_path, const char *out_path,
 
         Eigen::Matrix3d orientation = poses.at(count).first;
         Eigen::Vector3d position = poses.at(count).second;
-        PointCloudPtr cloud = load_velodyne(cloud_path, calib, orientation, position);
+        PointCloudPtr cloud = load_velodyne(cloud_path, calib, orientation, position,
+                                            min_distance);
 
         sprintf(cloud_path, "%s/%06d.pcd", out_path, i);
         string filename(cloud_path);
@@ -148,18 +156,20 @@ int generate_clouds(const char *in_path, const char *out_path,
 
 int main(int argc, char* argv[])
 {
+    float min_distance;
     int ret = 0;
 
-    if (argc < 5) {
+    if (argc < 6) {
         std::cout << "\nusage: " << argv[0] <<
-                     " [in-calib] [in-poses] [in-velo] [out-cloud]" << std::endl;
+                     " [in-calib] [in-poses] [in-velo] [out-cloud] [min-distance]" << std::endl;
         return -1;
     }
 
     pair<Eigen::Matrix3d, Eigen::Vector3d> calib = load_calib(argv[1]);
     vector<pair<Eigen::Matrix3d, Eigen::Vector3d>> poses = load_poses(argv[2]);
+    min_distance = atof(argv[5]);
 
-    ret = generate_clouds(argv[3], argv[4], calib, poses);
+    ret = generate_clouds(argv[3], argv[4], calib, poses, min_distance);
     if (ret) {
         cout << "Failed to generate clouds" << endl;
         exit(1);
