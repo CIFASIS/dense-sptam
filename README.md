@@ -52,14 +52,19 @@ Dense node execution logging information is stored here.
 
 ```
 $ ./devel/lib/dense/kitti_ground_truth
-  usage: ./devel/lib/dense/kitti_ground_truth [in-calib] [in-poses] [in-velo] [out-cloud]
+  usage: ./devel/lib/dense/kitti_ground_truth [in-calib] [in-poses] [in-velo] [out-cloud] [min-distance]
 
 $ ./devel/lib/dense/kitti_ground_truth \
     ../../datasets/kitti/sequences/${sequence}/velodyne/calib.txt \
     ../../datasets/kitti/sequences/${sequence}/velodyne/poses.txt \
     ../../datasets/kitti/sequences/${sequence}/velodyne/raw/ \
-    ../../datasets/kitti/sequences/${sequence}/velodyne/pcd/
+    ../../datasets/kitti/sequences/${sequence}/velodyne/pcd/ \
+    0.0
 ```
+
+Note there's a float parameter named `min_distance` at the end, which allows
+to filter (omit) those points that are beyond this distance threshold.
+This is useful as the velodyne laser may contain noise in the first meters.
 
 ## kitti\_dmap\_generator: Generate depth maps (`.dmap`) from DENSE node output for KITTI dataset
 
