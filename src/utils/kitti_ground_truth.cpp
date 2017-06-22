@@ -91,9 +91,9 @@ PointCloudPtr load_velodyne(const char *filename, pair<Eigen::Matrix3d, Eigen::V
 
         /*
          * Omit points that are beyond the min_distance threshold.
-         * Absolute value has to be used as velodyne is 360º.
+         * Note that velodyne is 360º.
          */
-        if (std::abs(pt3d(2)) < min_distance)
+        if (pt3d.norm() < min_distance)
             continue;
 
         pt3d = orientation * pt3d + position;
