@@ -136,5 +136,5 @@ clim_high = int(args.clim_high) if args.clim_high else None
 # UGLY: gist_stern, gist_earth, jet
 # NOTE: append _r at the end of the cmap name to reverse it
 imgplot = plt.imshow(dmap_orig_arr, clim = (clim_low, clim_high), cmap=plt.get_cmap('nipy_spectral'))
-plt.colorbar(orientation ='horizontal')
+plt.colorbar(orientation ='horizontal', label = "Distance to the camera (depth, m)")
 plt.show(imgplot)
