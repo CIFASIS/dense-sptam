@@ -81,6 +81,7 @@ def main():
   parser.add_argument('sequence_name', help='dataset sequence name')
   parser.add_argument('--diff_list', help='string - name of diff_list file (needed for Graph 1, output of depth_map.py)')
   parser.add_argument('--graph_depths', help='directory - graph files (needed for Graphs 2-5, output of depth_map.py)')
+  parser.add_argument('--x_axis_spacing', help='integer - separation among ticks in the x axis (for readability))')
   args = parser.parse_args()
 
   make_fig_1(args)
@@ -91,6 +92,11 @@ def main():
   graph_depth_dir = "./depth_info/"
   if args.graph_depths:
     graph_depth_dir = args.graph_depths
+
+  x_axis_spacing = 5
+  if args.x_axis_spacing and args.x_axis_spacing >= 1:
+    x_axis_spacing = int(float(args.x_axis_spacing))
+
 
   print "Using graph depth dir: ", graph_depth_dir
   npys = glob.glob(graph_depth_dir+'graph_depth*.npy')
@@ -132,7 +138,12 @@ def main():
 
     print "ITEM : " , i, len(graph_depth)
 
-  ax.bxp(bxpstats, positions=bins, showfliers=False)
+  ax.bxp(bxpstats, showfliers=False)
+  bins_str = map(lambda x: str(bins[x]) if x % x_axis_spacing == 0 else '', range(len(bins)))
+
+  # bins-bins[0]+1 since it can start at any number
+  plt.xticks(bins-bins[0]+1, bins_str)
+  plt.savefig(args.sequence_name+"2.png")
   plt.xlabel("Distance to the camera (depth, m)")
   plt.ylabel("Error (m)")
   plt.savefig(args.sequence_name+"2.png")
@@ -158,6 +169,7 @@ def main():
 
   print ""
   print "Saved " + args.sequence_name + "{1-5}.png files"
+
 
 
 if __name__ == "__main__":
