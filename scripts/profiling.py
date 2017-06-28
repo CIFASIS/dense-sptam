@@ -58,12 +58,19 @@ assert(task_count[TASK_STEREOSCAN] == task_count[TASK_PROJECTION])
 
 task_time_mean = map(lambda (x, y): (y / x) * 1000, zip(task_count, task_time))
 
-print("Keyframes processed per phase")
-print(task_count[TASK_DISPARITY], task_count[TASK_STEREOSCAN], task_count[TASK_REFINEMENT])
+print "Keyframes processed per phase"
+print "    Disparity:\t\t" + str(task_count[TASK_DISPARITY])
+print "    Heuristic/fusion:\t" + str(task_count[TASK_STEREOSCAN])
+print "    Refinement:\t\t" + str(task_count[TASK_REFINEMENT])
+print ""
 
-print("Mean time per phase")
-print(task_time_mean[TASK_DISPARITY], task_time_mean[TASK_STEREOSCAN] + task_time_mean[TASK_PROJECTION], task_time_mean[TASK_REFINEMENT])
+print "Mean time per phase (secs)"
+print "    Disparity:\t\t" + str(task_time_mean[TASK_DISPARITY])
+print "    Heuristic/fusion:\t" + str(task_time_mean[TASK_STEREOSCAN] + task_time_mean[TASK_PROJECTION])
+print "    Refinement:\t\t" + str(task_time_mean[TASK_REFINEMENT])
+print ""
 
-print("Stereo scan points")
-print(stereoscan_points[STEREOSCAN_MATCH], stereoscan_points[STEREOSCAN_OUTLIER])
-
+print "Heuristic results (points)"
+print "    Fusions/matches:\t" + str(stereoscan_points[STEREOSCAN_MATCH])
+print "    Outliers:\t\t" + str(stereoscan_points[STEREOSCAN_OUTLIER])
+print ""
