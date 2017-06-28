@@ -20,11 +20,11 @@ int PointCloudEntry::save_cloud(const char *output_dir, std::map<uint32_t, Camer
     if (this->get_cloud() == nullptr || this->get_cloud()->size() == 0)
         return -1;
 
-    sprintf(filename, "%s/cloud_%06u.pcd", output_dir, this->get_seq());
+    sprintf(filename, "%s/%06u.pcd", output_dir, this->get_seq());
     pcl::io::savePCDFileBinary(filename, *this->get_cloud());
     this->set_cloud(nullptr);
 
-    sprintf(filename, "%s/cloud_%06u.txt", output_dir, this->get_seq());
+    sprintf(filename, "%s/%06u.txt", output_dir, this->get_seq());
     CameraPose::Ptr current_pose = this->get_current_pos();
     if (current_pose->save(filename) < 0)
         return -1;

@@ -26,7 +26,7 @@ ProjectionThread::ProjectionThread(Dense *dense)
     } else if (dense->fusion_heuristic_ == "weigthDistances") {
         this->fusionHeuristic = fuseWeigthDistances;
     } else if (dense->fusion_heuristic_ == "inverseDepthDistances") {
-        this->fusionHeuristic = fuseWeigthDistances;
+        this->fusionHeuristic = fuseInverseDepth;
     } else {
         ROS_ERROR_STREAM("ProjectionThread: bad parameter fusion_heuristic!");
         abort();

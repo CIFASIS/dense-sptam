@@ -102,7 +102,7 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
             }
         }
 
-        sprintf(cloud_path, "%s/cloud_%06d.pcd", in_clouds_path, i);
+        sprintf(cloud_path, "%s/%06d.pcd", in_clouds_path, i);
         if (!fs::is_regular_file(cloud_path)) {
           std::cout << "File " << cloud_path << " does not exist \n";
           continue;
@@ -127,7 +127,7 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
         }
 
         for (j = limit_l; j < limit_h; j++) {
-            sprintf(cloud_path, "%s/cloud_%06d.pcd", in_clouds_path, j);
+            sprintf(cloud_path, "%s/%06d.pcd", in_clouds_path, j);
             if (!fs::is_regular_file(cloud_path))
                 continue;
 
@@ -272,7 +272,7 @@ int generate_depth_maps_kitti_local(const char *in_poses_path, const char *in_cl
     }
 
     for (i = 0; i < poses.size(); i++) {
-        sprintf(cloud_path, "%s/cloud_%06d.pcd", in_clouds_path, i);
+        sprintf(cloud_path, "%s/%06d.pcd", in_clouds_path, i);
 
         if (!fs::is_regular_file(cloud_path)) {
           std::cout << "File " << cloud_path << " does not exist \n";
