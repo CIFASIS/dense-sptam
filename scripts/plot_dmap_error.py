@@ -143,7 +143,6 @@ def main():
 
   # bins-bins[0]+1 since it can start at any number
   plt.xticks(bins-bins[0]+1, bins_str)
-  plt.savefig(args.sequence_name+"2.png")
   plt.xlabel("Distance to the camera (depth, m)")
   plt.ylabel("Error (m)")
   plt.savefig(args.sequence_name+"2.png")
