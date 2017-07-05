@@ -64,7 +64,7 @@ print "    Heuristic/fusion:\t" + str(task_count[TASK_STEREOSCAN])
 print "    Refinement:\t\t" + str(task_count[TASK_REFINEMENT])
 print ""
 
-print "Mean time per phase (secs)"
+print "Mean time per phase (ms)"
 print "    Disparity:\t\t" + str(task_time_mean[TASK_DISPARITY])
 print "    Heuristic/fusion:\t" + str(task_time_mean[TASK_STEREOSCAN] + task_time_mean[TASK_PROJECTION])
 print "    Refinement:\t\t" + str(task_time_mean[TASK_REFINEMENT])
