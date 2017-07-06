@@ -16,9 +16,10 @@ TASK_STEREOSCAN = 1;
 TASK_PROJECTION = 2;
 TASK_REFINEMENT = 3;
 
-STEREOSCAN_MATCH = 0;
-STEREOSCAN_UNMATCH = 1;
-STEREOSCAN_OUTLIER = 2;
+STEREOSCAN_NEW = 0;
+STEREOSCAN_MATCH = 1;
+STEREOSCAN_UNMATCH = 2;
+STEREOSCAN_OUTLIER = 3;
 
 parser = argparse.ArgumentParser()
 parser.add_argument('dense_log', help='dense node log')
@@ -31,28 +32,29 @@ logfile = open(args.dense_log, "r")
 
 task_count = [0] * 4
 task_time = [0.0] * 4
-stereoscan_points = [0] * 3
+stereoscan_points = [0] * 4
 
 for line in logfile.readlines():
-	data = line.split(",")
-	task = data[0]
-	time = float(data[2])
+  data = line.split(",")
+  task = data[0]
+  time = float(data[2])
 
-	if task == 'disparity':
-		task_count[TASK_DISPARITY] += 1
-		task_time[TASK_DISPARITY] += time
-	elif task == 'stereoscan':
-		task_count[TASK_STEREOSCAN] += 1
-		task_time[TASK_STEREOSCAN] += time
-		stereoscan_points[STEREOSCAN_MATCH] += int(data[3])
-		stereoscan_points[STEREOSCAN_UNMATCH] += int(data[4])
-		stereoscan_points[STEREOSCAN_OUTLIER] += int(data[5])
-	elif task == 'projection':
-		task_count[TASK_PROJECTION] += 1
-		task_time[TASK_PROJECTION] += time
-	elif task == 'refinement':
-		task_count[TASK_REFINEMENT] += 1
-		task_time[TASK_REFINEMENT] += time
+  if task == 'disparity':
+    task_count[TASK_DISPARITY] += 1
+    task_time[TASK_DISPARITY] += time
+  elif task == 'stereoscan':
+    task_count[TASK_STEREOSCAN] += 1
+    task_time[TASK_STEREOSCAN] += time
+    stereoscan_points[STEREOSCAN_NEW] += int(data[3])
+    stereoscan_points[STEREOSCAN_MATCH] += int(data[4])
+    stereoscan_points[STEREOSCAN_UNMATCH] += int(data[5])
+    stereoscan_points[STEREOSCAN_OUTLIER] += int(data[6])
+  elif task == 'projection':
+    task_count[TASK_PROJECTION] += 1
+    task_time[TASK_PROJECTION] += time
+  elif task == 'refinement':
+    task_count[TASK_REFINEMENT] += 1
+    task_time[TASK_REFINEMENT] += time
 
 assert(task_count[TASK_STEREOSCAN] == task_count[TASK_PROJECTION])
 
@@ -71,6 +73,7 @@ print "    Refinement:\t\t" + str(task_time_mean[TASK_REFINEMENT])
 print ""
 
 print "Heuristic results (points)"
+print "    Total Map Points:\t" + str(stereoscan_points[STEREOSCAN_NEW] - stereoscan_points[STEREOSCAN_OUTLIER])
 print "    Fusions/matches:\t" + str(stereoscan_points[STEREOSCAN_MATCH])
 print "    Outliers:\t\t" + str(stereoscan_points[STEREOSCAN_OUTLIER])
 print ""

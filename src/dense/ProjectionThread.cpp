@@ -95,13 +95,17 @@ void ProjectionThread::compute()
 
         log_data.time_t[1] = GetSeg();
 
-        dense_->WriteToLog("stereoscan,%u,%f,%u,%u,%u\n", entry->get_seq(),
-                           log_data.time_t[1] - log_data.time_t[0],
-                           log_data.match, log_data.unmatch, log_data.outlier);
-
         filterDisp(disp_raw_img);
         PointCloudPtr cloud = generateCloud(disp_raw_img, match_mat);
         cameraToWorld(cloud, pose_left);
+
+        // number of new created points
+        log_data.new_points = cloud->size();
+
+        dense_->WriteToLog("stereoscan,%u,%f,%lu,%lu,%lu,%lu\n", entry->get_seq(),
+                           log_data.time_t[1] - log_data.time_t[0],
+                           log_data.new_points, log_data.match, log_data.unmatch, log_data.outlier);
+
         *cloud += *current_cloud;
 
         log_data.time_t[2] = GetSeg();
@@ -373,7 +377,7 @@ void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePt
             /*
              * Don't discard points that were behind the new one.
              * We consider that those points belong to different objects, thus
-             * the point is being occluded and that's why is doesn't get projected
+             * the point is being occluded and that's why is doesn't get observed
              * on the image plane.
              */
             new_prev_cloud->push_back(it);
