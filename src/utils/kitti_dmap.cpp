@@ -325,7 +325,7 @@ int generate_depth_maps_kitti_local(const char *in_poses_path, const char *in_cl
     return 0;
 }
 
-void saveDepthImage(float *disp_data, int img_height, int img_width, const char *filename)
+void saveDepthImage(float *depth_map_data, int img_height, int img_width, const char *filename)
 {
     FILE *fp = fopen(filename, "w+");
     int i;
@@ -333,7 +333,7 @@ void saveDepthImage(float *disp_data, int img_height, int img_width, const char 
     fprintf(fp, "%d,%d\n", img_height, img_width);
 
     for (i = 0; i < img_width * img_height; i++)
-        fprintf(fp, "%f,", disp_data[i]);
+        fprintf(fp, "%f,", depth_map_data[i]);
 
     fclose(fp);
 }
