@@ -143,12 +143,12 @@ void DisparityCalcThread::computeELAS()
             // compute depth
             float depth = dense_->camera_->getStereoModel().getZ( disp );
             // check if depth is valid
-            if (depth <= dense_->max_distance_) {
+//            if (depth <= dense_->max_distance_) {
               depth_data[i] = depth;
-            }
-            else {
-              depth_data[i] = PIXEL_DEPTH_INVALID;
-            }
+//            }
+//            else {
+//              depth_data[i] = PIXEL_DEPTH_INVALID;
+//            }
           }
         }
 
