@@ -12,6 +12,8 @@
 #include "dense.hpp"
 #include "../utils/Time.hpp"
 
+#include "../utils/kitti_dmap.hpp"
+
 DisparityCalcThread::DisparityCalcThread(Dense *dense)
   : dense_(dense)
   , disparityCalcThread_(&DisparityCalcThread::compute, this)
@@ -122,12 +124,35 @@ void DisparityCalcThread::computeELAS()
         dense_->WriteToLog("disparity,%u,%f\n", raw_left_image->header.seq, end_t - start_t);
         ROS_INFO("Disparity  seq = %u (%f secs)", raw_left_image->header.seq, end_t - start_t);
 
-#if 0 /* Save disparity images */
+#if 0 /* Save disparity image and depth map */
         char filename[256];
-        sprintf(filename, "images/disparity_%u.jpg", raw_left_image->header.seq);
-        showDispImage(D1_data, dense_->left_info_->height, dense_->left_info_->width, filename);
-        sprintf(filename, "images/orig_%u.jpg", raw_left_image->header.seq);
-        cv::imwrite(filename, image_left);
+        // sprintf(filename, "images/disparity_%06d.jpg", raw_left_image->header.seq);
+        // showDispImage(D1_data, dense_->left_info_->height, dense_->left_info_->width, filename);
+        sprintf(filename, "images/%06d.dmap", raw_left_image->header.seq);
+        // Alloc memory for depth_map
+        float *depth_data = (float*)malloc(dense_->left_info_->width * dense_->left_info_->height * sizeof(float));
+
+        // convert disparity image to depth map
+        for ( size_t i = 0; i < (dense_->left_info_->height * dense_->left_info_->width); ++i) {
+          float disp = D1_data[i];
+          // check if disparity is invalid
+          if (!finite(disp) || disp <= 0) {
+            depth_data[i] = PIXEL_DEPTH_INVALID;
+          }
+          else {
+            // compute depth
+            float depth = dense_->camera_->getStereoModel().getZ( disp );
+            // check if depth is valid
+            if (depth <= dense_->max_distance_) {
+              depth_data[i] = depth;
+            }
+            else {
+              depth_data[i] = PIXEL_DEPTH_INVALID;
+            }
+          }
+        }
+
+        saveDepthImage(depth_data, dense_->left_info_->height, dense_->left_info_->width, filename);
 #endif
     }
 }

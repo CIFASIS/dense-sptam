@@ -26,7 +26,9 @@ pkg_check_modules(YamlCpp yaml-cpp)
 
 add_library(ProgramOptions ProgramOptions.cpp)
 
+add_library(kitti_dmap kitti_dmap.cpp)
+
 # Build kitti_dmap_generator
-FILE(GLOB KITTI_DMAP_GENERATOR_SRCS kitti_dmap_generator.cpp kitti_dmap.cpp)
+FILE(GLOB KITTI_DMAP_GENERATOR_SRCS kitti_dmap_generator.cpp)
 add_executable(kitti_dmap_generator ${KITTI_DMAP_GENERATOR_SRCS})
-target_link_libraries(kitti_dmap_generator dense ${OpenCV_LIBRARIES} ${Boost_LIBRARIES} ${PCL_LIBRARIES} ${catkin_LIBRARIES} ${YamlCpp_LIBRARIES} ProgramOptions)
+target_link_libraries(kitti_dmap_generator kitti_dmap dense ${OpenCV_LIBRARIES} ${Boost_LIBRARIES} ${PCL_LIBRARIES} ${catkin_LIBRARIES} ${YamlCpp_LIBRARIES} ProgramOptions)

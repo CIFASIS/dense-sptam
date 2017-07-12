@@ -7,6 +7,9 @@
 #include "../dense/RefinementThread.hpp"
 #include "../dense/ImageQueue.hpp"
 
+#define PIXEL_DEPTH_INVALID     -1
+
+
 class Dense
 {
 public:
