@@ -267,39 +267,25 @@ Eigen::Vector3d fuseWeigthDistances(CameraPose::Ptr current_pos, Eigen::Vector3d
 Eigen::Vector3d fuseInverseDepth(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
                                  CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt)
 {
-    double dist_near, dist_far, alpha;
-    Eigen::Vector3d pt_near, pt_far, pt_fusion;
-
-    Eigen::Vector3d current_pos_eigen = current_pos->get_position();
-    Eigen::Vector3d prev_pos_eigen = prev_pos->get_position();
-
-    double current_pos_dist = cv::norm(EigenToCV(current_pos_eigen - current_pt));
-    double prev_pos_dist = cv::norm(EigenToCV(prev_pos_eigen - prev_pt));
-
-    if (current_pos_dist < prev_pos_dist) {
-        dist_near = current_pos_dist;
-        pt_near = current_pt;
-        dist_far = prev_pos_dist;
-        pt_far = prev_pt;
-    } else {
-        dist_near = prev_pos_dist;
-        pt_near = prev_pt;
-        dist_far = current_pos_dist;
-        pt_far = current_pt;
-    }
+    // Transform current and prev poitns to camera coordinate system
+    Eigen::Vector3d current_pt_camera = current_pos->ToCamera( current_pt );
+    Eigen::Vector3d prev_pt_camera = prev_pos->ToCamera( prev_pt );
 
     // Compute the z component of the fusion point using inverse-depth representation
-    double inverse_depth_near = 1.0 / pt_near[2];
-    double inverse_depth_far = 1.0 / pt_far[2];
+    double inverse_depth_current = 1.0 / current_pt_camera.norm();
+    double inverse_depth_prev = 1.0 / prev_pt_camera.norm();
 
-    pt_fusion[2] = 1.0 / ((inverse_depth_near + inverse_depth_far) / 2.0);
+    // fuse inverse depths
+    double depth_fusion = (inverse_depth_current + inverse_depth_prev) / 2.0;
 
-    alpha = (pt_far[2] - pt_fusion[2]) / (pt_far[2] - pt_near[2]);
+    // Compute unit vector of current camera
+    Eigen::Vector3d unit_vector_pt = current_pt_camera / current_pt_camera.norm();
 
-    assert(alpha >= 0);
+    // Compute fusion point in current camera coordinate system
+    Eigen::Vector3d fusion_pt_camera = (1.0 / depth_fusion) * unit_vector_pt;
 
-    pt_fusion[0] = ( alpha * pt_near[0] + (1 - alpha) * pt_far[0]);
-    pt_fusion[1] = ( alpha * pt_near[1] + (1 - alpha) * pt_far[1]);
+    // Transform fusion point to world coordinate system
+    Eigen::Vector3d pt_fusion = current_pos->ToWorld(fusion_pt_camera);
 
     return pt_fusion;
 }
