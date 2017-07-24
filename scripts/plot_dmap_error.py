@@ -139,7 +139,7 @@ def main():
     print "ITEM : " , i, len(graph_depth)
 
   ax.bxp(bxpstats, showfliers=False)
-  bins_str = map(lambda x: str(bins[x]) if x % x_axis_spacing == 0 else '', range(len(bins)))
+  bins_str = map(lambda x: str(int(bins[x])) if x % x_axis_spacing == 0 else '', range(len(bins)))
 
   # bins-bins[0]+1 since it can start at any number
   plt.xticks(bins-bins[0]+1, bins_str)
