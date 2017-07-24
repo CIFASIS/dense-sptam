@@ -160,6 +160,8 @@ def main():
   plt.ylabel("Median error (m)")
   plt.savefig(args.sequence_name+"4.png")
 
+  np.save("depth_info/medians"+args.sequence_name+".npy", medians)
+
   plt.figure(5)
   plt.plot(bins, maxs)
   plt.xlabel("Distance to the camera (depth, m)")
