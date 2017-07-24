@@ -32,7 +32,7 @@ def addToDiffList(diffList, newList, step, maxdiff):
   limit = int(maxdiff / step)
 
   l = newList / step
-  l = l.clip(max=limit).astype(np.int)
+  l = l.clip(max=limit-1).astype(np.int)
 
   diffList = np.array(diffList)
   np.add.at(diffList, l, 1)
