@@ -58,23 +58,8 @@
     <param name="base_frame" value="left_camera" />
     <param name="camera_frame" value="left_camera" />
 
-    <param name="disp_calc_method" value="libelas"/>
-    <param name="max_distance" value="20"/>
-    <param name="VoxelLeafSize" value="0.1"/>
-
-    <param name="stereoscan_threshold" value="0.25"/>
-    <!--param name="fusion_heuristic" value="simpleMean"/-->
-    <param name="fusion_heuristic" value="inverseDepthDistances"/>
-
-    <param name="FrustumNearPlaneDist" value="0.0001"/>
-    <param name="FrustumFarPlaneDist" value="50"/>
-    <param name="libelas_ipol_gap" value="1000"/>
-
-    <param name="local_area_size" value="10"/>
-    <param name="pub_area_filter_min" value="0"/>
-
-    <param name="refinement_linear_threshold" value="0.01"/>
-    <param name="refinement_angular_threshold" value="0.001"/>
+    <!-- Read DENSE parameters file -->
+    <rosparam command="load" file="$(find dense)/configurationFiles/kitti.yaml"/>
 
     <remap from="/dense/keyframes" to="/sptam/keyframes"/>
 

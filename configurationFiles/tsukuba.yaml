@@ -1,8 +1,8 @@
 FrustumNearPlaneDist: 0.0001
 FrustumFarPlaneDist: 20
-VoxelLeafSize: 0.1
+VoxelLeafSize: 0
 disp_calc_method: 'libelas'
-max_distance: 20
+max_distance: 10
 stereoscan_threshold: 0.25
 fusion_heuristic: "inverseDepthDistances"
 local_area_size: 10
