@@ -231,7 +231,7 @@ enum stereoscan_status {
 Eigen::Vector3d fuseSimpleMean(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
                                CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt)
 {
-    return (prev_pt + current_pt) / 2;
+    return (prev_pt + current_pt) / 2.0;
 }
 
 
