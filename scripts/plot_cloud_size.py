@@ -49,12 +49,21 @@ outliers_points = [
 	37514186,
 ]
 
+# Tsukuba data
+
+#sequence_name = [ 'TSUKUBA' ]
+#total_points = [ 29372276 ]
+#match_points = [ 83006220 ]
+#merged_points = [ 12607734 ]
+#outliers_points = [ 16820314 ]
+
 scale_factor = 1000000
 
 def apply_factor(l):
 	return map(lambda x: x / scale_factor, l)
 
 total_points = apply_factor(total_points)
+match_points = apply_factor(match_points)
 merged_points = apply_factor(merged_points)
 outliers_points = apply_factor(outliers_points)
 
@@ -74,12 +83,18 @@ rects1 = ax.bar(2 * index + 3.5 * bar_width, total_points, width=bar_width,
 				 align='edge',
                  alpha=opacity, color='b',
                  label='Total de puntos')
+
 rects2 = ax.bar(2 * index + 4.5 * bar_width, merged_points, width=bar_width,
 				 align='edge',
                  alpha=opacity, color='g',
                  label='Puntos fusionados')
 
-rects3 = plt.bar(2 * index + 5.5 * bar_width, outliers_points, width=bar_width,
+rects3 = ax.bar(2 * index + 5.5 * bar_width, match_points, width=bar_width,
+				 align='edge',
+                 alpha=opacity, color='y',
+                 label='Total de fusiones')
+
+rects4 = ax.bar(2 * index + 6.5 * bar_width, outliers_points, width=bar_width,
 				 align='edge',
                  alpha=opacity, color='r',
                  label='Puntos descartados')
@@ -91,7 +106,7 @@ plt.title('', **title_font)
 ax.set_frame_on(False)
 plt.tick_params(axis='both', which='major', labelsize=15)
 
-plt.xticks(2 * index + 5 * bar_width, sequence_name, rotation=90, horizontalalignment='center')
+plt.xticks(2 * index + 6 * bar_width, '', rotation=90, horizontalalignment='center')
 plt.legend()
 
 ax.xaxis.grid(False)
