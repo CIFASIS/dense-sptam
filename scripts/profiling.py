@@ -20,6 +20,7 @@ STEREOSCAN_NEW = 0;
 STEREOSCAN_MATCH = 1;
 STEREOSCAN_UNMATCH = 2;
 STEREOSCAN_OUTLIER = 3;
+STEREOSCAN_MERGED = 4;
 
 parser = argparse.ArgumentParser()
 parser.add_argument('dense_log', help='dense node log')
@@ -32,7 +33,7 @@ logfile = open(args.dense_log, "r")
 
 task_count = [0] * 4
 task_time = [0.0] * 4
-stereoscan_points = [0] * 4
+stereoscan_points = [0] * 5
 
 for line in logfile.readlines():
   data = line.split(",")
@@ -49,6 +50,7 @@ for line in logfile.readlines():
     stereoscan_points[STEREOSCAN_MATCH] += int(data[4])
     stereoscan_points[STEREOSCAN_UNMATCH] += int(data[5])
     stereoscan_points[STEREOSCAN_OUTLIER] += int(data[6])
+    stereoscan_points[STEREOSCAN_MERGED] += int(data[7])
   elif task == 'projection':
     task_count[TASK_PROJECTION] += 1
     task_time[TASK_PROJECTION] += time
@@ -76,4 +78,5 @@ print "Heuristic results (points)"
 print "    Total Map Points:\t" + str(stereoscan_points[STEREOSCAN_NEW] - stereoscan_points[STEREOSCAN_OUTLIER])
 print "    Fusions/matches:\t" + str(stereoscan_points[STEREOSCAN_MATCH])
 print "    Outliers:\t\t" + str(stereoscan_points[STEREOSCAN_OUTLIER])
+print "    Merged:\t\t" + str(stereoscan_points[STEREOSCAN_MERGED])
 print ""
