@@ -27,7 +27,7 @@ public:
 private:
 
     struct projection_log {
-        unsigned int new_points, match, unmatch, outlier;
+        unsigned int new_points, match, unmatch, outlier, merged;
         double time_t[3];
     } log_data;
 

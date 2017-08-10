@@ -7,7 +7,7 @@
 #include "dense.hpp"
 #include "../utils/Time.hpp"
 
-#define OUTLIER_VIEWS_THRESHOLD         1
+#define POINT_VIEWS_HYPOTHESES  1
 
 Eigen::Vector3d fuseSimpleMean(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
                                CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt);
@@ -102,9 +102,9 @@ void ProjectionThread::compute()
         // number of new created points
         log_data.new_points = cloud->size();
 
-        dense_->WriteToLog("stereoscan,%u,%f,%lu,%lu,%lu,%lu\n", entry->get_seq(),
+        dense_->WriteToLog("stereoscan,%u,%f,%lu,%lu,%lu,%lu,%lu\n", entry->get_seq(),
                            log_data.time_t[1] - log_data.time_t[0],
-                           log_data.new_points, log_data.match, log_data.unmatch, log_data.outlier);
+                           log_data.new_points, log_data.match, log_data.unmatch, log_data.outlier, log_data.merged);
 
         *cloud += *current_cloud;
 
@@ -193,7 +193,7 @@ PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img, cv::
              * We should add and use a different field/variable to points, or change
              * the way that points are check and discarded.
              */
-            new_pt3d.a = 1;
+            new_pt3d.a = POINT_VIEWS_HYPOTHESES;
 
             uint8_t g = image_left.at<uint8_t>(i, j);
             int32_t rgb = (g << 16) | (g << 8) | g;
@@ -224,6 +224,7 @@ enum stereoscan_status {
     STATUS_MATCH,
     STATUS_UNMATCH,
     STATUS_OUTLIER,
+    STATUS_MERGED,
     /* Sentinel - Length marker */
     STATUS_LENGTH,
 };
@@ -345,6 +346,10 @@ void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePt
 
             if (fusionHeuristic)
                 it.fromEigen(fusionHeuristic(current_pos, new_pt_eigen, prev_pos, it.asEigen()));
+
+            if (it.a == POINT_VIEWS_HYPOTHESES)
+                status[STATUS_MERGED]++;
+
             /*
              * Point matched, increment the view-counter.
              * NOTE: see alpha channel note above.
@@ -371,9 +376,8 @@ void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePt
             continue;
         }
 
-        /* Point didn't match, decrement the view-counter. */
-        if (it.a > OUTLIER_VIEWS_THRESHOLD) {
-            it.a--;
+        /* Point didn't match, but if it has been already confirmed, let's keep it */
+        if (it.a > POINT_VIEWS_HYPOTHESES) {
             new_prev_cloud->push_back(it);
             status[STATUS_UNMATCH]++;
             continue;
@@ -389,10 +393,11 @@ void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePt
     log_data.match += status[STATUS_MATCH];
     log_data.unmatch += status[STATUS_UNMATCH];
     log_data.outlier += status[STATUS_OUTLIER];
+    log_data.merged += status[STATUS_MERGED];
 
-    ROS_DEBUG("out_of_image/invalid = %u/%u,\tmatch = %u,\tunmatch/outlier = %u/%u",
+    ROS_DEBUG("out_of_image/invalid = %u/%u,\tmatch = %u,\tunmatch/outlier = %u/%u,\tmerged = %u",
               status[STATUS_OUT_OF_IMAGE], status[STATUS_INVALID], status[STATUS_MATCH],
-              status[STATUS_UNMATCH], status[STATUS_OUTLIER]);
+              status[STATUS_UNMATCH], status[STATUS_OUTLIER], status[STATUS_MERGED]);
 
     prev_entry->set_cloud(new_prev_cloud);
 }
