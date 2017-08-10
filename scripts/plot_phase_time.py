@@ -22,6 +22,12 @@ refinement_time = (
 	3.183, 3.243, 3.067, 3.497, 3.657
 )
 
+# Tsukuba data
+#sequence_name = [ 'Tsukuba' ]
+#disparity_time = [ 157.221 ]
+#projection_time = [ 168.300 ]
+#refinement_time = [ 5.187 ]
+
 fig, ax = plt.subplots()
 
 index = np.arange(len(sequence_name))
@@ -43,7 +49,7 @@ rects2 = ax.bar(2 * index + 4.5 * bar_width, projection_time, width=bar_width,
                  alpha=opacity, color='g',
                  label='Fusion y proyeccion 3D')
 
-rects3 = plt.bar(2 * index + 5.5 * bar_width, refinement_time, width=bar_width,
+rects3 = ax.bar(2 * index + 5.5 * bar_width, refinement_time, width=bar_width,
 				 align='edge',
                  alpha=opacity, color='b',
                  label='Refinamiento de posicion')
