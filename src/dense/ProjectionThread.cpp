@@ -100,9 +100,9 @@ void ProjectionThread::compute()
         // number of new created points
         log_data.new_points = cloud->size();
 
-        dense_->WriteToLog("stereoscan,%u,%f,%lu,%lu,%lu,%lu,%lu\n", entry->get_seq(),
+        dense_->WriteToLog("stereoscan,%u,%f,%lu,%lu,%lu,%lu\n", entry->get_seq(),
                            log_data.time_t[1] - log_data.time_t[0],
-                           log_data.new_points, log_data.match, log_data.unmatch, log_data.outlier, log_data.merged);
+                           log_data.new_points, log_data.match, log_data.unmatch, log_data.outlier);
 
         *cloud += *current_cloud;
 
@@ -210,12 +210,16 @@ void ProjectionThread::cameraToWorld(PointCloudPtr cloud, CameraPose::Ptr curren
 }
 
 enum stereoscan_status {
+    /* Point projection is out of image plane */
     STATUS_OUT_OF_IMAGE,
-    STATUS_INVALID,
+    /* Point disparity value is invalid  */
+    STATUS_INVALID_DISPARITY,
+    /* Point merge criteria was satisfied, there was a match */
     STATUS_MATCH,
+    /* Point didn't match, but wasn't discarded (outlier) */
     STATUS_UNMATCH,
+    /* Point didn't match and was discarded as outlier */
     STATUS_OUTLIER,
-    STATUS_MERGED,
     /* Sentinel - Length marker */
     STATUS_LENGTH,
 };
@@ -322,7 +326,7 @@ void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePt
 
         /* Pixels with invalid disparity are omitted */
         if (!finite(disp) || disp <= 0) {
-            status[STATUS_INVALID]++;
+            status[STATUS_INVALID_DISPARITY]++;
             new_prev_cloud->push_back(it);
             continue;
         }
@@ -374,11 +378,10 @@ void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePt
     log_data.match += status[STATUS_MATCH];
     log_data.unmatch += status[STATUS_UNMATCH];
     log_data.outlier += status[STATUS_OUTLIER];
-    log_data.merged += status[STATUS_MERGED];
 
-    ROS_DEBUG("out_of_image/invalid = %u/%u,\tmatch = %u,\tunmatch/outlier = %u/%u,\tmerged = %u",
-              status[STATUS_OUT_OF_IMAGE], status[STATUS_INVALID], status[STATUS_MATCH],
-              status[STATUS_UNMATCH], status[STATUS_OUTLIER], status[STATUS_MERGED]);
+    ROS_DEBUG("out_of_image/invalid = %u/%u,\tmatch = %u,\tunmatch/outlier = %u/%u",
+              status[STATUS_OUT_OF_IMAGE], status[STATUS_INVALID_DISPARITY], status[STATUS_MATCH],
+              status[STATUS_UNMATCH], status[STATUS_OUTLIER]);
 
     prev_entry->set_cloud(new_prev_cloud);
 }
