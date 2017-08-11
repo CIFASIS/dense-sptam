@@ -32,3 +32,8 @@ add_library(kitti_dmap kitti_dmap.cpp)
 FILE(GLOB KITTI_DMAP_GENERATOR_SRCS kitti_dmap_generator.cpp)
 add_executable(kitti_dmap_generator ${KITTI_DMAP_GENERATOR_SRCS})
 target_link_libraries(kitti_dmap_generator kitti_dmap dense ${OpenCV_LIBRARIES} ${Boost_LIBRARIES} ${PCL_LIBRARIES} ${catkin_LIBRARIES} ${YamlCpp_LIBRARIES} ProgramOptions)
+
+# Build point_cloud_profiling
+FILE(GLOB POINT_CLOUD_PROFILING_SRCS point_cloud_profiling.cpp)
+add_executable(point_cloud_profiling ${POINT_CLOUD_PROFILING_SRCS})
+target_link_libraries(point_cloud_profiling dense ${OpenCV_LIBRARIES} ${Boost_LIBRARIES} ${PCL_LIBRARIES} ${catkin_LIBRARIES})
