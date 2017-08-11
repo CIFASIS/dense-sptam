@@ -7,8 +7,6 @@
 #include "dense.hpp"
 #include "../utils/Time.hpp"
 
-#define POINT_VIEWS_HYPOTHESES  1
-
 Eigen::Vector3d fuseSimpleMean(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
                                CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt);
 Eigen::Vector3d fuseWeigthDistances(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
@@ -187,13 +185,6 @@ PointCloudPtr ProjectionThread::generateCloud(DispRawImagePtr disp_raw_img, cv::
 
             Point new_pt3d;
             new_pt3d.fromCV(point);
-            /*
-             * FIXME: we're using the alpha channel as the view-counter, which is used to
-             * check a point should be discarded when it doesn't match.
-             * We should add and use a different field/variable to points, or change
-             * the way that points are check and discarded.
-             */
-            new_pt3d.a = POINT_VIEWS_HYPOTHESES;
 
             uint8_t g = image_left.at<uint8_t>(i, j);
             int32_t rgb = (g << 16) | (g << 8) | g;
@@ -347,14 +338,7 @@ void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePt
             if (fusionHeuristic)
                 it.fromEigen(fusionHeuristic(current_pos, new_pt_eigen, prev_pos, it.asEigen()));
 
-            if (it.a == POINT_VIEWS_HYPOTHESES)
-                status[STATUS_MERGED]++;
-
-            /*
-             * Point matched, increment the view-counter.
-             * NOTE: see alpha channel note above.
-             */
-            it.a++;
+            it.validate();
 
             current_cloud->push_back(it);
             /* Mark pixel as matched - Don't triangulate a new point */
@@ -376,17 +360,14 @@ void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePt
             continue;
         }
 
-        /* Point didn't match, but if it has been already confirmed, let's keep it */
-        if (it.a > POINT_VIEWS_HYPOTHESES) {
+        it.invalidate();
+
+        if (!it.isOutlier()) {
             new_prev_cloud->push_back(it);
             status[STATUS_UNMATCH]++;
             continue;
         }
 
-        /*
-         * Point didn't match and view-counter is below threshold,
-         * thus the point is considered an outlier and discarded.
-         */
         status[STATUS_OUTLIER]++;
     }
 

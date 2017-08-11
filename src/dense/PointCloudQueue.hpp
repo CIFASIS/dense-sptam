@@ -11,6 +11,12 @@
 #include "Camera.hpp"
 #include "DispImageQueue.hpp"
 
+// Initial probability for new points.
+#define POINT_NEW_PROBABILITY       1
+
+// Probability threshold. Below this value, points are considered outliers.
+#define POINT_OUTLIER_PROBABILITY   1
+
 inline Eigen::Vector3d CVToEigen(const cv::Point3d& pt)
 { return Eigen::Vector3d(pt.x, pt.y, pt.z); }
 
@@ -20,6 +26,11 @@ inline cv::Point3d EigenToCV(const Eigen::Vector3d& pt)
 class Point : public pcl::PointXYZRGB
 {
 public:
+
+    Point() : pcl::PointXYZRGB()
+    {
+        probability = POINT_NEW_PROBABILITY;
+    }
 
     inline cv::Point3d asCV(void)
     { return cv::Point3d(this->x, this->y, this->z); }
@@ -33,6 +44,17 @@ public:
     inline void fromEigen(const Eigen::Vector3d& pt)
     { this->x = pt(0); this->y = pt(1); this->z = pt(2); }
 
+    inline void validate()
+    { probability += 1; }
+
+    inline void invalidate()
+    { probability -= 1; }
+
+    inline bool isOutlier()
+    { return probability < POINT_OUTLIER_PROBABILITY; }
+
+    float probability;
+
 private:
 
 };
@@ -42,6 +64,7 @@ POINT_CLOUD_REGISTER_POINT_STRUCT (Point,
                                    (float, y, y)
                                    (float, z, z)
                                    (float, rgb, rgb)
+                                   (float, probability, probability)
 )
 
 typedef pcl::PointCloud<Point> PointCloud;
