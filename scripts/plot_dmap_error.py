@@ -143,29 +143,29 @@ def main():
 
   # bins-bins[0]+1 since it can start at any number
   plt.xticks(bins-bins[0]+1, bins_str)
-  plt.xlabel("Distance to the camera (depth, m)")
+  plt.xlabel(utf8("Distancia a la cámara (profundidad, m)"))
   plt.ylabel("Error (m)")
   plt.savefig(args.sequence_name+"2.png")
 
   # mean
   plt.figure(3)
   plt.plot(bins, means)
-  plt.xlabel("Distance to the camera (depth, m)")
-  plt.ylabel("Mean error (m)")
+  plt.xlabel(utf8("Distancia a la cámara (profundidad, m)"))
+  plt.ylabel("Error - promedio (m)")
   plt.savefig(args.sequence_name+"3.png")
 
   plt.figure(4)
   plt.plot(bins, medians)
-  plt.xlabel("Distance to the camera (depth, m)")
-  plt.ylabel("Median error (m)")
+  plt.xlabel(utf8("Distancia a la cámara (profundidad, m)"))
+  plt.ylabel("Error - mediana (m)")
   plt.savefig(args.sequence_name+"4.png")
 
   np.save("depth_info/medians"+args.sequence_name+".npy", medians)
 
   plt.figure(5)
   plt.plot(bins, maxs)
-  plt.xlabel("Distance to the camera (depth, m)")
-  plt.ylabel("Max error (m)")
+  plt.xlabel(utf8("Distancia a la cámara (profundidad, m)"))
+  plt.ylabel(utf8("Error - máximo (m)"))
   plt.savefig(args.sequence_name+"5.png")
 
   print ""
