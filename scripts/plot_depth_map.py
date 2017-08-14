@@ -111,6 +111,7 @@ class DepthMap:
 parser = argparse.ArgumentParser(epilog='NOTE: Invalid (negative) depth values are mapped to ' + str(INVALID_DEPTH))
 parser.add_argument('dmap', help='dmap file')
 parser.add_argument('--compare', help='dmap file to compare')
+parser.add_argument('--save', help='save image to output file')
 parser.add_argument('--clim_low', help='plotter clim low bound')
 parser.add_argument('--clim_high', help='plotter clim high bound')
 args = parser.parse_args()
@@ -135,6 +136,13 @@ clim_high = int(args.clim_high) if args.clim_high else None
 # NICE: nipy_spectral
 # UGLY: gist_stern, gist_earth, jet
 # NOTE: append _r at the end of the cmap name to reverse it
+
 imgplot = plt.imshow(dmap_orig_arr, clim = (clim_low, clim_high), cmap=plt.get_cmap('nipy_spectral'))
 plt.colorbar(orientation ='horizontal', label = "Distance to the camera (depth, m)")
-plt.show(imgplot)
+
+if args.save:
+	filename = args.save
+	plt.savefig(filename)
+	print('Image saved to ' + filename)
+else:
+	plt.show(imgplot)
