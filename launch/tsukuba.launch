@@ -16,6 +16,15 @@
     </group>
   </group>
 
+
+  <!-- S-PTAM pose path publisher. Used for visualization. -->
+  <node pkg="ros_utils" type="pose_to_path" name="sptam_path">
+    <remap from="pose" to="sptam/robot/pose" />
+    <remap from="path" to="sptam/robot/path" />
+  </node>
+
+
+
   <!--
     Master nodelet manager.
   -->
@@ -27,9 +36,14 @@
     <!-- Read S-PTAM parameters file -->
     <rosparam command="load" file="$(find sptam)/configurationFiles/tsukuba.yaml" />
 
+    <param name="use_prediction" value="false" />
     <param name="approximate_sync" value="false" />
+    <param name="publish_transform" value="true" />
+    <param name="publish_on_fail" value="true" />
+
+    <param name="base_frame" value="left_camera" />
     <param name="camera_frame" value="left_camera"/>
-    <param name="use_odometry" value="false"/>
+    <param name="reference_frame" value="left_camera" />
 
     <remap from="/stereo/left/image_rect" to="/stereo/left/image_rect"/>
     <remap from="/stereo/right/image_rect" to="/stereo/right/image_rect"/>
@@ -49,6 +63,9 @@
     <rosparam command="load" file="$(find dense)/configurationFiles/tsukuba.yaml"/>
 
     <remap from="/dense/keyframes" to="/sptam/keyframes"/>
+
+    <!-- <param name="single_cloud_path" value="/home/taihu/Desktop/dense_corridas/tsukuba/clouds_cut"/>-->
+
 
   </node>
   <!--
