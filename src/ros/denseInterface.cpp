@@ -97,6 +97,9 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
         global_cloud_good->header.frame_id = map_frame_;
         global_cloud_bad->header.frame_id = map_frame_;
 
+        // We sleep to give time to rviz to subscribe to the topic
+        sleep(5);
+
         if (pub_map_.getNumSubscribers() > 0) {
             ROS_INFO("Published single cloud size good = %lu", global_cloud_good->size());
             pub_map_.publish(global_cloud_good);
