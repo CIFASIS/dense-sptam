@@ -89,25 +89,25 @@ for field_config in config:
 		align='edge', alpha=opacity, color=color, label=label)
 
 title_font = {
-	'fontname':'Ubuntu', 'size':'24', 'color':'black', 'weight':'normal',
+	'fontname':'Ubuntu', 'size':'46', 'color':'black', 'weight':'normal',
 	'verticalalignment':'bottom'
 }
-axis_font = {'fontname':'Ubuntu', 'size':'18'}
+axis_font = {'fontname':'Ubuntu', 'size':'46'}
 
 plt.xlabel('', **axis_font)
 plt.ylabel('Millones de puntos', **axis_font)
 plt.title('Resultados para el dataset Tsukuba', **title_font)
 
 ax.set_frame_on(False)
-plt.tick_params(axis='both', which='major', labelsize=15)
+plt.tick_params(axis='both', which='major', labelsize=46)
 
 plt.xticks(2 * index + 6 * bar_width, '', rotation=90, horizontalalignment='center')
 
 ax.xaxis.grid(False)
-ax.yaxis.grid(True)
+ax.yaxis.grid(True, linewidth=5)
 #ax.set_ylim([0,140])
 
-plt.legend()
+plt.legend(loc='upper left', fontsize=40)
 
 plt.tight_layout()
 plt.show()
