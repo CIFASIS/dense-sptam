@@ -20,18 +20,16 @@
     <remap from="path" to="sptam/robot/path" />
   </node>
 
-  <!--
-    Master nodelet manager.
-    S-PTAM as well as the extraction nodelets will be run
-    under a single manager to avoid unnecesary serialization of messages.
-  -->
-  <node name="nodelet_manager" pkg="nodelet" type="nodelet" args="manager" output="screen" clear_params="true" />
+  <!-- Nodelet Manager -->
+  <node pkg="nodelet" type="nodelet" name="nodelet_manager"  args="manager" output="screen" clear_params="true"/>
 
-  <!-- S-PTAM node -->
-  <node pkg="nodelet" type="nodelet" name="sptam" args="load sptam/sptam_nodelet nodelet_manager" output="screen" clear_params="true">
+  <!-- Choose between Nodelet and Node S-PTAM -->
+  <!-- <node pkg="sptam" type="sptam_node" name="sptam" output="screen" > -->
+  <node pkg="nodelet" type="nodelet" name="sptam" args="load sptam/sptam_nodelet nodelet_manager" output="screen" clear_params="true" >
 
     <!-- Read S-PTAM parameters file -->
     <rosparam command="load" file="$(find sptam)/configurationFiles/kitti.yaml" />
+    <param name="LoopDetectorVocabulary" value="$(find sptam)/bow_voc/DBoW2/brief_mit_malaga_vocabulary.yml.gz" />
 
     <param name="use_prediction" value="false" />
     <param name="approximate_sync" value="false" />
