@@ -46,6 +46,23 @@ Dense clouds in `.pcd` format and their poses in `.txt` format are stored here.
 
 Dense node execution logging information is stored here.
 
+# Docker
+
+
+
+```
+$ mkdir -p catkin/src
+$ cd catkin
+$ catkin init
+$ catkin config --init
+$ cd src/
+$ git clone https://github.com/lrse/ros-utils.git
+$ git clone git@bitbucket.org:adalessandro/sptam.git
+$ git clone git@bitbucket.org:adalessandro/dense.git
+$ cd ../
+$ catkin build --cmake-args -DSHOW_TRACKED_FRAMES=OFF -DSHOW_PROFILING=OFF -DCMAKE_BUILD_TYPE=Release -DUSE_LOOPCLOSURE=OFF
+```
+
 # Tools
 
 ## kitti\_ground\_truth: Generate pointclouds from KITTI dataset velodyne binaries
