@@ -29,7 +29,7 @@
 
     <!-- Read S-PTAM parameters file -->
     <rosparam command="load" file="$(find sptam)/configurationFiles/kitti.yaml" />
-    <param name="LoopDetectorVocabulary" value="$(find sptam)/bow_voc/DBoW2/brief_mit_malaga_vocabulary.yml.gz" />
+    <!--param name="LoopDetectorVocabulary" value="$(find sptam)/bow_voc/DBoW2/brief_mit_malaga_vocabulary.yml.gz" /-->
 
     <param name="use_prediction" value="false" />
     <param name="approximate_sync" value="false" />
