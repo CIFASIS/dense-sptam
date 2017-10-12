@@ -53,6 +53,11 @@ $ roslaunch src/dense-sptam/launch/kitti.launch &
 $ rosbag play --clock path/to/your/kitti.bag
 ```
 
+## Other docker magic
+
+Using `docker.sh run` the container is run with X11 socket shared, so you can
+GUI tools like `rviz` from within the container itself.
+
 # Dense node
 
 ## Parameters
