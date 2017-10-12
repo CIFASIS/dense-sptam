@@ -17,14 +17,15 @@ class DisparityCalcThread
 public:
 
     DisparityCalcThread(Dense *dense);
+    ~DisparityCalcThread();
 
     inline void WaitUntilFinished()
-    { disparityCalcThread_.join(); }
+    { disparityCalcThread_->join(); }
 
 private:
 
     Dense *dense_;
-    std::thread disparityCalcThread_;
+    std::thread *disparityCalcThread_;
 
     void compute();
     void computeCV();

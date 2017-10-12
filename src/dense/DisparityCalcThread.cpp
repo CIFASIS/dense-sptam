@@ -16,17 +16,20 @@
 
 DisparityCalcThread::DisparityCalcThread(Dense *dense)
   : dense_(dense)
-  , disparityCalcThread_(&DisparityCalcThread::compute, this)
-{}
-
-void DisparityCalcThread::compute()
 {
     ROS_INFO("Selected disparity method: %s", dense_->parameters.disp_calc_method.c_str());
 
     if (dense_->parameters.disp_calc_method == DISP_METHOD_OPENCV)
-        computeCV();
+		disparityCalcThread_ = new std::thread(&DisparityCalcThread::computeCV, this);
     else if (dense_->parameters.disp_calc_method == DISP_METHOD_LIBELAS)
-        computeELAS();
+		disparityCalcThread_ = new std::thread(&DisparityCalcThread::computeELAS, this);
+	else
+		ROS_ERROR("ERROR: Disparity method NOT FOUND: %s", dense_->parameters.disp_calc_method.c_str());
+}
+
+DisparityCalcThread::~DisparityCalcThread()
+{
+	delete disparityCalcThread_;
 }
 
 void DisparityCalcThread::computeCV()
