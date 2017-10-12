@@ -1,5 +1,4 @@
 #include "tsukuba_ground_truth.hpp"
-#include "depth_maps_comparison.hpp"
 #include "../dense/Camera.hpp"
 
 using namespace std;
