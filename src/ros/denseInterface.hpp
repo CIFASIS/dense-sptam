@@ -27,8 +27,6 @@ namespace dense
 
     private:
 
-        void mySigusr1Handler(int sig);
-
         void cb_save_cloud(const std_msgs::Empty& dummy);
         void cb_keyframes_path(const nav_msgs::PathConstPtr& path);
         void cb_images(const sensor_msgs::ImageConstPtr& img_msg_left, const sensor_msgs::CameraInfoConstPtr& left_info,
