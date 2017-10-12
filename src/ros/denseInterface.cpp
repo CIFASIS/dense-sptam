@@ -7,6 +7,8 @@
 #include "denseInterface.hpp"
 #include "../utils/kitti_dmap.hpp"
 
+namespace utilities = RobotLocalization::RosFilterUtilities;
+
 namespace std
 {
 	/* TODO: part of the C++14 standard */
@@ -229,9 +231,10 @@ void dense::denseInterface::cb_images(const sensor_msgs::ImageConstPtr& img_msg_
 	ros::Time currentTime = img_msg_left->header.stamp;
 	CameraPose::TransformPtr base_to_camera(new CameraPose::Transform);
 
-	if (!RobotLocalization::RosFilterUtilities::lookupTransformSafe(
-			tfBuffer_, parameters.camera_frame, parameters.base_frame, currentTime, *base_to_camera)) {
-		ROS_INFO("##### WARNING: Keyframe %u omitted, no cameratobase transform! #####", img_msg_left->header.seq);
+	if (!utilities::lookupTransformSafe(tfBuffer_, parameters.camera_frame, parameters.base_frame,
+										currentTime, *base_to_camera)) {
+		ROS_INFO("##### WARNING: Keyframe %u omitted, no cameratobase transform! #####",
+				 img_msg_left->header.seq);
 		return;
 	}
 
