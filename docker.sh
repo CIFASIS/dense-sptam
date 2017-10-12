@@ -17,6 +17,8 @@ case "$1" in
     -u $( id -u ):$( id -g ) \
     --mount type=tmpfs,destination=/home/$( id -u -n) \
     -e "SSH_AUTH_SOCK=/ssh-agent" \
+    -e DISPLAY=$DISPLAY \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
     $IMAGE_TAG \
     /bin/bash
     ;;
