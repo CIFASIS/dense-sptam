@@ -16,19 +16,20 @@ typedef boost::shared_ptr<DispRawImage> DispRawImagePtr;
 
 class DispImageQueue
 {
+
 public:
 
-    DispImageQueue();
-    ~DispImageQueue();
+	DispImageQueue();
+	~DispImageQueue();
 
-    int push(DispRawImagePtr image);
-    DispRawImagePtr pop();
+	int push(DispRawImagePtr image);
+	DispRawImagePtr pop();
 
 private:
 
-    std::mutex image_queue_lock_;
-    std::condition_variable empty_queue_cv;
-    DispRawImagePtr image_;
+	std::mutex image_queue_lock_;
+	std::condition_variable empty_queue_cv;
+	DispRawImagePtr image_;
 
 };
 

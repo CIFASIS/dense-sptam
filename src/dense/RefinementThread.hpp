@@ -5,26 +5,27 @@
 
 #include "PointCloudQueue.hpp"
 
-#define REFINEMENT_DELAY_US        10000
+#define REFINEMENT_DELAY_US				10000
 
 class Dense;
 
 class RefinementThread
 {
+
 public:
 
-    RefinementThread(Dense *dense);
+	RefinementThread(Dense *dense);
 
-    inline void WaitUntilFinished()
-    { refinementThread_.join(); }
+	inline void WaitUntilFinished()
+	{ refinementThread_.join(); }
 
 private:
 
-    Dense *dense_;
+	Dense *dense_;
 
-    std::thread refinementThread_;
-    void compute();
-    PointCloudPtr refine_cloud(PointCloudPtr cloud, CameraPose::Ptr current_pose, CameraPose::Ptr update_pose);
+	std::thread refinementThread_;
+	void compute();
+	PointCloudPtr refine_cloud(PointCloudPtr cloud, CameraPose::Ptr current_pose, CameraPose::Ptr update_pose);
 
 };
 

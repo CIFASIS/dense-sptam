@@ -14,19 +14,21 @@ typedef boost::shared_ptr<ImagePair> ImagePairPtr;
 
 class ImageQueue
 {
+
 public:
 
-    ImageQueue();
-    ~ImageQueue();
+	ImageQueue();
+	~ImageQueue();
 
-    int push(ImagePairPtr image);
-    ImagePairPtr pop();
+	int push(ImagePairPtr image);
+	ImagePairPtr pop();
 
 private:
 
-    std::mutex image_queue_lock_;
-    std::condition_variable empty_queue_cv;
-    ImagePairPtr image_;
+	std::mutex image_queue_lock_;
+	std::condition_variable empty_queue_cv;
+	ImagePairPtr image_;
+
 };
 
 #endif /* __IMAGE_QUEUE_H */
