@@ -71,13 +71,13 @@
 
     <param name="disp_calc_method" value="libelas"/>
 	<param name="max_distance" value="8"/>
-    <param name="VoxelLeafSize" value="0.0"/>
+    <param name="voxel_leaf_size" value="0.0"/>
 
 	<param name="stereoscan_threshold" value="0.25"/>
     <!--param name="fusion_heuristic" value="simpleMean"/-->
     <param name="fusion_heuristic" value="weigthDistances"/>
 
-	<param name="FrustumNearPlaneDist" value="0.0001"/>
+	<param name="frustum_near_plane_dist" value="0.0001"/>
 	<param name="libelas_ipol_gap" value="1000"/>
 
 	<param name="local_area_size" value="10"/>

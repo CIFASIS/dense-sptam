@@ -1,6 +1,6 @@
-FrustumNearPlaneDist: 0.0001
-FrustumFarPlaneDist: 50
-VoxelLeafSize: 0.1
+frustum_near_plane_dist: 0.0001
+frustum_far_plane_dist: 50
+voxel_leaf_size: 0.1
 disp_calc_method: 'libelas'
 max_distance: 20
 stereoscan_threshold: 0.25

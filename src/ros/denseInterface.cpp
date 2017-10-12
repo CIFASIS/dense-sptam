@@ -28,10 +28,10 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
 	nhp.param<std::string>("base_frame", parameters.base_frame, "base_link");
 	nhp.param<std::string>("camera_frame", parameters.camera_frame, "camera");
 	nhp.param<std::string>("map_frame", parameters.map_frame, "map");
-	nhp.param<double>("FrustumNearPlaneDist", parameters.frustum_near_plane_dist, 0.1);
-	nhp.param<double>("FrustumFarPlaneDist", parameters.frustum_far_plane_dist, 1000.0);
+	nhp.param<double>("frustum_near_plane_dist", parameters.frustum_near_plane_dist, 0.1);
+	nhp.param<double>("frustum_far_plane_dist", parameters.frustum_far_plane_dist, 1000.0);
 	nhp.param<std::string>("disp_calc_method", parameters.disp_calc_method, "opencv");
-	nhp.param<double>("VoxelLeafSize", parameters.voxel_leaf_size, 0);
+	nhp.param<double>("voxel_leaf_size", parameters.voxel_leaf_size, 0);
 	nhp.param<double>("max_distance", parameters.max_distance, 0);
 	nhp.param<double>("stereoscan_threshold", parameters.stereoscan_threshold, 0);
 	nhp.param<std::string>("fusion_heuristic", parameters.fusion_heuristic, "");

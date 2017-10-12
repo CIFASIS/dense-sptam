@@ -93,11 +93,11 @@ int main(int argc, char* argv[])
 		for (auto it : config) {
 			std::string key = it.first.as<std::string>();
 			// Dense constructor parameters
-			if (key == "FrustumNearPlaneDist")
+			if (key == "frustum_near_plane_dist")
 				parameters.frustum_near_plane_dist = it.second.as<double>();
-			else if (key == "FrustumFarPlaneDist")
+			else if (key == "frustum_far_plane_dist")
 				parameters.frustum_far_plane_dist = it.second.as<double>();
-			else if (key == "VoxelLeafSize")
+			else if (key == "voxel_leaf_size")
 				parameters.voxel_leaf_size = it.second.as<double>();
 			else if (key == "disp_calc_method")
 				parameters.disp_calc_method = it.second.as<std::string>();
