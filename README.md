@@ -48,17 +48,33 @@ Dense node execution logging information is stored here.
 
 # Docker
 
-
+Create a dir for your catkin workspace and clone `dense-sptam` package:
 
 ```
 $ mkdir -p catkin/src
-$ cd catkin
+$ cd catkin/src
+$ git clone git@github.com:adalessandro/dense-sptam.git
+$ cd dense-sptam
+```
+
+Inside the `dense-sptam` package you'll find the `Dockerfile` and a `docker.sh`
+script to ease the docker setup. Just build and run the container.
+Note: You need to have a proper SSH agent with SSH\_AUTH\_SOCK environment
+variable set.
+
+```
+$ ./docker.sh build
+$ ./docker.sh run
+```
+
+Now you're inside the docker container, initialize a catkin workspace, clone
+the rest of the packages and build!
+
+```
 $ catkin init
-$ catkin config --init
 $ cd src/
 $ git clone https://github.com/lrse/ros-utils.git
 $ git clone git@bitbucket.org:adalessandro/sptam.git
-$ git clone git@bitbucket.org:adalessandro/dense.git
 $ cd ../
 $ catkin build --cmake-args -DSHOW_TRACKED_FRAMES=OFF -DSHOW_PROFILING=OFF -DCMAKE_BUILD_TYPE=Release -DUSE_LOOPCLOSURE=OFF
 ```
