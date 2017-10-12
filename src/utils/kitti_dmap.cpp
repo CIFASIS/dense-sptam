@@ -78,8 +78,8 @@ err_close:
 namespace fs = boost::filesystem;
 
 int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_clouds_path,
-									 const char *out_path, int region_size,
-									 double pub_area_filter_min, Dense *dense_)
+									 const char *out_path, int region_size, double pub_area_filter_min,
+									 const sensor_msgs::CameraInfoConstPtr left_info, Camera *camera)
 {
 	std::vector<std::pair<Eigen::Matrix3d, Eigen::Vector3d>> poses = load_poses(in_poses_path, NULL);
 
@@ -95,7 +95,7 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
 	}
 
 	for (i = 0; i < (int)poses.size(); ++i) {
-		cv::Mat_<float> image(dense_->left_info_->height, dense_->left_info_->width);
+		cv::Mat_<float> image(left_info->height, left_info->width);
 		for (r = 0; r < image.rows; r++) {
 			for (c = 0; c < image.cols; c++) {
 				image.at<float>(r, c) = -1;
@@ -115,8 +115,8 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
 		std::cout << "position: " << position << std::endl;
 
 		FrustumCulling frustum_left(position, orientation,
-									dense_->camera_->GetFOV_LH(), dense_->camera_->GetFOV_LV(),
-									dense_->camera_->getNearPlaneDist(), dense_->camera_->getFarPlaneDist());
+									camera->GetFOV_LH(), camera->GetFOV_LV(),
+									camera->getNearPlaneDist(), camera->getFarPlaneDist());
 		PointCloudPtr global(new PointCloud);
 
 		limit_l = 0;
@@ -156,7 +156,7 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
 
 			cv::Point3d cvpos(pos(0), pos(1), pos(2));
 
-			cv::Point2i pixel = dense_->camera_->getStereoModel().left().project3dToPixel(cvpos);
+			cv::Point2i pixel = camera->getStereoModel().left().project3dToPixel(cvpos);
 			if (pixel.y < 0 || pixel.x < 0 || image.rows < pixel.y || image.cols < pixel.x)
 				continue;
 			if (image.at<float>(pixel.y, pixel.x) == -1 || image.at<float>(pixel.y, pixel.x) > pos(2))
@@ -164,7 +164,7 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
 		}
 
 		sprintf(cloud_path, "%s/%06d.dmap", out_path, i);
-		saveDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
+		saveDepthImage((float*)image.data, left_info->height, left_info->width, cloud_path);
 	}
 
 	return 0;
@@ -172,8 +172,8 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
 
 /* Here we use a single and fixed pointcloud from Leica sensor named data.pcd */
 int generate_depth_maps_euroc_global(const char *in_poses_path, const char *in_timestamps_path,
-									 const char *in_clouds_path, const char *out_path,
-									 double pub_area_filter_min, Dense *dense_)
+									 const char *in_clouds_path, const char *out_path, double pub_area_filter_min,
+									 const sensor_msgs::CameraInfoConstPtr left_info, Camera *camera)
 {
 	std::vector<std::pair<Eigen::Matrix3d, Eigen::Vector3d>> poses =
 		load_poses(in_poses_path, in_timestamps_path);
@@ -201,7 +201,7 @@ int generate_depth_maps_euroc_global(const char *in_poses_path, const char *in_t
 	pcl::io::loadPCDFile(cloud_path, *cloud);
 
 	for (i = 0; i < poses.size(); i++) {
-		cv::Mat_<float> image(dense_->left_info_->height, dense_->left_info_->width);
+		cv::Mat_<float> image(left_info->height, left_info->width);
 		for (r = 0; r < image.rows; r++) {
 			for (c = 0; c < image.cols; c++) {
 				image.at<float>(r, c) = -1;
@@ -213,8 +213,8 @@ int generate_depth_maps_euroc_global(const char *in_poses_path, const char *in_t
 		Eigen::Matrix3d orientation = poses.at(i).first;
 		Eigen::Vector3d position = poses.at(i).second;
 		FrustumCulling frustum_left(position, orientation,
-									dense_->camera_->GetFOV_LH(), dense_->camera_->GetFOV_LV(),
-									dense_->camera_->getNearPlaneDist(), dense_->camera_->getFarPlaneDist());
+									camera->GetFOV_LH(), camera->GetFOV_LV(),
+									camera->getNearPlaneDist(), camera->getFarPlaneDist());
 
 		std::cout << orientation << std::endl;
 		std::cout << position << std::endl;
@@ -241,7 +241,7 @@ int generate_depth_maps_euroc_global(const char *in_poses_path, const char *in_t
 
 			cv::Point3d cvpos(pos(0), pos(1), pos(2));
 
-			cv::Point2i pixel = dense_->camera_->getStereoModel().left().project3dToPixel(cvpos);
+			cv::Point2i pixel = camera->getStereoModel().left().project3dToPixel(cvpos);
 			if (pixel.y < 0 || pixel.x < 0 || image.rows < pixel.y || image.cols < pixel.x)
 				continue;
 			if (image.at<float>(pixel.y, pixel.x) == -1 || image.at<float>(pixel.y, pixel.x) > pos(2))
@@ -249,7 +249,7 @@ int generate_depth_maps_euroc_global(const char *in_poses_path, const char *in_t
 		}
 
 		sprintf(cloud_path, "%s/%06d.dmap", out_path, i);
-		saveDepthImage((float*)image.data, dense_->left_info_->height, dense_->left_info_->width, cloud_path);
+		saveDepthImage((float*)image.data, left_info->height, left_info->width, cloud_path);
 	}
 
 	return 0;

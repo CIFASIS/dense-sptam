@@ -1,6 +1,8 @@
+#include <yaml-cpp/yaml.h>
+
 #include "kitti_dmap.hpp"
 #include "ProgramOptions.hpp"
-#include <yaml-cpp/yaml.h>
+#include "../dense/Camera.hpp"
 
 template<typename T>
 void loadParameter(const YAML::Node& config, const std::string key, T& ret, const T& default_value)
@@ -184,13 +186,13 @@ int main(int argc, char* argv[])
 	//  for (int i = 0; i < 12; ++i)
 	//      std::cout << left_info->P[i] << std::endl;
 
-	// create Dense instance
-	Dense *dense = new Dense( left_info, right_info, &parameters);
+	Camera *camera = new Camera(left_info, right_info, parameters.frustum_near_plane_dist,
+								parameters.frustum_far_plane_dist);
 
 	// generate depth maps (.dmap files)
 	generate_depth_maps_kitti_global(posesFile.c_str(), pcdPath.c_str(),
 									 pcdPath.c_str(), parameters.single_depth_map_region_size,
-									 parameters.pub_area_filter_min, dense );
+									 parameters.pub_area_filter_min, left_info, camera);
 
 	return 0;
 }

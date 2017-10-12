@@ -30,7 +30,7 @@ Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info,
 	}
 
 	camera_ = new Camera(left_info_, right_info_, parameters.frustum_near_plane_dist,
-	parameters.frustum_far_plane_dist);
+						 parameters.frustum_far_plane_dist);
 	raw_image_pairs_ = new ImageQueue();
 	disp_images_ = new DispImageQueue();
 	point_clouds_ = new PointCloudQueue(parameters.local_area_size);
