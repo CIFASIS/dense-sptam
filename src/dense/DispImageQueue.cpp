@@ -8,34 +8,34 @@ DispImageQueue::~DispImageQueue()
 
 int DispImageQueue::push(DispRawImagePtr image)
 {
-    int ret = 0;
-    std::lock_guard<std::mutex> lock(image_queue_lock_);
+	int ret = 0;
+	std::lock_guard<std::mutex> lock(image_queue_lock_);
 
-    if (image_ != nullptr)
-        ret = -1;
+	if (image_ != nullptr)
+		ret = -1;
 
-    image_ = image;
-    empty_queue_cv.notify_all();
+	image_ = image;
+	empty_queue_cv.notify_all();
 
-    return ret;
+	return ret;
 }
 
 DispRawImagePtr DispImageQueue::pop()
 {
-    std::mutex m;
-    std::unique_lock<std::mutex> lock(m);
+	std::mutex m;
+	std::unique_lock<std::mutex> lock(m);
 
-    image_queue_lock_.lock();
+	image_queue_lock_.lock();
 
-    while (image_ == nullptr) {
-        image_queue_lock_.unlock();
-        empty_queue_cv.wait(lock);
-        image_queue_lock_.lock();
-    }
+	while (image_ == nullptr) {
+		image_queue_lock_.unlock();
+		empty_queue_cv.wait(lock);
+		image_queue_lock_.lock();
+	}
 
-    DispRawImagePtr ret = image_;
-    image_ = nullptr;
-    image_queue_lock_.unlock();
+	DispRawImagePtr ret = image_;
+	image_ = nullptr;
+	image_queue_lock_.unlock();
 
-    return ret;
+	return ret;
 }
