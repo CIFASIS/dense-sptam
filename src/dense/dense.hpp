@@ -41,22 +41,16 @@ class Dense
 {
 public:
 
-    Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
+    Dense(const sensor_msgs::CameraInfoConstPtr& left_info,
+		  const sensor_msgs::CameraInfoConstPtr& right_info,
 		  struct dense_parameters *parameters);
     ~Dense();
+
+	struct dense_parameters parameters;
 
     void WriteToLog(const char* fmt, ...);
 
     const sensor_msgs::CameraInfoConstPtr left_info_, right_info_;
-    double frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_;
-    std::string output_dir_, disp_calc_method_;
-    double max_distance_, stereoscan_threshold_;
-    std::string fusion_heuristic_;
-    int local_area_size_;
-    int libelas_ipol_gap_;
-    bool add_corners_;
-    double sigma_;
-    double refinement_linear_threshold_, refinement_angular_threshold_;
 
     Camera *camera_;
     ImageQueue *raw_image_pairs_;

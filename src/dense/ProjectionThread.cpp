@@ -19,18 +19,18 @@ ProjectionThread::ProjectionThread(Dense *dense)
   : dense_(dense)
   , projectionThread_(&ProjectionThread::compute, this)
 {
-    if (dense->fusion_heuristic_ == "simpleMean") {
+    if (dense->parameters.fusion_heuristic == "simpleMean") {
         this->fusionHeuristic = fuseSimpleMean;
-    } else if (dense->fusion_heuristic_ == "weigthDistances") {
+    } else if (dense->parameters.fusion_heuristic == "weigthDistances") {
         this->fusionHeuristic = fuseWeigthDistances;
-    } else if (dense->fusion_heuristic_ == "inverseDepthDistances") {
+    } else if (dense->parameters.fusion_heuristic == "inverseDepthDistances") {
         this->fusionHeuristic = fuseInverseDepth;
     } else {
         ROS_ERROR_STREAM("ProjectionThread: bad parameter fusion_heuristic!");
         abort();
     }
 
-    ROS_INFO_STREAM("ProjectionThread: using fusion heuristic " << dense->fusion_heuristic_);
+    ROS_INFO_STREAM("ProjectionThread: using fusion heuristic " << dense->parameters.fusion_heuristic);
 }
 
 void ProjectionThread::compute()
@@ -88,7 +88,7 @@ void ProjectionThread::compute()
         for (auto& local_area_entry : dense_->point_clouds_->local_area_queue_) {
             /* No need to lock the entry as no one else will alter its current_pose or cloud */
             doStereoscan(local_area_entry, disp_raw_img->second, &frustum_left, &frustum_right,
-                         pose_left, dense_->stereoscan_threshold_, match_mat, current_cloud);
+                         pose_left, dense_->parameters.stereoscan_threshold, match_mat, current_cloud);
         }
 
         log_data.time_t[1] = GetSeg();
@@ -134,7 +134,7 @@ bool ProjectionThread::isValidDisparity(const float disp)
      * Disparity values that correspond to distances greater than the
      * maximum allowed distance, are considered invalid.
      */
-    return dense_->camera_->getStereoModel().getZ(disp) <= dense_->max_distance_;
+    return dense_->camera_->getStereoModel().getZ(disp) <= dense_->parameters.max_distance;
 }
 
 /*

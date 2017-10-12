@@ -5,27 +5,15 @@
 
 namespace fs = boost::filesystem;
 
-Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
-			 struct dense_parameters *parameters)
+Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info,
+			 const sensor_msgs::CameraInfoConstPtr& right_info,
+			 struct dense_parameters *p)
   : left_info_(left_info)
   , right_info_(right_info)
 {
-	frustumNearPlaneDist_ = parameters->frustum_near_plane_dist;
-	frustumFarPlaneDist_ = parameters->frustum_far_plane_dist;
-	voxelLeafSize_ = parameters->voxel_leaf_size;
-	output_dir_ = parameters->output_dir;
-	disp_calc_method_ = parameters->disp_calc_method;
-	max_distance_ = parameters->max_distance;
-	stereoscan_threshold_ = parameters->stereoscan_threshold;
-	fusion_heuristic_ = parameters->fusion_heuristic;
-	local_area_size_ = parameters->local_area_size;
-	libelas_ipol_gap_ = parameters->libelas_ipol_gap;
-	add_corners_ = parameters->add_corners;
-	sigma_ = parameters->sigma;
-	refinement_linear_threshold_ = parameters->refinement_linear_threshold;
-	refinement_angular_threshold_ = parameters->refinement_angular_threshold;
+	parameters = *p;
 
-    fs::path output_path{output_dir_};
+    fs::path output_path{parameters.output_dir};
     output_path = fs::absolute(output_path);
 
     if (!fs::is_directory(output_path)) {
@@ -41,10 +29,11 @@ Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs
         abort();
     }
 
-    camera_ = new Camera(left_info_, right_info_, frustumNearPlaneDist_, frustumFarPlaneDist_);
+    camera_ = new Camera(left_info_, right_info_, parameters.frustum_near_plane_dist,
+						 parameters.frustum_far_plane_dist);
     raw_image_pairs_ = new ImageQueue();
     disp_images_ = new DispImageQueue();
-    point_clouds_ = new PointCloudQueue(local_area_size_);
+    point_clouds_ = new PointCloudQueue(parameters.local_area_size);
 
     disparityCalcThread = new DisparityCalcThread(this);
     projectionThread_ = new ProjectionThread(this);

@@ -21,11 +21,11 @@ DisparityCalcThread::DisparityCalcThread(Dense *dense)
 
 void DisparityCalcThread::compute()
 {
-    ROS_INFO("Selected disparity method: %s", dense_->disp_calc_method_.c_str());
+    ROS_INFO("Selected disparity method: %s", dense_->parameters.disp_calc_method.c_str());
 
-    if (dense_->disp_calc_method_ == DISP_METHOD_OPENCV)
+    if (dense_->parameters.disp_calc_method == DISP_METHOD_OPENCV)
         computeCV();
-    else if (dense_->disp_calc_method_ == DISP_METHOD_LIBELAS)
+    else if (dense_->parameters.disp_calc_method == DISP_METHOD_LIBELAS)
         computeELAS();
 }
 
@@ -89,11 +89,11 @@ void DisparityCalcThread::computeELAS()
 
     Elas::parameters param(Elas::ROBOTICS);
 
-    if (dense_->sigma_)
-        param.sigma = dense_->sigma_;
-    param.add_corners = dense_->add_corners_;
-    if (dense_->libelas_ipol_gap_)
-        param.ipol_gap_width = dense_->libelas_ipol_gap_;
+    if (dense_->parameters.sigma)
+        param.sigma = dense_->parameters.sigma;
+    param.add_corners = dense_->parameters.add_corners;
+    if (dense_->parameters.libelas_ipol_gap)
+        param.ipol_gap_width = dense_->parameters.libelas_ipol_gap;
 
     Elas *elas = new Elas(param);
     dims[2] = dims[0] = dense_->left_info_->width;
