@@ -50,13 +50,6 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
 	/* Single mode: Load and publish pointcloud, then exit */
 	nhp.param<std::string>("single_cloud_path", parameters.single_cloud_path, "");
 
-	/* Single mode: Load clouds/poses, generate depth maps, then exit */
-	nhp.param<std::string>("single_depth_map_clouds", parameters.single_depth_map_clouds, "");
-	nhp.param<std::string>("single_depth_map_poses", parameters.single_depth_map_poses, "");
-	nhp.param<std::string>("single_depth_map_timestamps", parameters.single_depth_map_timestamps, "");
-	nhp.param<std::string>("single_depth_map_mode", parameters.single_depth_map_mode, "");
-	nhp.param<int>("single_depth_map_region_size", parameters.single_depth_map_region_size, 0);
-
 	pub_map_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud", 100);
 	pub_map_bad_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud_bad", 100);
 
@@ -190,42 +183,6 @@ void dense::denseInterface::cb_images(const sensor_msgs::ImageConstPtr& img_msg_
 
 	if (!dense_)
 		dense_ = new Dense(left_info, right_info, &parameters);
-
-	/* Single mode: Load clouds/poses, generate depth maps, then exit */
-	if (parameters.single_depth_map_clouds != "" && parameters.single_depth_map_poses != "") {
-		if (parameters.single_depth_map_mode == "") {
-			ROS_ERROR_STREAM("DENSE: single depth map mode cannot be null!");
-			abort();
-		}
-
-		if (parameters.single_depth_map_mode == "kitti_global") {
-			generate_depth_maps_kitti_global(parameters.single_depth_map_poses.c_str(),
-											 parameters.single_depth_map_clouds.c_str(),
-											 parameters.single_depth_map_clouds.c_str(),
-											 parameters.single_depth_map_region_size,
-											 parameters.pub_area_filter_min, dense_);
-		} else if (parameters.single_depth_map_mode == "kitti_local") {
-			generate_depth_maps_kitti_local(parameters.single_depth_map_poses.c_str(),
-											parameters.single_depth_map_clouds.c_str(),
-											parameters.single_depth_map_clouds.c_str(),
-											parameters.pub_area_filter_min, dense_);
-		} else if (parameters.single_depth_map_mode == "euroc_global") {
-			if (parameters.single_depth_map_timestamps == "") {
-				ROS_ERROR_STREAM("DENSE: single depth map timestamps cannot be null!");
-				abort();
-			}
-			generate_depth_maps_euroc_global(parameters.single_depth_map_poses.c_str(),
-											 parameters.single_depth_map_timestamps.c_str(),
-											 parameters.single_depth_map_clouds.c_str(),
-											 parameters.single_depth_map_clouds.c_str(),
-											 parameters.pub_area_filter_min, dense_);
-		} else {
-			ROS_INFO("##### Bad single depth map mode configuration!");
-		}
-
-		ROS_ERROR_STREAM("DENSE: single mode has finished! Exiting...");
-		abort();
-	}
 
 	/* Get the transformation between the base_frame and the camera_frame */
 	ros::Time currentTime = img_msg_left->header.stamp;
