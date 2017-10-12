@@ -7,7 +7,7 @@
 #include "../dense/RefinementThread.hpp"
 #include "../dense/ImageQueue.hpp"
 
-#define PIXEL_DEPTH_INVALID     -1
+#define PIXEL_DEPTH_INVALID			-1
 
 struct dense_parameters {
 	std::string base_frame;
@@ -40,32 +40,29 @@ struct dense_parameters {
 class Dense
 {
 public:
-
-    Dense(const sensor_msgs::CameraInfoConstPtr& left_info,
+	Dense(const sensor_msgs::CameraInfoConstPtr& left_info,
 		  const sensor_msgs::CameraInfoConstPtr& right_info,
 		  struct dense_parameters *parameters);
-    ~Dense();
+	~Dense();
 
 	struct dense_parameters parameters;
 
-    void WriteToLog(const char* fmt, ...);
+	void WriteToLog(const char* fmt, ...);
 
-    const sensor_msgs::CameraInfoConstPtr left_info_, right_info_;
+	const sensor_msgs::CameraInfoConstPtr left_info_, right_info_;
 
-    Camera *camera_;
-    ImageQueue *raw_image_pairs_;
-    DispImageQueue  *disp_images_;
-    PointCloudQueue *point_clouds_;
+	Camera *camera_;
+	ImageQueue *raw_image_pairs_;
+	DispImageQueue  *disp_images_;
+	PointCloudQueue *point_clouds_;
 
-    ProjectionThread *projectionThread_;
+	ProjectionThread *projectionThread_;
 
 private:
+	DisparityCalcThread *disparityCalcThread;
+	RefinementThread *refinementThread_;
 
-    DisparityCalcThread *disparityCalcThread;
-
-    RefinementThread *refinementThread_;
-
-    FILE *log_file_;
+	FILE *log_file_;
 };
 
 typedef boost::shared_ptr<Dense> DensePtr;
