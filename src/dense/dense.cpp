@@ -1,7 +1,7 @@
 #include "boost/filesystem.hpp"
 #include "dense.hpp"
 
-#define LOG_FILENAME        "dense_node.log"
+#define LOG_FILENAME				"dense_node.log"
 
 namespace fs = boost::filesystem;
 
