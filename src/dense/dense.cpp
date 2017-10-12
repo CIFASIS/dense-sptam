@@ -6,28 +6,25 @@
 namespace fs = boost::filesystem;
 
 Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info, const sensor_msgs::CameraInfoConstPtr& right_info,
-             double frustumNearPlaneDist, double frustumFarPlaneDist, double voxelLeafSize,
-             std::string output_dir, std::string disp_calc_method,
-             double max_distance, double stereoscan_threshold, std::string fusion_heuristic,
-             int local_area_size, int libelas_ipol_gap, bool add_corners, double sigma,
-             double refinement_linear_threshold, double refinement_angular_threshold)
+			 struct dense_parameters *parameters)
   : left_info_(left_info)
   , right_info_(right_info)
-  , frustumNearPlaneDist_(frustumNearPlaneDist)
-  , frustumFarPlaneDist_(frustumFarPlaneDist)
-  , voxelLeafSize_(voxelLeafSize)
-  , output_dir_(output_dir)
-  , disp_calc_method_(disp_calc_method)
-  , max_distance_(max_distance)
-  , stereoscan_threshold_(stereoscan_threshold)
-  , fusion_heuristic_(fusion_heuristic)
-  , local_area_size_(local_area_size)
-  , libelas_ipol_gap_(libelas_ipol_gap)
-  , add_corners_(add_corners)
-  , sigma_(sigma)
-  , refinement_linear_threshold_(refinement_linear_threshold)
-  , refinement_angular_threshold_(refinement_angular_threshold)
 {
+	frustumNearPlaneDist_ = parameters->frustum_near_plane_dist;
+	frustumFarPlaneDist_ = parameters->frustum_far_plane_dist;
+	voxelLeafSize_ = parameters->voxel_leaf_size;
+	output_dir_ = parameters->output_dir;
+	disp_calc_method_ = parameters->disp_calc_method;
+	max_distance_ = parameters->max_distance;
+	stereoscan_threshold_ = parameters->stereoscan_threshold;
+	fusion_heuristic_ = parameters->fusion_heuristic;
+	local_area_size_ = parameters->local_area_size;
+	libelas_ipol_gap_ = parameters->libelas_ipol_gap;
+	add_corners_ = parameters->add_corners;
+	sigma_ = parameters->sigma;
+	refinement_linear_threshold_ = parameters->refinement_linear_threshold;
+	refinement_angular_threshold_ = parameters->refinement_angular_threshold;
+
     fs::path output_path{output_dir_};
     output_path = fs::absolute(output_path);
 

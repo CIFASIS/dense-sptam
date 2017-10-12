@@ -96,23 +96,7 @@ int main(int argc, char* argv[]){
 
   /** Load program parameters from configuration file */
 
-  size_t single_depth_map_region_size;
-  double pub_area_filter_min;
-
-  double frustumNearPlaneDist;
-  double frustumFarPlaneDist;
-  double voxelLeafSize;
-  std::string disp_calc_method;
-  double max_distance;
-  double stereoscan_threshold;
-  std::string fusion_heuristic;
-  int local_area_size;
-  int libelas_ipol_gap;
-  bool add_corners;
-  double sigma;
-  double refinement_linear_threshold;
-  double refinement_angular_threshold;
-
+  struct dense_parameters parameters;
 
   try
   {
@@ -122,38 +106,38 @@ int main(int argc, char* argv[]){
     {
       std::string key = it.first.as<std::string>();
       // Dense constructor parameters
-      if (key == "FrustumNearPlaneDist") frustumNearPlaneDist = it.second.as<double>();
-      else if (key == "FrustumFarPlaneDist") frustumFarPlaneDist = it.second.as<double>();
-      else if (key == "VoxelLeafSize") voxelLeafSize = it.second.as<double>();
-      else if (key == "disp_calc_method") disp_calc_method = it.second.as<std::string>();
-      else if (key == "max_distance") max_distance = it.second.as<double>();
-      else if (key == "stereoscan_threshold") stereoscan_threshold = it.second.as<double>();
-      else if (key == "fusion_heuristic") fusion_heuristic = it.second.as<std::string>();
-      else if (key == "local_area_size") local_area_size = it.second.as<int>();
-      else if (key == "libelas_ipol_gap") libelas_ipol_gap = it.second.as<double>();
-      else if (key == "add_corners") add_corners = it.second.as<bool>();
-      else if (key == "sigma") sigma = it.second.as<double>();
-      else if (key == "refinement_linear_threshold") refinement_linear_threshold = it.second.as<double>();
-      else if (key == "refinement_angular_threshold") refinement_angular_threshold = it.second.as<double>();
+      if (key == "FrustumNearPlaneDist") parameters.frustum_near_plane_dist = it.second.as<double>();
+      else if (key == "FrustumFarPlaneDist") parameters.frustum_far_plane_dist = it.second.as<double>();
+      else if (key == "VoxelLeafSize") parameters.voxel_leaf_size = it.second.as<double>();
+      else if (key == "disp_calc_method") parameters.disp_calc_method = it.second.as<std::string>();
+      else if (key == "max_distance") parameters.max_distance = it.second.as<double>();
+      else if (key == "stereoscan_threshold") parameters.stereoscan_threshold = it.second.as<double>();
+      else if (key == "fusion_heuristic") parameters.fusion_heuristic = it.second.as<std::string>();
+      else if (key == "local_area_size") parameters.local_area_size = it.second.as<int>();
+      else if (key == "libelas_ipol_gap") parameters.libelas_ipol_gap = it.second.as<double>();
+      else if (key == "add_corners") parameters.add_corners = it.second.as<bool>();
+      else if (key == "sigma") parameters.sigma = it.second.as<double>();
+      else if (key == "refinement_linear_threshold") parameters.refinement_linear_threshold = it.second.as<double>();
+      else if (key == "refinement_angular_threshold") parameters.refinement_angular_threshold = it.second.as<double>();
       // other parameters
-      else if (key == "single_depth_map_region_size") single_depth_map_region_size = it.second.as<int>();
-      else if (key == "pub_area_filter_min") pub_area_filter_min = it.second.as<double>();
+      else if (key == "single_depth_map_region_size") parameters.single_depth_map_region_size = it.second.as<int>();
+      else if (key == "pub_area_filter_min") parameters.pub_area_filter_min = it.second.as<double>();
     }
 
-    std::cout << "frustumNearPlaneDist: " << frustumNearPlaneDist << std::endl;
-    std::cout << "frustumFarPlaneDist: " << frustumFarPlaneDist << std::endl;
-    std::cout << "voxelLeafSize: " << voxelLeafSize << std::endl;
-    std::cout << "disp_calc_method: " << disp_calc_method << std::endl;
-    std::cout << "max_distance: " << max_distance << std::endl;
-    std::cout << "stereoscan_threshold: " << stereoscan_threshold << std::endl;
-    std::cout << "local_area_size: " << local_area_size << std::endl;
-    std::cout << "libelas_ipol_gap: " << libelas_ipol_gap << std::endl;
-    std::cout << "add_corners: " << add_corners << std::endl;
-    std::cout << "sigma: " << sigma << std::endl;
-    std::cout << "refinement_linear_threshold: " << refinement_linear_threshold << std::endl;
-    std::cout << "refinement_angular_threshold: " << refinement_angular_threshold << std::endl;
-    std::cout << "single_depth_map_region_size: " << single_depth_map_region_size << std::endl;
-    std::cout << "pub_area_filter_min: " << pub_area_filter_min << std::endl;
+    std::cout << "frustumNearPlaneDist: " << parameters.frustum_near_plane_dist << std::endl;
+    std::cout << "frustumFarPlaneDist: " << parameters.frustum_far_plane_dist << std::endl;
+    std::cout << "voxelLeafSize: " << parameters.voxel_leaf_size << std::endl;
+    std::cout << "disp_calc_method: " << parameters.disp_calc_method << std::endl;
+    std::cout << "max_distance: " << parameters.max_distance << std::endl;
+    std::cout << "stereoscan_threshold: " << parameters.stereoscan_threshold << std::endl;
+    std::cout << "local_area_size: " << parameters.local_area_size << std::endl;
+    std::cout << "libelas_ipol_gap: " << parameters.libelas_ipol_gap << std::endl;
+    std::cout << "add_corners: " << parameters.add_corners << std::endl;
+    std::cout << "sigma: " << parameters.sigma << std::endl;
+    std::cout << "refinement_linear_threshold: " << parameters.refinement_linear_threshold << std::endl;
+    std::cout << "refinement_angular_threshold: " << parameters.refinement_angular_threshold << std::endl;
+    std::cout << "single_depth_map_region_size: " << parameters.single_depth_map_region_size << std::endl;
+    std::cout << "pub_area_filter_min: " << parameters.pub_area_filter_min << std::endl;
   }
   catch(YAML::BadFile& e)
   {
@@ -211,16 +195,11 @@ int main(int argc, char* argv[]){
 //      std::cout << left_info->P[i] << std::endl;
 
   // create Dense instance
-  Dense *dense = new Dense( left_info, right_info,
-                            frustumNearPlaneDist, frustumFarPlaneDist, voxelLeafSize,
-                            output_path, disp_calc_method,
-                            max_distance, stereoscan_threshold, fusion_heuristic,
-                            local_area_size, libelas_ipol_gap, add_corners, sigma,
-                            refinement_linear_threshold, refinement_angular_threshold );
+  Dense *dense = new Dense( left_info, right_info, &parameters);
 
   // generate depth maps (.dmap files)
   generate_depth_maps_kitti_global( posesFile.c_str(), pcdPath.c_str(),
-                                    pcdPath.c_str(), single_depth_map_region_size,
-                                    pub_area_filter_min, dense );
+                                    pcdPath.c_str(), parameters.single_depth_map_region_size,
+                                    parameters.pub_area_filter_min, dense );
   return 0;
 }

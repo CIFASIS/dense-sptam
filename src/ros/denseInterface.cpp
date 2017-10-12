@@ -185,11 +185,24 @@ void dense::denseInterface::cb_images(
 ) {
     ROS_DEBUG("Images received.");
 
+	struct dense_parameters parameters;
+	parameters.frustum_near_plane_dist = frustumNearPlaneDist_;
+	parameters.frustum_far_plane_dist = frustumFarPlaneDist_;
+	parameters.voxel_leaf_size = voxelLeafSize_;
+	parameters.max_distance = max_distance_;
+	parameters.stereoscan_threshold = stereoscan_threshold_;
+	parameters.sigma = sigma_;
+	parameters.disp_calc_method = disp_calc_method_;
+	parameters.fusion_heuristic = fusion_heuristic_;
+	parameters.local_area_size = local_area_size_;
+	parameters.libelas_ipol_gap = libelas_ipol_gap_;
+	parameters.add_corners = add_corners_;
+	parameters.output_dir = output_dir_;
+	parameters.refinement_linear_threshold = refinement_linear_threshold_;
+	parameters.refinement_angular_threshold = refinement_angular_threshold_;
+
     if (!dense_)
-        dense_ = new Dense(left_info, right_info, frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_,
-                           output_dir_, disp_calc_method_, max_distance_, stereoscan_threshold_, fusion_heuristic_,
-                           local_area_size_, libelas_ipol_gap_, add_corners_,
-                           sigma_, refinement_linear_threshold_, refinement_angular_threshold_);
+        dense_ = new Dense(left_info, right_info, &parameters);
 
     /* Single mode: Load clouds/poses, generate depth maps, then exit */
     if (single_depth_map_clouds_ != "" && single_depth_map_poses_ != "") {
