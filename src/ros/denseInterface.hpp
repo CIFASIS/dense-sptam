@@ -31,18 +31,7 @@ namespace dense
                        const sensor_msgs::ImageConstPtr& img_msg_right, const sensor_msgs::CameraInfoConstPtr& right_info);
 
         /* Parameters */
-        std::string base_frame_, camera_frame_, map_frame_;
-        double frustumNearPlaneDist_, frustumFarPlaneDist_, voxelLeafSize_;
-        double max_distance_, stereoscan_threshold_, sigma_;
-        std::string disp_calc_method_, fusion_heuristic_;
-        int local_area_size_, libelas_ipol_gap_;
-        bool add_corners_;
-        std::string single_cloud_path_, single_depth_map_clouds_, single_depth_map_poses_,
-                    single_depth_map_timestamps_, single_depth_map_mode_;
-        std::string output_dir_;
-        int single_depth_map_region_size_;
-        double refinement_linear_threshold_, refinement_angular_threshold_;
-        double pub_area_filter_min_;
+		struct dense_parameters parameters;
 
         /* In/out topics */
         ros::Subscriber sub_path_;

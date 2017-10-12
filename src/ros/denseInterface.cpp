@@ -22,51 +22,50 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
   , last_publish_seq_(0)
 {
     /* Parameters */
-    bool use_approx_sync;
-    nhp.param<bool>("approximate_sync", use_approx_sync, false);
-    nhp.param<std::string>("base_frame", base_frame_, "base_link");
-    nhp.param<std::string>("camera_frame", camera_frame_, "camera");
-    nhp.param<std::string>("map_frame", map_frame_, "map");
-    nhp.param<double>("FrustumNearPlaneDist", frustumNearPlaneDist_, 0.1);
-    nhp.param<double>("FrustumFarPlaneDist", frustumFarPlaneDist_, 1000.0);
-    nhp.param<std::string>("disp_calc_method", disp_calc_method_, "opencv");
-    nhp.param<double>("VoxelLeafSize", voxelLeafSize_, 0);
-    nhp.param<double>("max_distance", max_distance_, 0);
-    nhp.param<double>("stereoscan_threshold", stereoscan_threshold_, 0);
-    nhp.param<std::string>("fusion_heuristic", fusion_heuristic_, "");
-    nhp.param<int>("local_area_size", local_area_size_, 1);
-    nhp.param<double>("pub_area_filter_min", pub_area_filter_min_, 0);
+    nhp.param<bool>("approximate_sync", parameters.use_approx_sync, false);
+    nhp.param<std::string>("base_frame", parameters.base_frame, "base_link");
+    nhp.param<std::string>("camera_frame", parameters.camera_frame, "camera");
+    nhp.param<std::string>("map_frame", parameters.map_frame, "map");
+    nhp.param<double>("FrustumNearPlaneDist", parameters.frustum_near_plane_dist, 0.1);
+    nhp.param<double>("FrustumFarPlaneDist", parameters.frustum_far_plane_dist, 1000.0);
+    nhp.param<std::string>("disp_calc_method", parameters.disp_calc_method, "opencv");
+    nhp.param<double>("VoxelLeafSize", parameters.voxel_leaf_size, 0);
+    nhp.param<double>("max_distance", parameters.max_distance, 0);
+    nhp.param<double>("stereoscan_threshold", parameters.stereoscan_threshold, 0);
+    nhp.param<std::string>("fusion_heuristic", parameters.fusion_heuristic, "");
+    nhp.param<int>("local_area_size", parameters.local_area_size, 1);
+    nhp.param<double>("pub_area_filter_min", parameters.pub_area_filter_min, 0);
 
-    nhp.param<int>("libelas_ipol_gap", libelas_ipol_gap_, 0);
-    nhp.param<bool>("add_corners", add_corners_, false);
-    nhp.param<double>("sigma", sigma_, 0);
+    nhp.param<int>("libelas_ipol_gap", parameters.libelas_ipol_gap, 0);
+    nhp.param<bool>("add_corners", parameters.add_corners, false);
+    nhp.param<double>("sigma", parameters.sigma, 0);
 
-    nhp.param<double>("refinement_linear_threshold", refinement_linear_threshold_, 0);
-    nhp.param<double>("refinement_angular_threshold", refinement_angular_threshold_, 0);
+    nhp.param<double>("refinement_linear_threshold", parameters.refinement_linear_threshold, 0);
+    nhp.param<double>("refinement_angular_threshold", parameters.refinement_angular_threshold, 0);
 
-    nhp.param<std::string>("output_dir", output_dir_, "clouds");
+    nhp.param<std::string>("output_dir", parameters.output_dir, "clouds");
 
     /* Single mode: Load and publish pointcloud, then exit */
-    nhp.param<std::string>("single_cloud_path", single_cloud_path_, "");
+    nhp.param<std::string>("single_cloud_path", parameters.single_cloud_path, "");
 
     /* Single mode: Load clouds/poses, generate depth maps, then exit */
-    nhp.param<std::string>("single_depth_map_clouds", single_depth_map_clouds_, "");
-    nhp.param<std::string>("single_depth_map_poses", single_depth_map_poses_, "");
-    nhp.param<std::string>("single_depth_map_timestamps", single_depth_map_timestamps_, "");
-    nhp.param<std::string>("single_depth_map_mode", single_depth_map_mode_, "");
-    nhp.param<int>("single_depth_map_region_size", single_depth_map_region_size_, 0);
+    nhp.param<std::string>("single_depth_map_clouds", parameters.single_depth_map_clouds, "");
+    nhp.param<std::string>("single_depth_map_poses", parameters.single_depth_map_poses, "");
+    nhp.param<std::string>("single_depth_map_timestamps", parameters.single_depth_map_timestamps, "");
+    nhp.param<std::string>("single_depth_map_mode", parameters.single_depth_map_mode, "");
+    nhp.param<int>("single_depth_map_region_size", parameters.single_depth_map_region_size, 0);
 
     pub_map_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud", 100);
     pub_map_bad_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud_bad", 100);
 
-    if (single_cloud_path_ != "") {
+    if (parameters.single_cloud_path != "") {
         PointCloudPtr global_cloud_good(new PointCloud);
         PointCloudPtr global_cloud_bad(new PointCloud);
         boost::filesystem::directory_iterator end_itr;
-        for (boost::filesystem::directory_iterator itr(single_cloud_path_); itr != end_itr; ++itr) {
+        for (boost::filesystem::directory_iterator itr(parameters.single_cloud_path); itr != end_itr; ++itr) {
             PointCloudPtr cloud(new PointCloud);
             char filename[256];
-            sprintf(filename, "%s/%s", single_cloud_path_.c_str(), itr->path().filename().c_str());
+            sprintf(filename, "%s/%s", parameters.single_cloud_path.c_str(), itr->path().filename().c_str());
 
             char *e = strrchr(filename, '.');
             if (!e)
@@ -79,10 +78,10 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
             else
                 continue;
 
-            downsampleCloud(cloud, voxelLeafSize_);
+            downsampleCloud(cloud, parameters.voxel_leaf_size);
 
             for (auto& p : *cloud) {
-                if (p.a >= pub_area_filter_min_)
+                if (p.a >= parameters.pub_area_filter_min)
                     global_cloud_good->push_back(p);
                 else
                     global_cloud_bad->push_back(p);
@@ -90,12 +89,12 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
 
             //downsampleCloud(global_cloud_good, voxelLeafSize_);
             //downsampleCloud(global_cloud_bad, voxelLeafSize_);
-            ROS_INFO("Read cloud from file %s/%s", single_cloud_path_.c_str(), itr->path().filename().c_str());
+            ROS_INFO("Read cloud from file %s/%s", parameters.single_cloud_path.c_str(), itr->path().filename().c_str());
         }
         ROS_INFO("Total cloud read size = %lu/%lu", global_cloud_good->size(), global_cloud_bad->size());
 
-        global_cloud_good->header.frame_id = map_frame_;
-        global_cloud_bad->header.frame_id = map_frame_;
+        global_cloud_good->header.frame_id = parameters.map_frame;
+        global_cloud_bad->header.frame_id = parameters.map_frame;
 
         // We sleep to give time to rviz to subscribe to the topic
         sleep(5);
@@ -121,7 +120,7 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
     sub_img_r_.subscribe(nhp, "/keyframe/right/image_rect", 1);
     sub_info_r_.subscribe(nhp, "/keyframe/right/camera_info", 1);
 
-    if (use_approx_sync) {
+    if (parameters.use_approx_sync) {
         approximate_sync_.reset(new ApproximateSync(ApproximatePolicy(10),
                                                     sub_img_l_, sub_info_l_, sub_img_r_, sub_info_r_));
         approximate_sync_->registerCallback(boost::bind(&denseInterface::cb_images, this, _1, _2, _3, _4));
@@ -163,11 +162,11 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
 
             PointCloudPtr cloud_good(new PointCloud);
             PointCloudPtr cloud_bad(new PointCloud);
-            dense_->point_clouds_->get_local_area_cloud(pub_area_filter_min_, cloud_good, cloud_bad);
-            downsampleCloud(cloud_good, voxelLeafSize_);
-            downsampleCloud(cloud_bad, voxelLeafSize_);
+            dense_->point_clouds_->get_local_area_cloud(parameters.pub_area_filter_min, cloud_good, cloud_bad);
+            downsampleCloud(cloud_good, parameters.voxel_leaf_size);
+            downsampleCloud(cloud_bad, parameters.voxel_leaf_size);
 
-            cloud_good->header.frame_id = cloud_bad->header.frame_id = map_frame_;
+            cloud_good->header.frame_id = cloud_bad->header.frame_id = parameters.map_frame;
             if (pub_map_.getNumSubscribers() > 0)
                 pub_map_.publish(cloud_good);
             if (pub_map_bad_.getNumSubscribers() > 0)
@@ -185,47 +184,37 @@ void dense::denseInterface::cb_images(
 ) {
     ROS_DEBUG("Images received.");
 
-	struct dense_parameters parameters;
-	parameters.frustum_near_plane_dist = frustumNearPlaneDist_;
-	parameters.frustum_far_plane_dist = frustumFarPlaneDist_;
-	parameters.voxel_leaf_size = voxelLeafSize_;
-	parameters.max_distance = max_distance_;
-	parameters.stereoscan_threshold = stereoscan_threshold_;
-	parameters.sigma = sigma_;
-	parameters.disp_calc_method = disp_calc_method_;
-	parameters.fusion_heuristic = fusion_heuristic_;
-	parameters.local_area_size = local_area_size_;
-	parameters.libelas_ipol_gap = libelas_ipol_gap_;
-	parameters.add_corners = add_corners_;
-	parameters.output_dir = output_dir_;
-	parameters.refinement_linear_threshold = refinement_linear_threshold_;
-	parameters.refinement_angular_threshold = refinement_angular_threshold_;
-
     if (!dense_)
         dense_ = new Dense(left_info, right_info, &parameters);
 
     /* Single mode: Load clouds/poses, generate depth maps, then exit */
-    if (single_depth_map_clouds_ != "" && single_depth_map_poses_ != "") {
-        if (single_depth_map_mode_ == "") {
+    if (parameters.single_depth_map_clouds != "" && parameters.single_depth_map_poses != "") {
+        if (parameters.single_depth_map_mode == "") {
             ROS_ERROR_STREAM("DENSE: single depth map mode cannot be null!");
             abort();
         }
 
-        if (single_depth_map_mode_ == "kitti_global") {
-            generate_depth_maps_kitti_global(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(),
-                                             single_depth_map_clouds_.c_str(), single_depth_map_region_size_,
-                                             pub_area_filter_min_, dense_);
-        } else if (single_depth_map_mode_ == "kitti_local") {
-            generate_depth_maps_kitti_local(single_depth_map_poses_.c_str(), single_depth_map_clouds_.c_str(),
-                                            single_depth_map_clouds_.c_str(), pub_area_filter_min_, dense_);
-        } else if (single_depth_map_mode_ == "euroc_global") {
-            if (single_depth_map_timestamps_ == "") {
+        if (parameters.single_depth_map_mode == "kitti_global") {
+            generate_depth_maps_kitti_global(parameters.single_depth_map_poses.c_str(),
+											 parameters.single_depth_map_clouds.c_str(),
+                                             parameters.single_depth_map_clouds.c_str(),
+											 parameters.single_depth_map_region_size,
+                                             parameters.pub_area_filter_min, dense_);
+        } else if (parameters.single_depth_map_mode == "kitti_local") {
+            generate_depth_maps_kitti_local(parameters.single_depth_map_poses.c_str(),
+											parameters.single_depth_map_clouds.c_str(),
+                                            parameters.single_depth_map_clouds.c_str(),
+											parameters.pub_area_filter_min, dense_);
+        } else if (parameters.single_depth_map_mode == "euroc_global") {
+            if (parameters.single_depth_map_timestamps == "") {
                 ROS_ERROR_STREAM("DENSE: single depth map timestamps cannot be null!");
                 abort();
             }
-            generate_depth_maps_euroc_global(single_depth_map_poses_.c_str(), single_depth_map_timestamps_.c_str(),
-                                             single_depth_map_clouds_.c_str(), single_depth_map_clouds_.c_str(),
-                                             pub_area_filter_min_, dense_);
+            generate_depth_maps_euroc_global(parameters.single_depth_map_poses.c_str(),
+											 parameters.single_depth_map_timestamps.c_str(),
+                                             parameters.single_depth_map_clouds.c_str(),
+											 parameters.single_depth_map_clouds.c_str(),
+                                             parameters.pub_area_filter_min, dense_);
         } else {
             ROS_INFO("##### Bad single depth map mode configuration!");
         }
@@ -239,7 +228,7 @@ void dense::denseInterface::cb_images(
     CameraPose::TransformPtr base_to_camera(new CameraPose::Transform);
 
     if (!RobotLocalization::RosFilterUtilities::lookupTransformSafe(
-                tfBuffer_, camera_frame_, base_frame_, currentTime, *base_to_camera)) {
+                tfBuffer_, parameters.camera_frame, parameters.base_frame, currentTime, *base_to_camera)) {
         ROS_INFO("##### WARNING: Keyframe %u omitted, no cameratobase transform! #####", img_msg_left->header.seq);
         return;
     }

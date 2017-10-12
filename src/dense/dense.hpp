@@ -34,6 +34,7 @@ struct dense_parameters {
 	double refinement_linear_threshold;
 	double refinement_angular_threshold;
 	double pub_area_filter_min;
+	bool use_approx_sync;
 };
 
 class Dense
