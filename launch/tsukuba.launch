@@ -64,19 +64,6 @@
 
     <remap from="/dense/keyframes" to="/sptam/keyframes"/>
 
-    <!-- <param name="single_cloud_path" value="/home/taihu/Desktop/dense_corridas/tsukuba/clouds_cut"/>-->
-
-
   </node>
-  <!--
-	<param name="single_depth_map_clouds" value="/BACKUP/tesina/datasets/tsukuba/NewTsukubaStereoDataset/illumination/daylight/my_cloud/thre_0.25"/>
-	<param name="single_depth_map_poses" value="/BACKUP/tesina/datasets/tsukuba/NewTsukubaStereoDataset/illumination/daylight/my_cloud/thre_0.25/poses.txt"/>
-
-    <param name="single_cloud_path" value="/BACKUP/tesina/datasets/tsukuba/NewTsukubaStereoDataset/illumination/daylight/my_cloud/thre_0.25"/>
-	<param name="single_depth_map_clouds" value="/BACKUP/tesina/datasets/tsukuba/NewTsukubaStereoDataset/illumination/daylight/my_cloud/thre_0.25"/>
-	<param name="single_depth_map_poses" value="/BACKUP/tesina/datasets/tsukuba/NewTsukubaStereoDataset/illumination/daylight/my_cloud/thre_0.25/poses.txt"/>
-	<param name="single_cloud_path" value="/home/adalessandro/.ros/velo"/>
-	<param name="single_cloud_path" value="/home/adalessandro/.ros/clouds"/>
-  -->
 
 </launch>

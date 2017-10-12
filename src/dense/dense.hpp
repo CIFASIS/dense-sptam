@@ -24,13 +24,7 @@ struct dense_parameters {
 	int local_area_size;
 	int libelas_ipol_gap;
 	bool add_corners;
-	std::string single_cloud_path;
-	std::string single_depth_map_clouds;
-	std::string single_depth_map_poses;
-	std::string single_depth_map_timestamps;
-	std::string single_depth_map_mode;
 	std::string output_dir;
-	int single_depth_map_region_size;
 	double refinement_linear_threshold;
 	double refinement_angular_threshold;
 	double pub_area_filter_min;

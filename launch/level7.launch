@@ -115,10 +115,6 @@
 
     <remap from="/dense/keyframes" to="/sptam/keyframes"/>
 
-  <!--
-	<param name="single_cloud_path" value="/home/adalessandro/.ros/clouds"/>
-  -->
-
   </node>
 
   <!-- Nodelet Manager -->

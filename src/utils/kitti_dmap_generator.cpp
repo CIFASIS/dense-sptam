@@ -55,6 +55,7 @@ CreateCameraInfoMsg(const int image_width, const int image_height,
 int main(int argc, char* argv[])
 {
 	std::string calibrationFile, parametersFileYML, posesFile, pcdPath, output_path;
+	int region_size;
 
 	// cargar parametros
 	ProgramOptions program_options( argv[0] );
@@ -62,6 +63,7 @@ int main(int argc, char* argv[])
 	program_options.addPositionalArgument("calibration", "camera calibration file", calibrationFile);
 	program_options.addPositionalArgument("configuration", "configuration file with all the parameters.", parametersFileYML);
 	program_options.addPositionalArgument("poses", "poses file", posesFile);
+	program_options.addPositionalArgument("region_size", "number of closest keyframes to project", region_size);
 	program_options.addPositionalArgument("pcd_path", "pcd directory path", pcdPath);
 
 	/** Parse the program options */
@@ -121,9 +123,6 @@ int main(int argc, char* argv[])
 				parameters.refinement_linear_threshold = it.second.as<double>();
 			else if (key == "refinement_angular_threshold")
 				parameters.refinement_angular_threshold = it.second.as<double>();
-			// other parameters
-			else if (key == "single_depth_map_region_size")
-				parameters.single_depth_map_region_size = it.second.as<int>();
 			else if (key == "pub_area_filter_min")
 				parameters.pub_area_filter_min = it.second.as<double>();
 		}
@@ -140,7 +139,7 @@ int main(int argc, char* argv[])
 		std::cout << "sigma: " << parameters.sigma << std::endl;
 		std::cout << "refinement_linear_threshold: " << parameters.refinement_linear_threshold << std::endl;
 		std::cout << "refinement_angular_threshold: " << parameters.refinement_angular_threshold << std::endl;
-		std::cout << "single_depth_map_region_size: " << parameters.single_depth_map_region_size << std::endl;
+		std::cout << "region_size: " << region_size << std::endl;
 		std::cout << "pub_area_filter_min: " << parameters.pub_area_filter_min << std::endl;
 	} catch(YAML::BadFile& e) {
 		std::cerr << "Could not open configuration file " << parametersFileYML << std::endl;
@@ -191,7 +190,7 @@ int main(int argc, char* argv[])
 
 	// generate depth maps (.dmap files)
 	generate_depth_maps_kitti_global(posesFile.c_str(), pcdPath.c_str(),
-									 pcdPath.c_str(), parameters.single_depth_map_region_size,
+									 pcdPath.c_str(), region_size,
 									 parameters.pub_area_filter_min, left_info, camera);
 
 	return 0;

@@ -62,18 +62,5 @@
     <remap from="/dense/keyframes" to="/sptam/keyframes"/>
 
   </node>
-  <!--
-    <param name="single_depth_map_clouds" value="/BACKUP/tesina/datasets/kitti/output/"/>
-    <param name="single_depth_map_poses" value="/BACKUP/tesina/datasets/kitti/output/poses.txt"/>
-    <param name="single_depth_map_mode" value="kitti_global"/>
-    <param name="single_depth_map_region_size" value="30"/>
-
-    <param name="single_depth_map_clouds" value="/BACKUP/tesina/datasets/kitti/sequences/00/velodyne/pcd/"/>
-    <param name="single_depth_map_poses" value="/BACKUP/tesina/datasets/kitti/sequences/00/velodyne/poses.txt"/>
-    <param name="single_depth_map_mode" value="kitti_global"/>
-    <param name="single_depth_map_region_size" value="30"/>
-
-    <param name="single_cloud_path" value="/BACKUP/tesina/datasets/kitti/sequences/00/dense/pcd/"/>
-  -->
 
 </launch>

@@ -89,13 +89,6 @@
 
     <remap from="/dense/keyframes" to="/sptam/keyframes"/>
 
-	<param name="single_depth_map_clouds" value="/BACKUP/tesina/datasets/eurocmav/V1_01_easy/mav0/pointcloud0"/>
-	<param name="single_depth_map_poses" value="/BACKUP/tesina/datasets/eurocmav/V1_01_easy/mav0/vicon0/data.csv"/>
   </node>
-  <!--
-	<param name="single_cloud_path" value="/BACKUP/tesina/datasets/eurocmav/V1_01_easy/mav0/pointcloud0"/>
-	<param name="single_cloud_path" value="/BACKUP/tesina/datasets/eurocmav/V1_01_easy/my_cloud"/>
-	<param name="single_cloud_path" value="/home/adalessandro/.ros/clouds"/>
-  -->
 
 </launch>

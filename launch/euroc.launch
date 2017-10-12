@@ -89,8 +89,5 @@
     <remap from="/dense/keyframes" to="/sptam/keyframes"/>
 
   </node>
-  <!--
-	<param name="single_cloud_path" value="/home/adalessandro/.ros/clouds"/>
-  -->
 
 </launch>
