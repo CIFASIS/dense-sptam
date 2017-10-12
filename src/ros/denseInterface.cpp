@@ -115,7 +115,6 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
 
     /* In/out topics */
     sub_path_ = nhp.subscribe("keyframes", 1, &denseInterface::cb_keyframes_path, this);
-    sub_save_cloud_ = nhp.subscribe("save_cloud", 1, &denseInterface::cb_save_cloud, this);
 
     sub_img_l_.subscribe(nhp, "/keyframe/left/image_rect", 1);
     sub_info_l_.subscribe(nhp, "/keyframe/left/camera_info", 1);
@@ -140,11 +139,6 @@ dense::denseInterface::~denseInterface()
     this->dense_->point_clouds_->save_all(dense_->output_dir_.c_str());
     std::cout << "Done!" << std::endl;
     ros::Duration(1.0).sleep();
-}
-
-void dense::denseInterface::cb_save_cloud(const std_msgs::Empty& dummy)
-{
-    dense_->point_clouds_->save_all(dense_->output_dir_.c_str());
 }
 
 void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path)

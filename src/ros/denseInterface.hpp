@@ -13,7 +13,6 @@
 #include <tf2_ros/transform_listener.h>
 #include <robot_localization/ros_filter.h>
 
-
 #include "../dense/dense.hpp"
 
 namespace dense
@@ -27,7 +26,6 @@ namespace dense
 
     private:
 
-        void cb_save_cloud(const std_msgs::Empty& dummy);
         void cb_keyframes_path(const nav_msgs::PathConstPtr& path);
         void cb_images(const sensor_msgs::ImageConstPtr& img_msg_left, const sensor_msgs::CameraInfoConstPtr& left_info,
                        const sensor_msgs::ImageConstPtr& img_msg_right, const sensor_msgs::CameraInfoConstPtr& right_info);
@@ -47,7 +45,7 @@ namespace dense
         double pub_area_filter_min_;
 
         /* In/out topics */
-        ros::Subscriber sub_path_, sub_save_cloud_;
+        ros::Subscriber sub_path_;
         message_filters::Subscriber<sensor_msgs::Image> sub_img_l_, sub_img_r_;
         message_filters::Subscriber<sensor_msgs::CameraInfo> sub_info_l_, sub_info_r_;
         ros::Publisher pub_map_, pub_map_bad_;
