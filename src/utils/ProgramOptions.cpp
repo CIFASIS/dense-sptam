@@ -29,62 +29,60 @@
 #include "ProgramOptions.hpp"
 
 ProgramOptions::ProgramOptions(const std::string& app_name)
-  : app_name_( app_name ), n_optional_arguments_(0), n_positional_arguments_(0)
+  : app_name_(app_name)
+  ,	n_optional_arguments_(0)
+  , n_positional_arguments_(0)
 {}
-
 
 // addOptionalArgument con aridad para optional_arguments no se necesitan un argumento. Ej: --help
 void ProgramOptions::addOptionalArgumentFlag(const std::string& name, const std::string& description)
 {
-  optional_arguments_.add_options()
-    (name.c_str(), description.c_str());
+	optional_arguments_.add_options()
+		(name.c_str(), description.c_str());
 
-  n_optional_arguments_++;
+	n_optional_arguments_++;
 }
 
 void ProgramOptions::parse(int argc, char **argv)
 {
-  boost::program_options::options_description all_options;
-  all_options.add( optional_arguments_ );
-  all_options.add( hidden_arguments_ );
+	boost::program_options::options_description all_options;
+	all_options.add(optional_arguments_);
+	all_options.add(hidden_arguments_);
 
-  // throws on error
-  boost::program_options::store(
-    boost::program_options::command_line_parser(argc, argv)
-    .options( all_options )
-    .positional( positional_arguments_ )
-    .run()
-  , vm_);
+	// throws on error
+	boost::program_options::store(
+		boost::program_options::command_line_parser(argc, argv)
+		.options(all_options)
+		.positional(positional_arguments_)
+		.run()
+	, vm_);
 }
 
 void ProgramOptions::notify()
 {
-  boost::program_options::notify( vm_ );
+	boost::program_options::notify(vm_);
 }
 
 int ProgramOptions::count(const std::string& name) const
 {
-  return vm_.count( name );
+	return vm_.count(name);
 }
 
 std::ostream& operator << ( std::ostream& os, const ProgramOptions& program_options )
 {
-  os << "Usage: " << program_options.app_name_ << " [OPTION]... ";
+	os << "Usage: " << program_options.app_name_ << " [OPTION]... ";
 
-  for (size_t i=0; i<program_options.n_positional_arguments_; i++)
-    os << "[" << program_options.positional_arguments_.name_for_position( i ) << "] ";
+	for (size_t i=0; i<program_options.n_positional_arguments_; i++)
+		os << "[" << program_options.positional_arguments_.name_for_position(i) << "] ";
 
+	os << "configuration file is a YML file" << std::endl;
+	os << std::endl << std::endl;
 
-  os << "configuration file is a YML file" << std::endl;
+	if (program_options.optional_arguments_.options().size() +
+			program_options.hidden_arguments_.options().size() > 0) {
+		os << "options" << std::endl << std::endl;
+		os << /*program_options.hidden_arguments_ << */program_options.optional_arguments_;
+	}
 
-  os << std::endl << std::endl;
-
-  if ( program_options.optional_arguments_.options().size() + program_options.hidden_arguments_.options().size() > 0 )
-  {
-    os << "options" << std::endl << std::endl;
-
-    os << /*program_options.hidden_arguments_ << */program_options.optional_arguments_;
-  }
-
-  return os;
+	return os;
 }

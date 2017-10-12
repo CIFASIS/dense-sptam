@@ -33,51 +33,51 @@
 
 class ProgramOptions
 {
-  public:
+public:
 
-    ProgramOptions(const std::string& app_name);
+	ProgramOptions(const std::string& app_name);
 
-    template<typename T>
-    void addOptionalArgument(const std::string& name, const std::string& description, T& value);
+	template<typename T>
+	void addOptionalArgument(const std::string& name, const std::string& description, T& value);
 
-    template<typename T>
-    void addPositionalArgument(const std::string& name, const std::string& description, T& value);
+	template<typename T>
+	void addPositionalArgument(const std::string& name, const std::string& description, T& value);
 
-    void addOptionalArgumentFlag(const std::string& name, const std::string& description);
+	void addOptionalArgumentFlag(const std::string& name, const std::string& description);
 
-    /**
-     * @brief parse command line values.
-     */
-    void parse(int argc, char **argv);
+	/**
+	 * @brief parse command line values.
+	 */
+	void parse(int argc, char **argv);
 
-    /**
-     * @brief throws argument parsing exceptions.
-     */
-    void notify();
+	/**
+	 * @brief throws argument parsing exceptions.
+	 */
+	void notify();
 
-    /**
-     * @brief count given values for an argument.
-     */
-    int count(const std::string& name) const;
+	/**
+	 * @brief count given values for an argument.
+	 */
+	int count(const std::string& name) const;
 
-    /**
-     * @brief:
-     *   Print usage message to stream.
-     */
-    friend std::ostream& operator << ( std::ostream& os, const ProgramOptions& program_options );
+	/**
+	 * @brief:
+	 *   Print usage message to stream.
+	 */
+	friend std::ostream& operator << ( std::ostream& os, const ProgramOptions& program_options );
 
-  private:
+private:
 
-    std::string app_name_;
+	std::string app_name_;
 
-    size_t n_optional_arguments_;
-    boost::program_options::options_description optional_arguments_;
+	size_t n_optional_arguments_;
+	boost::program_options::options_description optional_arguments_;
 
-    size_t n_positional_arguments_;
-    boost::program_options::options_description hidden_arguments_;
-    boost::program_options::positional_options_description positional_arguments_;
+	size_t n_positional_arguments_;
+	boost::program_options::options_description hidden_arguments_;
+	boost::program_options::positional_options_description positional_arguments_;
 
-    boost::program_options::variables_map vm_;
+	boost::program_options::variables_map vm_;
 };
 
 // positional arguments son los argumentos del programa que no tienen una bandera (--bandera argumento) que los anuncia.
@@ -85,13 +85,13 @@ class ProgramOptions
 template<typename T>
 void ProgramOptions::addPositionalArgument(const std::string& name, const std::string& description, T& value)
 {
-  hidden_arguments_.add_options()
-    (name.c_str(), boost::program_options::value<T>(&value)->required(), description.c_str());
+	hidden_arguments_.add_options()
+		(name.c_str(), boost::program_options::value<T>(&value)->required(), description.c_str());
 
-  // TODO number of expected values is hardcoded to 1
-  positional_arguments_.add(name.c_str(), 1);
+	// TODO number of expected values is hardcoded to 1
+	positional_arguments_.add(name.c_str(), 1);
 
-  n_positional_arguments_++;
+	n_positional_arguments_++;
 }
 
 // optional_arguments son aquellos que necesitan una bandera. Ej: --grnd-poses path_to_ground_truth
@@ -99,8 +99,8 @@ void ProgramOptions::addPositionalArgument(const std::string& name, const std::s
 template<typename T>
 void ProgramOptions::addOptionalArgument(const std::string& name, const std::string& description, T& value )
 {
-  optional_arguments_.add_options()
-    (name.c_str(), boost::program_options::value<T>(&value), description.c_str());
+	optional_arguments_.add_options()
+		(name.c_str(), boost::program_options::value<T>(&value), description.c_str());
 
-  n_optional_arguments_++;
+	n_optional_arguments_++;
 }

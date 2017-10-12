@@ -37,9 +37,8 @@
 [[deprecated("This function is imprecise, use Timer class instead")]]
 inline double GetSeg()
 {
-  boost::posix_time::ptime t = boost::posix_time::microsec_clock::local_time();
-  boost::posix_time::time_duration duration = t - boost::posix_time::from_time_t( 0 );
+	boost::posix_time::ptime t = boost::posix_time::microsec_clock::local_time();
+	boost::posix_time::time_duration duration = t - boost::posix_time::from_time_t(0);
 
-  return (double)duration.total_milliseconds() / 1000.0;
+	return (double)duration.total_milliseconds() / 1000.0;
 }
-

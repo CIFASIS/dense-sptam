@@ -18,8 +18,6 @@ target_link_libraries(tsukuba_ground_truth ${DENSE_LIBRARIES})
 add_executable(depth_maps_comparison depth_maps_comparison.cpp)
 target_link_libraries(depth_maps_comparison ${DENSE_LIBRARIES})
 
-
-
 # Find yaml-cpp Library
 find_package(PkgConfig)
 pkg_check_modules(YamlCpp yaml-cpp)
