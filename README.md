@@ -27,6 +27,9 @@ $ ./docker.sh build
 $ ./docker.sh run
 ```
 
+The `docker.sh run` command will mount the current `$PWD/../../` dir to
+`/usr/src/dense_sptam` as your working dir inside the container.
+
 Now you're inside the docker container, initialize a catkin workspace, clone
 the rest of the packages and build!
 
