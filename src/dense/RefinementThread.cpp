@@ -1,5 +1,4 @@
 #include "RefinementThread.hpp"
-
 #include "dense.hpp"
 #include "../utils/Time.hpp"
 
@@ -10,90 +9,95 @@ RefinementThread::RefinementThread(Dense *dense)
 
 void RefinementThread::compute()
 {
-    double start_t, end_t;
+	double start_t, end_t;
 
-    while(1) {
-        for (auto& it : dense_->point_clouds_->entries_) {
-            if (!it.second)
-                continue;
+	while(1) {
 
-            it.second->lock();
+		for (auto& it : dense_->point_clouds_->entries_) {
 
-            start_t = GetSeg();
+			if (!it.second)
+				continue;
 
-            CameraPose::Ptr current_pose = it.second->get_current_pos();
-            /* Projection thread is in charge of setting the first pose */
-            if (!current_pose) {
-                it.second->unlock();
-                continue;
-            }
+			it.second->lock();
 
-            /* Clouds in local area aren't refined nor swapped */
-            if (it.second->get_state() == PointCloudEntry::LOCAL_MAP) {
-                it.second->unlock();
-                continue;
-            }
+			start_t = GetSeg();
 
-            CameraPose::Ptr update_pose = it.second->get_update_pos();
-            it.second->set_current_pos(update_pose);
-            it.second->set_update_pos(nullptr);
+			CameraPose::Ptr current_pose = it.second->get_current_pos();
 
-            it.second->unlock();
+			/* Projection thread is in charge of setting the first pose */
+			if (!current_pose) {
+				it.second->unlock();
+				continue;
+			}
 
-            if (update_pose) {
-                float linear_dist = current_pose->distance(*update_pose);
-                float angular_dist = current_pose->get_orientation().angularDistance(update_pose->get_orientation());
+			/* Clouds in local area aren't refined nor swapped */
+			if (it.second->get_state() == PointCloudEntry::LOCAL_MAP) {
+				it.second->unlock();
+				continue;
+			}
 
-                if (linear_dist > dense_->parameters.refinement_linear_threshold ||
-                    angular_dist > dense_->parameters.refinement_angular_threshold) {
-                    if (it.second->get_state() == PointCloudEntry::GLOBAL_MAP_SWAP) {
-                        it.second->load_cloud(dense_->parameters.output_dir.c_str());
-                        ROS_INFO("Refinement seq = %u cloud to RAM", it.second->get_seq());
-                        it.second->set_state(PointCloudEntry::GLOBAL_MAP_RAM);
-                    }
+			CameraPose::Ptr update_pose = it.second->get_update_pos();
+			it.second->set_current_pos(update_pose);
+			it.second->set_update_pos(nullptr);
 
-                    PointCloudPtr cloud = refine_cloud(it.second->get_cloud(), current_pose, update_pose);
-                    it.second->set_cloud(cloud);
+			it.second->unlock();
 
-                    end_t = GetSeg();
-                    dense_->WriteToLog("refinement,%u,%f\n", it.second->get_seq(), end_t - start_t);
-                    ROS_INFO("Refinement seq = %u cloud REFINED (distance = %f, quaternion = %f)",
-                             it.second->get_seq(), current_pose->distance(*update_pose),
-                             current_pose->get_orientation().angularDistance(update_pose->get_orientation()));
-                }
-            }
+			if (update_pose) {
+				float linear_dist = current_pose->distance(*update_pose);
+				float angular_dist = current_pose->get_orientation().angularDistance(update_pose->get_orientation());
 
-            if (it.second->get_state() == PointCloudEntry::GLOBAL_MAP_RAM) {
-                it.second->save_cloud(dense_->parameters.output_dir.c_str(), dense_->point_clouds_->poses_);
-                it.second->set_state(PointCloudEntry::GLOBAL_MAP_SWAP);
-                ROS_INFO("Refinement seq = %u cloud SWAPPED", it.second->get_seq());
-            }
+				if (linear_dist > dense_->parameters.refinement_linear_threshold ||
+					angular_dist > dense_->parameters.refinement_angular_threshold) {
 
-            /* Let's introduce some delay so we don't burn out the CPU */
-            usleep(REFINEMENT_DELAY_US);
-        }
+					if (it.second->get_state() == PointCloudEntry::GLOBAL_MAP_SWAP) {
+						it.second->load_cloud(dense_->parameters.output_dir.c_str());
+						ROS_INFO("Refinement seq = %u cloud to RAM", it.second->get_seq());
+						it.second->set_state(PointCloudEntry::GLOBAL_MAP_RAM);
+					}
 
-        usleep(REFINEMENT_DELAY_US);
-    }
+					PointCloudPtr cloud = refine_cloud(it.second->get_cloud(), current_pose, update_pose);
+					it.second->set_cloud(cloud);
+
+					end_t = GetSeg();
+					dense_->WriteToLog("refinement,%u,%f\n", it.second->get_seq(), end_t - start_t);
+					ROS_INFO("Refinement seq = %u cloud REFINED (distance = %f, quaternion = %f)",
+							 it.second->get_seq(), current_pose->distance(*update_pose),
+							 current_pose->get_orientation().angularDistance(update_pose->get_orientation()));
+				}
+			}
+
+			if (it.second->get_state() == PointCloudEntry::GLOBAL_MAP_RAM) {
+				it.second->save_cloud(dense_->parameters.output_dir.c_str(), dense_->point_clouds_->poses_);
+				it.second->set_state(PointCloudEntry::GLOBAL_MAP_SWAP);
+				ROS_INFO("Refinement seq = %u cloud SWAPPED", it.second->get_seq());
+			}
+
+			/* Let's introduce some delay so we don't burn out the CPU */
+			usleep(REFINEMENT_DELAY_US);
+
+		}
+
+		usleep(REFINEMENT_DELAY_US);
+	}
 }
 
 PointCloudPtr RefinementThread::refine_cloud(PointCloudPtr cloud, CameraPose::Ptr current_pose,
-                                             CameraPose::Ptr update_pose)
+											 CameraPose::Ptr update_pose)
 {
-    PointCloudPtr new_cloud(new PointCloud);
-    CameraPose::Position pos;
+	PointCloudPtr new_cloud(new PointCloud);
+	CameraPose::Position pos;
 
-    for (auto& it: *cloud) {
-        pos(0) = it.x;
-        pos(1) = it.y;
-        pos(2) = it.z;
-        pos = current_pose->ToCamera(pos);
-        pos = update_pose->ToWorld(pos);
-        it.x = pos(0);
-        it.y = pos(1);
-        it.z = pos(2);
-        new_cloud->push_back(it);
-    }
+	for (auto& it: *cloud) {
+		pos(0) = it.x;
+		pos(1) = it.y;
+		pos(2) = it.z;
+		pos = current_pose->ToCamera(pos);
+		pos = update_pose->ToWorld(pos);
+		it.x = pos(0);
+		it.y = pos(1);
+		it.z = pos(2);
+		new_cloud->push_back(it);
+	}
 
-    return new_cloud;
+	return new_cloud;
 }
