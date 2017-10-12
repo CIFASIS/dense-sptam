@@ -39,12 +39,15 @@ $ cd ../
 $ catkin build --cmake-args -DSHOW_TRACKED_FRAMES=OFF -DSHOW_PROFILING=OFF -DCMAKE_BUILD_TYPE=Release -DUSE_LOOPCLOSURE=OFF
 ```
 
-## Then just launch it:
+## Run it!
+
+Once everything is built, launch the nodes using one of the launchfiles
+provided, then play a ROS bag:
 
 ```
 $ source devel/setup.bash
-$ roslaunch src/dense/launch/kitti.launch
-$ rosbag play --clock path/to/kitti_dataset/kitti_00.bag
+$ roslaunch src/dense-sptam/launch/kitti.launch &
+$ rosbag play --clock path/to/your/kitti.bag
 ```
 
 # Dense node
