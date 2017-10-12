@@ -36,8 +36,8 @@ the rest of the packages and build!
 ```
 $ catkin init
 $ cd src/
-$ git clone https://github.com/lrse/ros-utils.git
-$ git clone git@bitbucket.org:adalessandro/sptam.git
+$ git clone git@github.com:lrse/ros-utils.git
+$ git clone git@github.com:adalessandro/sptam.git
 $ cd ../
 $ catkin build --cmake-args -DSHOW_TRACKED_FRAMES=OFF -DSHOW_PROFILING=OFF -DCMAKE_BUILD_TYPE=Release -DUSE_LOOPCLOSURE=OFF
 ```
