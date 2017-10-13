@@ -128,20 +128,16 @@ void PointCloudQueue::generate_poses_txt(const char *output_dir)
 	}
 }
 
-void PointCloudQueue::get_local_area_cloud(double pub_area_filter_min,
-										   PointCloudPtr ret_good, PointCloudPtr ret_bad)
+void PointCloudQueue::get_local_area_cloud(PointCloudPtr ret)
 {
-	ret_good->header.seq = ret_bad->header.seq = 0;
+	ret->header.seq = 0;
 
 	for (auto& it : local_area_queue_) {
 		if (it->get_cloud() != nullptr) {
 			for (auto& p : *it->get_cloud()) {
-				if (p.a >= pub_area_filter_min)
-					ret_good->push_back(p);
-				else
-					ret_bad->push_back(p);
+				ret->push_back(p);
 			}
-			ret_good->header.seq = ret_bad->header.seq = it->get_seq();
+			ret->header.seq = it->get_seq();
 		}
 	}
 }

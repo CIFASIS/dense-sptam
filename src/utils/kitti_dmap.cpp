@@ -78,7 +78,7 @@ err_close:
 namespace fs = boost::filesystem;
 
 int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_clouds_path,
-									 const char *out_path, int region_size, double pub_area_filter_min,
+									 const char *out_path, int region_size,
 									 const sensor_msgs::CameraInfoConstPtr left_info, Camera *camera)
 {
 	std::vector<std::pair<Eigen::Matrix3d, Eigen::Vector3d>> poses = load_poses(in_poses_path, NULL);
@@ -138,8 +138,7 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
 				pos(0) = p.x;
 				pos(1) = p.y;
 				pos(2) = p.z;
-				if (frustum_left.Contains(pos) && p.a >= pub_area_filter_min)
-					global->push_back(p);
+				global->push_back(p);
 			}
 		}
 
@@ -172,7 +171,7 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
 
 /* Here we use a single and fixed pointcloud from Leica sensor named data.pcd */
 int generate_depth_maps_euroc_global(const char *in_poses_path, const char *in_timestamps_path,
-									 const char *in_clouds_path, const char *out_path, double pub_area_filter_min,
+									 const char *in_clouds_path, const char *out_path,
 									 const sensor_msgs::CameraInfoConstPtr left_info, Camera *camera)
 {
 	std::vector<std::pair<Eigen::Matrix3d, Eigen::Vector3d>> poses =
@@ -225,7 +224,7 @@ int generate_depth_maps_euroc_global(const char *in_poses_path, const char *in_t
 			pos(0) = p.x;
 			pos(1) = p.y;
 			pos(2) = p.z;
-			if (frustum_left.Contains(pos) && p.a >= pub_area_filter_min)
+			if (frustum_left.Contains(pos))
 				global->push_back(p);
 		}
 		for (auto& p : *global) {

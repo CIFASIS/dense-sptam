@@ -158,7 +158,7 @@ public:
 	void save_all(const char *output_dir);
 	void push_local_area(PointCloudEntry::Ptr entry);
 	uint32_t get_local_area_seq();
-	void get_local_area_cloud(double pub_area_filter_min, PointCloudPtr ret_good, PointCloudPtr ret_bad);
+	void get_local_area_cloud(PointCloudPtr ret);
 
 	std::unordered_map<uint32_t, PointCloudEntry::Ptr> entries_;
 	std::map<uint32_t, CameraPose::Ptr> poses_;

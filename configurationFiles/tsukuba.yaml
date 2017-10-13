@@ -10,4 +10,3 @@ libelas_ipol_gap: 1000
 add_corners: false
 refinement_linear_threshold: 0.01
 refinement_angular_threshold: 0.001
-pub_area_filter_min: 0

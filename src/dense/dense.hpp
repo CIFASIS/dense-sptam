@@ -26,7 +26,6 @@ struct dense_parameters {
 	std::string output_dir;
 	double refinement_linear_threshold;
 	double refinement_angular_threshold;
-	double pub_area_filter_min;
 	bool use_approx_sync;
 };
 

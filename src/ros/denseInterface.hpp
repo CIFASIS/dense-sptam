@@ -36,7 +36,7 @@ namespace dense
 		ros::Subscriber sub_path_;
 		message_filters::Subscriber<sensor_msgs::Image> sub_img_l_, sub_img_r_;
 		message_filters::Subscriber<sensor_msgs::CameraInfo> sub_info_l_, sub_info_r_;
-		ros::Publisher pub_map_, pub_map_bad_;
+		ros::Publisher pub_map_;
 
 		/*
 		 * From S-PTAM: Syncronizer for image messages. We don't know a priory which one

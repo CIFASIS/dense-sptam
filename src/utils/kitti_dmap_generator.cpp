@@ -121,8 +121,6 @@ int main(int argc, char* argv[])
 				parameters.refinement_linear_threshold = it.second.as<double>();
 			else if (key == "refinement_angular_threshold")
 				parameters.refinement_angular_threshold = it.second.as<double>();
-			else if (key == "pub_area_filter_min")
-				parameters.pub_area_filter_min = it.second.as<double>();
 		}
 
 		std::cout << "frustumNearPlaneDist: " << parameters.frustum_near_plane_dist << std::endl;
@@ -137,7 +135,6 @@ int main(int argc, char* argv[])
 		std::cout << "refinement_linear_threshold: " << parameters.refinement_linear_threshold << std::endl;
 		std::cout << "refinement_angular_threshold: " << parameters.refinement_angular_threshold << std::endl;
 		std::cout << "region_size: " << region_size << std::endl;
-		std::cout << "pub_area_filter_min: " << parameters.pub_area_filter_min << std::endl;
 	} catch(YAML::BadFile& e) {
 		std::cerr << "Could not open configuration file " << parametersFileYML << std::endl;
 		return EXIT_FAILURE;
@@ -186,9 +183,8 @@ int main(int argc, char* argv[])
 								parameters.frustum_far_plane_dist);
 
 	// generate depth maps (.dmap files)
-	generate_depth_maps_kitti_global(posesFile.c_str(), pcdPath.c_str(),
-									 pcdPath.c_str(), region_size,
-									 parameters.pub_area_filter_min, left_info, camera);
+	generate_depth_maps_kitti_global(posesFile.c_str(), pcdPath.c_str(), pcdPath.c_str(),
+									 region_size, left_info, camera);
 
 	return 0;
 }

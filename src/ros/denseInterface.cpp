@@ -36,7 +36,6 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
 	nhp.param<double>("stereoscan_threshold", parameters.stereoscan_threshold, 0);
 	nhp.param<std::string>("fusion_heuristic", parameters.fusion_heuristic, "");
 	nhp.param<int>("local_area_size", parameters.local_area_size, 1);
-	nhp.param<double>("pub_area_filter_min", parameters.pub_area_filter_min, 0);
 
 	nhp.param<int>("libelas_ipol_gap", parameters.libelas_ipol_gap, 0);
 	nhp.param<bool>("add_corners", parameters.add_corners, false);
@@ -47,7 +46,6 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
 	nhp.param<std::string>("output_dir", parameters.output_dir, "clouds");
 
 	pub_map_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud", 100);
-	pub_map_bad_ = nhp.advertise<sensor_msgs::PointCloud2>("dense_cloud_bad", 100);
 
 	/* In/out topics */
 	sub_path_ = nhp.subscribe("keyframes", 1, &denseInterface::cb_keyframes_path, this);
@@ -97,20 +95,15 @@ void dense::denseInterface::cb_keyframes_path(const nav_msgs::PathConstPtr& path
 		if (dense_->point_clouds_->get_local_area_seq() > last_publish_seq_) {
 			last_publish_seq_ = dense_->point_clouds_->get_local_area_seq();
 
-			PointCloudPtr cloud_good(new PointCloud);
-			PointCloudPtr cloud_bad(new PointCloud);
-			dense_->point_clouds_->get_local_area_cloud(parameters.pub_area_filter_min, cloud_good, cloud_bad);
-			downsampleCloud(cloud_good, parameters.voxel_leaf_size);
-			downsampleCloud(cloud_bad, parameters.voxel_leaf_size);
+			PointCloudPtr cloud(new PointCloud);
+			dense_->point_clouds_->get_local_area_cloud(cloud);
+			downsampleCloud(cloud, parameters.voxel_leaf_size);
 
-			cloud_good->header.frame_id = cloud_bad->header.frame_id = parameters.map_frame;
+			cloud->header.frame_id = parameters.map_frame;
 			if (pub_map_.getNumSubscribers() > 0)
-				pub_map_.publish(cloud_good);
-			if (pub_map_bad_.getNumSubscribers() > 0)
-				pub_map_bad_.publish(cloud_bad);
+				pub_map_.publish(cloud);
 
-			ROS_INFO("Published seq = %u, cloud size (good, bad) = (%lu, %lu)",
-					 cloud_good->header.seq, cloud_good->size(), cloud_bad->size());
+			ROS_INFO("Published seq = %u, cloud size = %lu", cloud->header.seq, cloud->size());
 		}
 	}
 }

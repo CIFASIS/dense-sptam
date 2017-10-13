@@ -82,7 +82,6 @@
 	<param name="libelas_ipol_gap" value="1000"/>
 
 	<param name="local_area_size" value="5"/>
-	<param name="pub_area_filter_min" value="2"/>
 
 	<param name="refinement_linear_threshold" value="0.01"/>
 	<param name="refinement_angular_threshold" value="0.001"/>
