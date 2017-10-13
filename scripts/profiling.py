@@ -35,6 +35,11 @@ task_time = [0.0] * 4
 stereoscan_points = [0] * 5
 
 for line in logfile.readlines():
+
+  # Omit incompleted lines, which may happen on dense node failures
+  if (line[-1] != '\n'):
+    continue;
+
   data = line.split(",")
   task = data[0]
   time = float(data[2])
