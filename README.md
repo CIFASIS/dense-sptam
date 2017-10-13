@@ -270,31 +270,6 @@ Generated output consists in several npy files, used by the following script to 
 ```
 $ python dense/scripts/plot_dmap_error.py ${sequence_name}
 ```
-## Process and compare two depth maps
-
-```
-$ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense_depth_map}.dmap mae
-```
-
-```
-$ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense_depth_map}.dmap rmse
-```
-
-```
-$ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense_depth_map}.dmap silmse
-```
-
-```
-$ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense_depth_map}.dmap intersect
-```
-
-```
-$ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense_depth_map}.dmap error_color
-```
-
-```
-$ ./devel/lib/dense/depth_maps_comparison ${ground_truth_depth_map}.dmap ${dense_depth_map}.dmap error_graph size
-```
 
 ## Profiling
 
