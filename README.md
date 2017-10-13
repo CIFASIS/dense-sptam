@@ -170,7 +170,7 @@ $ ./devel/lib/dense/kitti_ground_truth \
     path/to/kitti/sequence/velodyne/calib.txt \
     path/to/kitti/sequence/velodyne/poses.txt \
     path/to/kitti/sequence/velodyne/raw/ \
-    path/to/kitti/sequence/velodyne/pcd/ \
+    path/to/output/pcd/ \
     0.0
 
 TODO
@@ -181,18 +181,27 @@ to filter (omit) those points that are beyond this distance threshold.
 This is useful as the velodyne laser may contain noisy points in the first meters,
 which we may want to avoid.
 
-## kitti\_dmap\_generator: Generate depth maps (`.dmap`) from DENSE node output for KITTI dataset
-
+## Generate depth maps (`.dmap`) from DENSE node output for KITTI dataset
 
 ```
 $ ./devel/lib/dense/kitti_dmap_generator
-  usage: ./devel/lib/dense/kitti_ground_truth [in-cam-calib] [in-dense-configuration] [in-poses] [out-dmap]
+
+usage: ./devel/lib/dense/kitti_dmap_generator [calibration] [configuration] [poses] [region_size] [pcd_path]
+
+    calibration: input file with camera calibration parameters.
+    configuration: input file with configuration parameters.
+    poses: intput file containing pose info, outputted from dense node run.
+    region_size: project this number of closest keyframes (previous and next) for each depth map.
+    pcd_path: output folder where depth maps (`.dmap`) are going to be stored.
 
 $ ./devel/lib/dense/kitti_dmap_generator \
-    dense/configurationFiles/kitti_cam.yaml \
-    dense/configurationFiles/configuration.yaml \
-    path/to/poses.txt \
-    ../../datasets/kitti/sequences/${sequence}/dmap/
+    configurationFiles/kitti_cam_04_to_12.yaml \
+    configurationFiles/kitti.yaml \
+    dense/node/output/poses.txt \
+    30 \
+    path/to/output/dmap/
+
+TODO
 ```
 
 ## plot\_depth\_map: Plot depth maps
