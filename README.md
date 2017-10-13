@@ -250,7 +250,7 @@ $ python scripts/plot_depth_map.py ${depth_map}.dmap --clim_low -3 --clim_high 5
 This script accounts for all computation and plotting at the same time:
 
 ```
-$ python dense/scripts/compute_and_plot.py
+$ python scripts/compute_and_plot.py
 ```
 
 You should edit it with your paths and sequence to make it work. This script basically calls the following ones..
@@ -260,7 +260,7 @@ from DENSE node output and ground truth. Arguments are the paths to directories
 containing the `.dmap` files:
 
 ```
-$ python dense/scripts/depth_map.py path/to/dense/dmaps/ path/to/velodyne/dmaps/
+$ python scripts/depth_map.py path/to/dense/dmaps/ path/to/velodyne/dmaps/
 ```
 
 (Check other parameters)
@@ -268,7 +268,7 @@ $ python dense/scripts/depth_map.py path/to/dense/dmaps/ path/to/velodyne/dmaps/
 Generated output consists in several npy files, used by the following script to plot the results:
 
 ```
-$ python dense/scripts/plot_dmap_error.py ${sequence_name}
+$ python scripts/plot_dmap_error.py ${sequence_name}
 ```
 
 ## Profiling
