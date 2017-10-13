@@ -21,7 +21,7 @@
   </node>
 
   <!-- Nodelet Manager -->
-  <node pkg="nodelet" type="nodelet" name="nodelet_manager"  args="manager" output="screen" clear_params="true"/>
+  <node required="true" pkg="nodelet" type="nodelet" name="nodelet_manager"  args="manager" output="screen" clear_params="true"/>
 
   <!-- Choose between Nodelet and Node S-PTAM -->
   <!-- <node pkg="sptam" type="sptam_node" name="sptam" output="screen" > -->
