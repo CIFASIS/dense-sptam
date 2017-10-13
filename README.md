@@ -204,25 +204,45 @@ $ ./devel/lib/dense/kitti_dmap_generator \
 TODO
 ```
 
-## plot\_depth\_map: Plot depth maps
+## Plot/show depth maps
 
 Show coloured depth map:
 
 ```
-$ python dense/scripts/plot_depth_map.py ${original_depth_map}.dmap
+$ python scripts/plot_depth_map.py -h
+usage: plot_depth_map.py [-h] [--compare COMPARE] [--save SAVE]
+                         [--clim_low CLIM_LOW] [--clim_high CLIM_HIGH]
+                         dmap
+
+positional arguments:
+  dmap                  dmap file
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --compare COMPARE     dmap file to compare
+  --save SAVE           save image to output file
+  --clim_low CLIM_LOW   plotter clim low bound
+  --clim_high CLIM_HIGH
+                        plotter clim high bound
+
+NOTE: Invalid (negative) depth values are mapped to -10
+```
+
+```
+$ python scripts/plot_depth_map.py ${original_depth_map}.dmap
 ```
 
 Show coloured absolute differences between both maps. Pixels not containing
 valid values on both maps are omitted and assigned a negative value.
 
 ```
-$ python dense/scripts/plot_depth_map.py ${depth_map}.dmap --compare ${another_depth_map}.dmap
+$ python scripts/plot_depth_map.py ${depth_map}.dmap --compare ${another_depth_map}.dmap
 ```
 
 Optional arguments `--clim_low` and `--clim_high` to specify the plotter clim bounds.
 
 ```
-$ python dense/scripts/plot_depth_map.py ${depth_map}.dmap --clim_low -3 --clim_high 50
+$ python scripts/plot_depth_map.py ${depth_map}.dmap --clim_low -3 --clim_high 50
 ```
 
 ## Process and compare depth maps directories
