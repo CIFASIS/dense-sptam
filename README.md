@@ -1,12 +1,12 @@
 # dense-sptam ROS package
 
-# Quick start
+## Quick start
 
 The `dense-sptam` package provides a Dockerfile you could use to configure
 and build the project. Note that the same instructions inside the Dockerfile
 could be followed to setup an Ubuntu distro as well.
 
-## Docker
+### Docker
 
 Create a dir for your catkin workspace and clone `dense-sptam` package:
 
@@ -43,7 +43,7 @@ $ catkin build --cmake-args \
 	-DSHOW_TRACKED_FRAMES=OFF -DSHOW_PROFILING=OFF -DCMAKE_BUILD_TYPE=Release -DUSE_LOOPCLOSURE=OFF
 ```
 
-## Run it!
+### Run it!
 
 Once everything is built, launch the nodes using one of the launchfiles
 provided, then play a ROS bag:
@@ -54,14 +54,14 @@ $ roslaunch src/dense-sptam/launch/kitti.launch &
 $ rosbag play --clock path/to/your/kitti.bag
 ```
 
-## Other docker magic
+### Other docker magic
 
 Using `docker.sh run` the container is run with X11 socket shared, so you can
 GUI tools like `rviz` from within the container itself.
 
-# dense node
+## dense node
 
-## Configuration parameters
+### Configuration parameters
 
 The dense node allows several configuration parameters. These can be set in the launch
 file directly, as done in `launch/kitti.launch` for example:
@@ -132,15 +132,13 @@ distance greater than this value are refined in the refinement thread.
 * `refinement_angular_threshold`: (double, default: *0*) Keyframe pose updates with angular
 distance greater than this value are refined in the refinement thread.
 
-## Published topics
+### Published topics
 
-### `/dense/dense_cloud`
+* `/dense/dense_cloud`: Dense reconstruction point cloud. It only publishes the last
+`local_area_size` frames. Note that publishing the entire global point cloud would
+probably hog your system.
 
-Dense reconstruction point cloud. It only publishes the last `local_area_size`
-frames. Note that publishing the entire global point cloud would probably hog
-your system.
-
-## Output
+### Output
 
 Dense node output is stored at the directory pointed by parameter `output_dir`:
 
@@ -151,9 +149,9 @@ is named with its associated keyframe's id.
 
 * `dense_node.log`: log info collected during the dense node run.
 
-# Tools
+## Tools
 
-## Generate PCD point clouds from KITTI ground truth velodyne binaries
+### Generate PCD point clouds from KITTI ground truth velodyne binaries
 
 ```
 $ ./devel/lib/dense/kitti_ground_truth
@@ -181,7 +179,7 @@ to filter (omit) those points that are beyond this distance threshold.
 This is useful as the velodyne laser may contain noisy points in the first meters,
 which we may want to avoid.
 
-## Generate depth maps (`.dmap`) from DENSE node output for KITTI dataset
+### Generate depth maps (`.dmap`) from DENSE node output for KITTI dataset
 
 ```
 $ ./devel/lib/dense/kitti_dmap_generator
@@ -204,7 +202,7 @@ $ ./devel/lib/dense/kitti_dmap_generator \
 TODO
 ```
 
-## Plot/show depth maps
+### Plot/show depth maps
 
 Show coloured depth map:
 
@@ -245,7 +243,7 @@ Optional arguments `--clim_low` and `--clim_high` to specify the plotter clim bo
 $ python scripts/plot_depth_map.py ${depth_map}.dmap --clim_low -3 --clim_high 50
 ```
 
-## Process and compare depth maps directories
+### Process and compare depth maps directories
 
 This script accounts for all computation and plotting at the same time:
 
@@ -271,7 +269,7 @@ Generated output consists in several npy files, used by the following script to 
 $ python scripts/plot_dmap_error.py ${sequence_name}
 ```
 
-## Profiling
+### Profiling
 
 Every dense node run will output useful log data to a file. This file is
 located at `output_dir/dense_node.log`.
@@ -297,11 +295,11 @@ $ python scripts/profiling.py /path/to/dense_node.log
         Outliers:            4853236
 ```
 
-# Examples of use
+## Examples of use
 
 Let's run and plot results for some benchmark dataset sequences.
 
-## Dataset KITTI - sequence 04
+### Dataset KITTI - sequence 04
 
 Run dense node and play bag. Note that after bag has finished playing, all ros nodes
 are killed, so launchfile ends too.
@@ -331,7 +329,7 @@ $ ./compute_and_plot.sh ~/.ros/dmaps/ path/to/kitti/ground_truth/dmaps/ kitti
 
 This will generate 5 png files in the scripts directory with the names kitti{1-5}.png
 
-## Dataset TSUKUBA - sequence daylight
+### Dataset TSUKUBA - sequence daylight
 
 Same comments and descriptions as in previous example.
 
