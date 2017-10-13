@@ -273,8 +273,8 @@ $ python dense/scripts/plot_dmap_error.py ${sequence_name}
 
 ## Profiling
 
-Every dense node run will output useful log data to a file. By default, this
-file is located at `~/.ros/dense_node.log`.
+Every dense node run will output useful log data to a file. This file is
+located at `output_dir/dense_node.log`.
 
 Using the following script, the log data can be processed to get human-readable
 information:
@@ -282,19 +282,19 @@ information:
 ```
 $ python scripts/profiling.py /path/to/dense_node.log 
 
-  Keyframes processed per phase
-      Disparity:		244
-      Heuristic/fusion:	244
-      Refinement:		213
+    Keyframes processed per phase
+        Disparity:           244
+        Heuristic/fusion:    244
+        Refinement:           213
 
-  Mean time per phase (secs)
-      Disparity:		157.356557377
-      Heuristic/fusion:	69.393442623
-      Refinement:		3.17840375587
+    Mean time per phase (secs)
+        Disparity:           157.356557377
+        Heuristic/fusion:    69.393442623
+        Refinement:           3.17840375587
 
-  Heuristic results (points)
-      Fusions/matches:	20145818
-      Outliers:		4853236
+    Heuristic results (points)
+        Fusions/matches:     20145818
+        Outliers:            4853236
 ```
 
 # Examples of use : compile, run, and plot of kitti04 and tsukuba
