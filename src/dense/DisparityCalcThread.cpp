@@ -90,8 +90,6 @@ void DisparityCalcThread::computeELAS()
 
 	Elas::parameters param(Elas::ROBOTICS);
 
-	if (dense_->parameters.sigma)
-		param.sigma = dense_->parameters.sigma;
 	param.add_corners = dense_->parameters.add_corners;
 	if (dense_->parameters.libelas_ipol_gap)
 		param.ipol_gap_width = dense_->parameters.libelas_ipol_gap;

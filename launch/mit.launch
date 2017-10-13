@@ -64,7 +64,6 @@
 
 	<param name="frustum_near_plane_dist" value="0.0001"/>
 
-	<param name="sigma" value="0.7"/>
 	<param name="add_corners" value="false"/>
 	<param name="libelas_ipol_gap" value="5000"/>
 

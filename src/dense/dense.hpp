@@ -18,7 +18,6 @@ struct dense_parameters {
 	double voxel_leaf_size;
 	double max_distance;
 	double stereoscan_threshold;
-	double sigma;
 	std::string disp_calc_method;
 	std::string fusion_heuristic;
 	int local_area_size;

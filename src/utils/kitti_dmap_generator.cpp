@@ -117,8 +117,6 @@ int main(int argc, char* argv[])
 				parameters.libelas_ipol_gap = it.second.as<double>();
 			else if (key == "add_corners")
 				parameters.add_corners = it.second.as<bool>();
-			else if (key == "sigma")
-				parameters.sigma = it.second.as<double>();
 			else if (key == "refinement_linear_threshold")
 				parameters.refinement_linear_threshold = it.second.as<double>();
 			else if (key == "refinement_angular_threshold")
@@ -136,7 +134,6 @@ int main(int argc, char* argv[])
 		std::cout << "local_area_size: " << parameters.local_area_size << std::endl;
 		std::cout << "libelas_ipol_gap: " << parameters.libelas_ipol_gap << std::endl;
 		std::cout << "add_corners: " << parameters.add_corners << std::endl;
-		std::cout << "sigma: " << parameters.sigma << std::endl;
 		std::cout << "refinement_linear_threshold: " << parameters.refinement_linear_threshold << std::endl;
 		std::cout << "refinement_angular_threshold: " << parameters.refinement_angular_threshold << std::endl;
 		std::cout << "region_size: " << region_size << std::endl;

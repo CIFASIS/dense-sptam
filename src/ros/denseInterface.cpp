@@ -40,7 +40,6 @@ dense::denseInterface::denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp)
 
 	nhp.param<int>("libelas_ipol_gap", parameters.libelas_ipol_gap, 0);
 	nhp.param<bool>("add_corners", parameters.add_corners, false);
-	nhp.param<double>("sigma", parameters.sigma, 0);
 
 	nhp.param<double>("refinement_linear_threshold", parameters.refinement_linear_threshold, 0);
 	nhp.param<double>("refinement_angular_threshold", parameters.refinement_angular_threshold, 0);
