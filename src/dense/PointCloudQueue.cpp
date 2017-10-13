@@ -134,9 +134,7 @@ void PointCloudQueue::get_local_area_cloud(PointCloudPtr ret)
 
 	for (auto& it : local_area_queue_) {
 		if (it->get_cloud() != nullptr) {
-			for (auto& p : *it->get_cloud()) {
-				ret->push_back(p);
-			}
+			*ret += *it->get_cloud();
 			ret->header.seq = it->get_seq();
 		}
 	}
