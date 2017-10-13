@@ -297,92 +297,63 @@ $ python scripts/profiling.py /path/to/dense_node.log
         Outliers:            4853236
 ```
 
-# Examples of use : compile, run, and plot of kitti04 and tsukuba
+# Examples of use
 
-## KITTI 04
+Let's run and plot results for some benchmark dataset sequences.
 
-```
-$ cd ~/catkin_ws
-```
+## Dataset KITTI - sequence 04
 
-- COMPILE DENSE AND SPTAM
-```
-$ catkin clean
-$ catkin build
-```
-
-- LAUNCH DENSE
-```
-$ roscore &
-$ roslaunch dense kitti.launch
-$ rosbag play --clock ~/ariel/datasets/bags/kitti_04.bag -r0.1
-```
-
-- PCD -> DMAP
-```
-$ ./devel/lib/dense/kitti_dmap_generator ~/catkin_ws/src/dense/configurationFiles/kitti_cam_04_to_12.yaml ~/catkin_ws/src/dense/configurationFiles/kitti.yaml ~/.ros/clouds/poses.txt ~/.ros/clouds/
-```
-
-- PLOT
-```
-$ mkdir ~/.ros/clouds/dmap/
-```
-
-- move the .dmap from ~/ros/clouds/ to ~/.ros/clouds/dmap
-- edit scripts/compute_and_plot.py with the new directory
+Run dense node and play bag. Note that after bag has finished playing, all ros nodes
+are killed, so launchfile ends too.
 
 ```
-$ dir_dense = "~/.ros/clouds/dmap/"
-$ dir_gt = "~/ariel/datasets/kitti04GT/dmap/"
-$ sequence = "kitti"
+$ roslaunch launch/kitti.launch & rosbag play --clock kitti_04.bag ; rosnode kill -a
 ```
 
+Generate depth maps from dense node output. Note that this example assumes that output
+dir path was the default one (at `~/.ros/clouds/`).
+
 ```
-$ cd scripts
-$ python compute_and_plot.py
+$ ./devel/lib/dense/kitti_dmap_generator \
+    configurationFiles/kitti_cam_04_to_12.yaml \
+    configurationFiles/kitti.yaml \
+    ~/.ros/clouds/poses.txt \
+    30 \
+    ~/.ros/dmaps/
 ```
+
+Finally, let's process and plot the results, comparing them with the ground truth:
+
+```
+$ cd scripts/
+$ ./compute_and_plot.sh ~/.ros/dmaps/ path/to/kitti/ground_truth/dmaps/ kitti
+```
+
 This will generate 5 png files in the scripts directory with the names kitti{1-5}.png
 
+## Dataset TSUKUBA - sequence daylight
 
-## TSUKUBA
-
-```
-cd ~/catkin_ws
-```
-
-- COMPILE DENSE AND SPTAM
-```
-catkin clean
-catkin build
-```
-
-- LAUNCH DENSE
-```
-roscore &
-roslaunch dense tsukuba.launch
-rosbag play --clock ~/ariel/datasets/bags/tsukuba_daylight.bag -r0.05
-```
-
-- PCD -> DMAP
-```
-./devel/lib/dense/kitti_dmap_generator  ~/Downloads/tsukuba_cam.yaml ~/catkin_ws/src/dense/configurationFiles/tsukuba.yaml  ~/.ros/clouds/poses.txt ~/.ros/clouds/
-```
-
-- PLOT
-```
-cd ~/catkin_ws/src/dense/scripts
-```
-
-- Edit scripts/compute_and_plot.py with the new directory and the gt directory
+Same comments and descriptions as in previous example.
 
 ```
-dir_dense = "~/.ros/clouds/dmap/"
-dir_gt = "~/ariel/datasets/tsukuba_dataset/depth_maps/left/dmap/"
-sequence = "tsukuba"
+$ roslaunch launch/tsukuba.launch & rosbag play --clock tsukuba_daylight.bag ; rosnode kill -a
 ```
 
 ```
-cd scripts
-python compute_and_plot.py
+$ ./devel/lib/dense/kitti_dmap_generator \
+    configurationFiles/tsukuba_cam.yaml \
+    configurationFiles/tsukuba.yaml \
+    ~/.ros/clouds/poses.txt \
+    30 \
+    ~/.ros/dmaps/
 ```
+
+Tsukuba dataset provides ground truth depth maps for left and right cameras. Note that we're
+always using left camera maps, so choose that as below.
+
+```
+$ cd scripts/
+$ ./compute_and_plot.sh ~/.ros/dmaps/ path/to/tsukuba/ground_truth/dmaps/left/dmap/ tsukuba
+```
+
 This will generate 5 png files in the scripts directory with the names tsukuba{1-5}.png
