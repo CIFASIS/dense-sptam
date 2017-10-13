@@ -23,9 +23,15 @@ Dense::Dense(const sensor_msgs::CameraInfoConstPtr& left_info,
 
 	ROS_INFO_STREAM("DENSE: output dir " << output_path);
 
-	log_file_ = fopen(LOG_FILENAME, "w");
+
+	if (parameters.output_dir.length())
+		sprintf(log_filename_, "%s/%s", parameters.output_dir.c_str(), LOG_FILENAME);
+	else
+		sprintf(log_filename_, "%s", LOG_FILENAME);
+
+	log_file_ = fopen(log_filename_, "w");
 	if (!log_file_) {
-		ROS_ERROR_STREAM("DENSE: failed to open log file " << LOG_FILENAME);
+		ROS_ERROR_STREAM("DENSE: failed to open log file " << log_filename_);
 		abort();
 	}
 

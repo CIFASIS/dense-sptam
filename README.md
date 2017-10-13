@@ -93,7 +93,8 @@ used to get left camera pose from tf.
 stereo frames. Set to true if the left and right Cameras do not produce identical
 synchronized timestamps for a matching pair of frames.
 
-* `output_dir`: (string, default: *"clouds"*) Path where output is going to be stored.
+* `output_dir`: (string, default: *"clouds"*) Path where output is going to be stored
+Note that the dense node assumes directory exists.
 
 * `frustum_near_plane_dist`: (double, default: *0.1*) Frustum culling near plane distance
 from camera center.
@@ -136,23 +137,19 @@ distance greater than this value are refined in the refinement thread.
 ### `/dense/dense_cloud`
 
 Dense reconstruction point cloud. It only publishes the last `local_area_size`
-frames. Note that publishing the entire global point cloud would hog your
-system.
-
-### `/dense/dense_cloud_bad`
-
-Dense reconstruction point cloud containing those points with a `viewing_counter`
-below the `pub_area_filter_min` parameter.
+frames. Note that publishing the entire global point cloud would probably hog
+your system.
 
 ## Output
 
-* `~/.ros/clouds/`
+Dense node output is stored at the directory pointed by parameter `output_dir`:
 
-Dense clouds in `.pcd` format and their poses in `.txt` format are stored here.
+* `xxxxxx.pcd`: 3d dense reconstruction point clouds in `.pcd` format. This file
+is named with its associated keyframe's id.
 
-* `~/.ros/dense_node.log`
+* `xxxxxx.txt`: pose info for keyframe and pointcloud with same id.
 
-Dense node execution logging information is stored here.
+* `dense_node.log`: log info collected during the dense node run.
 
 # Tools
 

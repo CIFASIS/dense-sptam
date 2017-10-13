@@ -54,6 +54,7 @@ private:
 	DisparityCalcThread *disparityCalcThread;
 	RefinementThread *refinementThread_;
 
+	char log_filename_[512];
 	FILE *log_file_;
 };
 
