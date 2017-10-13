@@ -70,7 +70,7 @@ file directly, as done in `launch/kitti.launch` for example:
 <param name="camera_frame" value="left_camera" />
 ```
 
-Or you could set it in a YAML configuration file, e.g. `configurationFiles/kitti.yaml`:
+Or you could set it in a YAML configuration file, e.g. `configuration_files/kitti.yaml`:
 
 ```
 frustum_near_plane_dist: 0.0001
@@ -79,7 +79,7 @@ frustum_near_plane_dist: 0.0001
 and load it from the launch file, e.g. `launch/kitti.launch`:
 
 ```
-<rosparam command="load" file="$(find sptam)/configurationFiles/kitti.yaml" />
+<rosparam command="load" file="$(find dense)/configuration_files/kitti.yaml" />
 ```
 
 * `base_frame`: (string, default: *"base_link"*) Reference frame for the robot.
@@ -193,8 +193,8 @@ usage: ./devel/lib/dense/kitti_dmap_generator [calibration] [configuration] [pos
     pcd_path: output folder where depth maps (`.dmap`) are going to be stored.
 
 $ ./devel/lib/dense/kitti_dmap_generator \
-    configurationFiles/kitti_cam_04_to_12.yaml \
-    configurationFiles/kitti.yaml \
+    configuration_files/kitti_cam_04_to_12.yaml \
+    configuration_files/kitti.yaml \
     dense/node/output/poses.txt \
     30 \
     path/to/output/dmap/
@@ -313,8 +313,8 @@ dir path was the default one (at `~/.ros/clouds/`).
 
 ```
 $ ./devel/lib/dense/kitti_dmap_generator \
-    configurationFiles/kitti_cam_04_to_12.yaml \
-    configurationFiles/kitti.yaml \
+    configuration_files/kitti_cam_04_to_12.yaml \
+    configuration_files/kitti.yaml \
     ~/.ros/clouds/poses.txt \
     30 \
     ~/.ros/dmaps/
@@ -339,8 +339,8 @@ $ roslaunch launch/tsukuba.launch & rosbag play --clock tsukuba_daylight.bag ; r
 
 ```
 $ ./devel/lib/dense/kitti_dmap_generator \
-    configurationFiles/tsukuba_cam.yaml \
-    configurationFiles/tsukuba.yaml \
+    configuration_files/tsukuba_cam.yaml \
+    configuration_files/tsukuba.yaml \
     ~/.ros/clouds/poses.txt \
     30 \
     ~/.ros/dmaps/

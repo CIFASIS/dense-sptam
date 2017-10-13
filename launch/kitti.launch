@@ -57,7 +57,7 @@
     <param name="camera_frame" value="left_camera" />
 
     <!-- Read DENSE parameters file -->
-    <rosparam command="load" file="$(find dense)/configurationFiles/kitti.yaml"/>
+    <rosparam command="load" file="$(find dense)/configuration_files/kitti.yaml"/>
 
     <remap from="/dense/keyframes" to="/sptam/keyframes"/>
 
