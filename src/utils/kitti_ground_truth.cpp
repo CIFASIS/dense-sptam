@@ -166,7 +166,12 @@ int main(int argc, char* argv[])
 
 	if (argc < 6) {
 		std::cout << "\nusage: " << argv[0] <<
-		" [in-calib] [in-poses] [in-velo] [out-cloud] [min-distance]" << std::endl;
+			" [in-calib] [in-poses] [in-velo] [out-cloud] [min-distance]" << std::endl << std::endl <<
+			"    in-calib: input file from KITTI ground truth containing camera calibration parameters." << std::endl <<
+			"    in-poses: input file from KITTI ground truth containing the list of poses." << std::endl <<
+			"    in-velo: input folder from KITTI ground truth containing the velodyne binary clouds." << std::endl <<
+			"    out-cloud: output folder where PCD point cloud are going to be stored." << std::endl <<
+			"    min-distance: omit points that are closer than this distance threshold." << std::endl;
 		return -1;
 	}
 

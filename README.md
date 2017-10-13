@@ -153,23 +153,33 @@ is named with its associated keyframe's id.
 
 # Tools
 
-## kitti\_ground\_truth: Generate pointclouds from KITTI dataset velodyne binaries
+## Generate PCD point clouds from KITTI ground truth velodyne binaries
 
 ```
 $ ./devel/lib/dense/kitti_ground_truth
-  usage: ./devel/lib/dense/kitti_ground_truth [in-calib] [in-poses] [in-velo] [out-cloud] [min-distance]
+
+usage: ./devel/lib/dense/kitti_ground_truth [in-calib] [in-poses] [in-velo] [out-cloud] [min-distance]
+
+    in-calib: input file from KITTI ground truth containing camera calibration parameters.
+    in-poses: input file from KITTI ground truth containing the list of poses.
+    in-velo: input folder from KITTI ground truth containing the velodyne binary clouds.
+    out-cloud: output folder where PCD point cloud are going to be stored.
+    min-distance: omit points that are farther than this distance threshold.
 
 $ ./devel/lib/dense/kitti_ground_truth \
-    ../../datasets/kitti/sequences/${sequence}/velodyne/calib.txt \
-    ../../datasets/kitti/sequences/${sequence}/velodyne/poses.txt \
-    ../../datasets/kitti/sequences/${sequence}/velodyne/raw/ \
-    ../../datasets/kitti/sequences/${sequence}/velodyne/pcd/ \
+    path/to/kitti/sequence/velodyne/calib.txt \
+    path/to/kitti/sequence/velodyne/poses.txt \
+    path/to/kitti/sequence/velodyne/raw/ \
+    path/to/kitti/sequence/velodyne/pcd/ \
     0.0
+
+TODO
 ```
 
 Note there's a float parameter named `min_distance` at the end, which allows
 to filter (omit) those points that are beyond this distance threshold.
-This is useful as the velodyne laser may contain noise in the first meters.
+This is useful as the velodyne laser may contain noisy points in the first meters,
+which we may want to avoid.
 
 ## kitti\_dmap\_generator: Generate depth maps (`.dmap`) from DENSE node output for KITTI dataset
 
