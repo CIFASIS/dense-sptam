@@ -39,7 +39,8 @@ $ cd src/
 $ git clone git@github.com:lrse/ros-utils.git
 $ git clone git@github.com:adalessandro/sptam.git
 $ cd ../
-$ catkin build --cmake-args -DSHOW_TRACKED_FRAMES=OFF -DSHOW_PROFILING=OFF -DCMAKE_BUILD_TYPE=Release -DUSE_LOOPCLOSURE=OFF
+$ catkin build --cmake-args \
+	-DSHOW_TRACKED_FRAMES=OFF -DSHOW_PROFILING=OFF -DCMAKE_BUILD_TYPE=Release -DUSE_LOOPCLOSURE=OFF
 ```
 
 ## Run it!
@@ -58,11 +59,77 @@ $ rosbag play --clock path/to/your/kitti.bag
 Using `docker.sh run` the container is run with X11 socket shared, so you can
 GUI tools like `rviz` from within the container itself.
 
-# Dense node
+# dense node
 
-## Parameters
+## Configuration parameters
 
-TODO
+The dense node allows several configuration parameters. These can be set in the launch
+file directly, as done in `launch/kitti.launch` for example:
+
+```
+<param name="camera_frame" value="left_camera" />
+```
+
+Or you could set it in a YAML configuration file, e.g. `configurationFiles/kitti.yaml`:
+
+```
+frustum_near_plane_dist: 0.0001
+```
+
+and load it from the launch file, e.g. `launch/kitti.launch`:
+
+```
+<rosparam command="load" file="$(find sptam)/configurationFiles/kitti.yaml" />
+```
+
+* `base_frame`: (string, default: *"base_link"*) Reference frame for the robot.
+
+* `camera_frame`: (string, default: *"camera"*) Reference frame for the left camera,
+used to get left camera pose from tf.
+
+* `map_frame`: (string, default: *"map"*) Name for the published map frame.
+
+* `use_approx_sync`: (bool, default: *false*) Whether to use approximate synchronization for
+stereo frames. Set to true if the left and right Cameras do not produce identical
+synchronized timestamps for a matching pair of frames.
+
+* `output_dir`: (string, default: *"clouds"*) Path where output is going to be stored.
+
+* `frustum_near_plane_dist`: (double, default: *0.1*) Frustum culling near plane distance
+from camera center.
+
+* `frustum_far_plane_dist`: (double, default: *1000.0*) Frustum culling far plane distance
+from camera center.
+
+* `voxel_leaf_size`: (double, default: *0*) Point cloud are downsampled using this voxel
+leaf size before being published.
+
+* `disp_calc_method`: (string, default: *"libelas"*) Method/library to compute disparity
+maps. Can be *opencv* or *libelas*.
+
+* `max_distance`: (double, default: *0*) Discard point triangulated beyond this value
+(0 means disabled).
+
+* `stereoscan_threshold`: (double, default: *0*) Points with distance below this value are
+considered a match during the fusion stage.
+
+* `fusion_heuristic`: (string, default: *"inverseDepthDistances"*) Heuristic used to fusion
+matched points. One of: *simpleMean*, *weigthDistances*, *inverseDepthDistances*.
+
+* `local_area_size`: (int, default: *1*) Number of previous keyframe that are considered to
+search for matches.
+
+* `libelas_ipol_gap`: (int, default: *0*) Libelas library parameter (interpolate gaps
+smaller than this value).
+
+* `add_corners`: (bool, default: *false*) Libelas library parameter (add support points at
+image corners with nearest neighbor disparities).
+
+* `refinement_linear_threshold`: (double, default: *0*) Keyframe pose updates with 3d
+distance greater than this value are refined in the refinement thread.
+
+* `refinement_angular_threshold`: (double, default: *0*) Keyframe pose updates with angular
+distance greater than this value are refined in the refinement thread.
 
 ## Published topics
 
