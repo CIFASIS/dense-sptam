@@ -193,7 +193,7 @@ usage: ./devel/lib/dense/kitti_dmap_generator [calibration] [configuration] [pos
 
     calibration: input file with camera calibration parameters.
     configuration: input file with configuration parameters.
-    poses: intput file containing pose info, outputted from dense node run.
+    poses: input file containing pose info, outputted from dense node run.
     region_size: project this number of closest keyframes (previous and next) for each depth map.
     pcd_path: output folder where depth maps (`.dmap`) are going to be stored.
 
