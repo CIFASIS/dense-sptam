@@ -162,7 +162,7 @@ usage: ./devel/lib/dense/kitti_ground_truth [in-calib] [in-poses] [in-velo] [out
     in-poses: input file from KITTI ground truth containing the list of poses.
     in-velo: input folder from KITTI ground truth containing the velodyne binary clouds.
     out-cloud: output folder where PCD point cloud are going to be stored.
-    min-distance: omit points that are farther than this distance threshold.
+    min-distance: omit points that are closer than this distance threshold.
 
 $ ./devel/lib/dense/kitti_ground_truth \
     path/to/kitti/sequence/velodyne/calib.txt \
