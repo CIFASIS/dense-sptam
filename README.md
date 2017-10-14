@@ -171,11 +171,16 @@ $ ./devel/lib/dense/kitti_ground_truth \
     path/to/output/pcd/ \
     0.0
 
-TODO
+    Processing: path/to/kitti/sequence/velodyne/raw/000000.bin
+        saved in: path/to/output/pcd/000000.pcd
+    [...]
+    Processing: path/to/kitti/sequence/velodyne/raw/004540.bin
+        saved in: path/to/output/pcd/004540.pcd
+    TOTAL: 4541 clouds
 ```
 
 Note there's a float parameter named `min_distance` at the end, which allows
-to filter (omit) those points that are beyond this distance threshold.
+to filter (omit) those points that are closer than this distance threshold.
 This is useful as the velodyne laser may contain noisy points in the first meters,
 which we may want to avoid.
 
