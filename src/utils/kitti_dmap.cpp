@@ -156,8 +156,11 @@ int generate_depth_maps_kitti_global(const char *in_poses_path, const char *in_c
 			cv::Point3d cvpos(pos(0), pos(1), pos(2));
 
 			cv::Point2i pixel = camera->getStereoModel().left().project3dToPixel(cvpos);
-			if (pixel.y < 0 || pixel.x < 0 || image.rows < pixel.y || image.cols < pixel.x)
+
+			/* Discard points outside image boundaries */
+			if (pixel.y < 0 || pixel.x < 0 || image.rows <= pixel.y || image.cols <= pixel.x)
 				continue;
+
 			if (image.at<float>(pixel.y, pixel.x) == -1 || image.at<float>(pixel.y, pixel.x) > pos(2))
 				image.at<float>(pixel.y, pixel.x) = pos(2);
 		}
@@ -241,8 +244,11 @@ int generate_depth_maps_euroc_global(const char *in_poses_path, const char *in_t
 			cv::Point3d cvpos(pos(0), pos(1), pos(2));
 
 			cv::Point2i pixel = camera->getStereoModel().left().project3dToPixel(cvpos);
-			if (pixel.y < 0 || pixel.x < 0 || image.rows < pixel.y || image.cols < pixel.x)
+
+			/* Discard points outside image boundaries */
+			if (pixel.y < 0 || pixel.x < 0 || image.rows <= pixel.y || image.cols <= pixel.x)
 				continue;
+
 			if (image.at<float>(pixel.y, pixel.x) == -1 || image.at<float>(pixel.y, pixel.x) > pos(2))
 				image.at<float>(pixel.y, pixel.x) = pos(2);
 		}
