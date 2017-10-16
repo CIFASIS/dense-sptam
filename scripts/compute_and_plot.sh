@@ -17,7 +17,7 @@ dir_gt="$2"
 sequence="$3"
 
 echo "Erasing previous computations..."
-rm depth_info/*.npy
+rm -f depth_info/*.npy
 
 echo "Computing statistics..."
 python depth_map.py $dir_dense $dir_gt --show_time 1 --min_dist 5.0
