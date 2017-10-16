@@ -16,6 +16,15 @@ dir_dense="$1"
 dir_gt="$2"
 sequence="$3"
 
+usage () {
+	echo "usage: $0 <dense-dmap-dir> <gt-dmap-dir> <sequence-name>" >&2
+	exit 1
+}
+
+if [ $# -lt 3 ]; then
+	usage
+fi
+
 echo "Erasing previous computations..."
 rm -f depth_info/*.npy
 
