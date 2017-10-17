@@ -248,15 +248,63 @@ Optional arguments `--clim_low` and `--clim_high` to specify the plotter clim bo
 $ python scripts/plot_depth_map.py ${depth_map}.dmap --clim_low -3 --clim_high 50
 ```
 
-### Process and compare depth maps directories
+### Profiling
+
+Every dense node run will output useful log data to a file. This file is
+located at `output_dir/dense_node.log`.
+
+Using the following script, the log data can be processed to get human-readable
+information:
+
+```
+$ python src/dense-sptam/scripts/profiling.py --help
+usage: profiling.py [-h] [--hypothesis HYPOTHESIS] [--validated VALIDATED]
+                    [--show]
+                    dense_log sequence_name
+
+positional arguments:
+  dense_log             dense node log
+  sequence_name         sequence name
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --hypothesis HYPOTHESIS
+                        set hypothesis points number
+  --validated VALIDATED
+                        set validated points number
+  --show                show images instead of saving
+
+$ python scripts/profiling.py /path/to/dense_node.log $my_sequence_name
+
+  Keyframes processed per phase
+      Disparity:            243
+      Heuristic/fusion:     242
+      Refinement:           214
+
+  Mean time per phase (ms)
+      Disparity:            159.50617284
+      Heuristic/fusion:     75.5082644628
+      Refinement:           4.41588785047
+
+  Heuristic results (points)
+      Total points created: 29395295
+      Fusions/matches:      12049853
+      Outliers:             3828178
+```
+
+The above script can generate and show/save plots of the collected data. The `--hypothesis`
+and `--validated` options allow to set the respective point cloud size values to be shown
+in the different plots. See `compute_and_plot.sh` script for more info about this feature.
+
+### Altogether!
 
 This script accounts for all computation and plotting at the same time:
 
 ```
-$ python scripts/compute_and_plot.py
-```
+$ scripts/compute_and_plot.sh
+  usage: scripts/compute_and_plot.sh <dense-log-file> <dense-pcd-dir> <dense-dmap-dir> <gt-dmap-dir> <sequence-name>
 
-You should edit it with your paths and sequence to make it work. This script basically calls the following ones..
+```
 
 The following scripts are used to process two sets of depth maps, generated
 from DENSE node output and ground truth. Arguments are the paths to directories
@@ -272,32 +320,6 @@ Generated output consists in several npy files, used by the following script to 
 
 ```
 $ python scripts/plot_dmap_error.py ${sequence_name}
-```
-
-### Profiling
-
-Every dense node run will output useful log data to a file. This file is
-located at `output_dir/dense_node.log`.
-
-Using the following script, the log data can be processed to get human-readable
-information:
-
-```
-$ python scripts/profiling.py /path/to/dense_node.log 
-
-    Keyframes processed per phase
-        Disparity:           244
-        Heuristic/fusion:    244
-        Refinement:           213
-
-    Mean time per phase (secs)
-        Disparity:           157.356557377
-        Heuristic/fusion:    69.393442623
-        Refinement:           3.17840375587
-
-    Heuristic results (points)
-        Fusions/matches:     20145818
-        Outliers:            4853236
 ```
 
 ## Examples of use
