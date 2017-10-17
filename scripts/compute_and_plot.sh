@@ -35,7 +35,7 @@ echo "Erasing previous computations..."
 rm -f depth_info/*.npy
 
 echo "Computing statistics..."
-python depth_map.py $dir_dense $dir_gt --show_time 1 --min_dist 5.0
+python depth_map.py $dir_dense_dmap $dir_gt_dmap --show_time 1 --min_dist 5.0
 
 echo "Plotting..."
 python plot_dmap_error.py $sequence
