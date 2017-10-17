@@ -351,7 +351,7 @@ Finally, let's process and plot the results, comparing them with the ground trut
 
 ```
 $ cd scripts/
-$ ./compute_and_plot.sh ~/.ros/dmaps/ path/to/kitti/ground_truth/dmaps/ kitti
+$ ./compute_and_plot.sh path/to/dense/dense_node.log path/to/dense/pcd/ path/to/dense/dmaps/ path/to/ground_truth/dmaps/ kitti
 ```
 
 This will generate 5 png files in the scripts directory with the names kitti{1-5}.png
@@ -378,7 +378,7 @@ always using left camera maps, so choose that as below.
 
 ```
 $ cd scripts/
-$ ./compute_and_plot.sh ~/.ros/dmaps/ path/to/tsukuba/ground_truth/dmaps/left/dmap/ tsukuba
+$ ./compute_and_plot.sh path/to/dense/dense_node.log path/to/dense/pcd/ path/to/dense/dmaps/ path/to/ground_truth/dmaps/ tsukuba
 ```
 
 This will generate 5 png files in the scripts directory with the names tsukuba{1-5}.png
