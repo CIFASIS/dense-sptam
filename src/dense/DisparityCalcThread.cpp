@@ -62,10 +62,10 @@ void DisparityCalcThread::computeCV()
 		if (dense_->disp_images_->push(disp_raw_img) < 0)
 			ROS_INFO("##### WARNING: Keyframe %u omitted, projectionThread busy! #####", raw_left_image->header.seq);
 
-			end_t = GetSeg();
+		end_t = GetSeg();
 
-			dense_->WriteToLog("disparity,%u,%f\n", raw_left_image->header.seq, end_t - start_t);
-			ROS_INFO("Disparity  seq = %u (%f secs)", raw_left_image->header.seq, end_t - start_t);
+		dense_->WriteToLog("disparity,%u,%f\n", raw_left_image->header.seq, end_t - start_t);
+		ROS_INFO("Disparity  seq = %u (%f secs)", raw_left_image->header.seq, end_t - start_t);
 
 #if 0 /* Save disparity images */
 		char filename[256];

@@ -89,8 +89,6 @@ void ProjectionThread::compute()
 			pose_left, dense_->parameters.stereoscan_threshold, match_mat, current_cloud);
 		}
 
-		log_data.time_t[1] = GetSeg();
-
 		filterDisp(disp_raw_img);
 		PointCloudPtr cloud = generateCloud(disp_raw_img, match_mat);
 		cameraToWorld(cloud, pose_left);
@@ -98,23 +96,21 @@ void ProjectionThread::compute()
 		/* Number of new created points */
 		log_data.new_points = cloud->size();
 
-		dense_->WriteToLog("stereoscan,%u,%f,%lu,%lu,%lu,%lu\n", entry->get_seq(),
-						   log_data.time_t[1] - log_data.time_t[0],
-						   log_data.new_points, log_data.match, log_data.unmatch, log_data.outlier);
-
 		*cloud += *current_cloud;
 
-		log_data.time_t[2] = GetSeg();
+		log_data.time_t[1] = GetSeg();
 
 		entry->lock();
 		entry->set_cloud(cloud);
 		dense_->point_clouds_->push_local_area(entry);
 		entry->unlock();
 
-		dense_->WriteToLog("projection,%u,%f\n", entry->get_seq(),
-		log_data.time_t[2] - log_data.time_t[1]);
-		ROS_INFO("Projected seq %u (size = %lu, time = %f)", entry->get_seq(),
-		cloud->size(), log_data.time_t[2] - log_data.time_t[0]);
+		dense_->WriteToLog("projection,%u,%f,%lu,%lu,%lu,%lu\n", entry->get_seq(),
+						   log_data.time_t[1] - log_data.time_t[0], log_data.new_points, log_data.match,
+						   log_data.unmatch, log_data.outlier);
+
+		ROS_INFO("Projected seq %u (size = %lu, time = %f)", entry->get_seq(), cloud->size(),
+				 log_data.time_t[1] - log_data.time_t[0]);
 	}
 }
 

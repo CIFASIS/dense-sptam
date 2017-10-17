@@ -29,7 +29,7 @@ private:
 
 	struct projection_log {
 		unsigned int new_points, match, unmatch, outlier, merged;
-		double time_t[3];
+		double time_t[2];
 	} log_data;
 
 	Dense *dense_;
