@@ -322,7 +322,7 @@ $ ./devel/lib/dense/kitti_dmap_generator \
     configuration_files/kitti.yaml \
     ~/.ros/clouds/poses.txt \
     30 \
-    ~/.ros/dmaps/
+    ~/.ros/clouds/
 ```
 
 Finally, let's process and plot the results, comparing them with the ground truth:
