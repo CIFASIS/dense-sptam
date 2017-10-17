@@ -195,16 +195,56 @@ usage: ./devel/lib/dense/kitti_dmap_generator [calibration] [configuration] [pos
     configuration: input file with configuration parameters.
     poses: input file containing pose info, outputted from dense node run.
     region_size: project this number of closest keyframes (previous and next) for each depth map.
-    pcd_path: output folder where depth maps (`.dmap`) are going to be stored.
+    pcd_path: input/output folder where pcd files are read from and depth maps are going to be stored.
 
 $ ./devel/lib/dense/kitti_dmap_generator \
     configuration_files/kitti_cam_04_to_12.yaml \
     configuration_files/kitti.yaml \
     dense/node/output/poses.txt \
     30 \
-    path/to/output/dmap/
+    dense/node/output/pcd
 
-TODO
+    Poses path: dense/node/output/poses.txt
+    pcd directory path: dense/node/output/pcd
+    frustumNearPlaneDist: 0.0001
+    frustumFarPlaneDist: 50
+    voxelLeafSize: 0.1
+    disp_calc_method: libelas
+    max_distance: 20
+    stereoscan_threshold: 0.25
+    local_area_size: 10
+    libelas_ipol_gap: 1000
+    add_corners: 0
+    refinement_linear_threshold: 0.01
+    refinement_angular_threshold: 0.001
+    region_size: 30
+    image_width: 1226
+    image_height: 370
+    camera_matrix: [707.0912, 0, 601.8873;
+     0, 707.0912, 183.1104;
+     0, 0, 1]
+    baseline: 0.537151
+    rotation: [1, 0, 0;
+     0, 1, 0;
+     0, 0, 1]
+    projection: [707.0912, 0, 601.8873, 0;
+     0, 707.0912, 183.1104, 0;
+     0, 0, 1, 0]
+    rotation: [1, 0, 0;
+     0, 1, 0;
+     0, 0, 1]
+    projection: [707.0912, 0, 601.8873, -379.8144999943973;
+     0, 707.0912, 183.1104, 0;
+     0, 0, 1, 0]
+    Processing: datasets/kitti/04/velodyne/pcd//000000.pcd
+    position: -5.55111e-17
+               0
+     2.22045e-16
+    Processing: datasets/kitti/04/velodyne/pcd//000001.pcd
+    position: 0.00128913
+    -0.0182162
+       1.31064
+    [...]
 ```
 
 ### Plot/show depth maps
