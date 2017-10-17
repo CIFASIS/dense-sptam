@@ -1,6 +1,7 @@
 CMakeLists.txt.user
 *.swp
 
-# Profiling scripts temporary files
+# Profiling scripts temporary/output files
 depth_info/
 scripts/depth_map_utilities.pyc
+scripts/*.png
