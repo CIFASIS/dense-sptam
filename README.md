@@ -13,7 +13,7 @@ Create a dir for your catkin workspace and clone `dense-sptam` package:
 ```
 $ mkdir -p catkin/src
 $ cd catkin/src
-$ git clone git@github.com:adalessandro/dense-sptam.git
+$ git clone git@github.com:cifasis/dense-sptam.git
 $ cd dense-sptam
 ```
 
@@ -37,7 +37,7 @@ the rest of the packages and build!
 $ catkin init
 $ cd src/
 $ git clone git@github.com:lrse/ros-utils.git
-$ git clone git@github.com:adalessandro/sptam.git
+$ git clone git@github.com:cifasis/sptam.git
 $ cd ../
 $ catkin build --cmake-args \
 	-DSHOW_TRACKED_FRAMES=OFF -DSHOW_PROFILING=OFF -DCMAKE_BUILD_TYPE=Release -DUSE_LOOPCLOSURE=OFF
