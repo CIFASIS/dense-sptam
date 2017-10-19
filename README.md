@@ -38,6 +38,7 @@ $ catkin init
 $ cd src/
 $ git clone git@github.com:lrse/ros-utils.git
 $ git clone git@github.com:cifasis/sptam.git
+$ git checkout origin/adalessandro/dense-sptam -b adalessandro/dense-sptam
 $ cd ../
 $ catkin build --cmake-args \
 	-DSHOW_TRACKED_FRAMES=OFF -DSHOW_PROFILING=OFF -DCMAKE_BUILD_TYPE=Release -DUSE_LOOPCLOSURE=OFF
