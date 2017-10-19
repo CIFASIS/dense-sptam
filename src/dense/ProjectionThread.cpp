@@ -287,7 +287,7 @@ Eigen::Vector3d fuseInverseDepth(CameraPose::Ptr current_pos, Eigen::Vector3d cu
 	Eigen::Vector3d current_pt_camera = current_pos->ToCamera( current_pt );
 	Eigen::Vector3d prev_pt_camera = prev_pos->ToCamera( prev_pt );
 
-	/* Compute the z component of the fusion point using inverse-depth representation */
+	/* Compute the euclidean distance of the fusion point using inverse-depth representation */
 	double inverse_depth_current = 1.0 / current_pt_camera.norm();
 	double inverse_depth_prev = 1.0 / prev_pt_camera.norm();
 
