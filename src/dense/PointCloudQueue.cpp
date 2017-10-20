@@ -66,7 +66,7 @@ int PointCloudEntry::load_cloud(const char *output_dir)
 	PointCloudPtr cloud(new PointCloud);
 	char filename[128];
 
-	sprintf(filename, "%s/cloud_%06u.pcd", output_dir, this->get_seq());
+	sprintf(filename, "%s/%06u.pcd", output_dir, this->get_seq());
 	if (pcl::io::loadPCDFile(filename, *cloud) < 0)
 		return -1;
 
