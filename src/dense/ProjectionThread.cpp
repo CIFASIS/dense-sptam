@@ -31,6 +31,7 @@
 #include "ProjectionThread.hpp"
 #include "dense.hpp"
 #include "../utils/Time.hpp"
+#include "../utils/eigen_alignment.hpp"
 
 Eigen::Vector3d fuseSimpleMean(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
 							   CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt);
@@ -91,7 +92,7 @@ void ProjectionThread::compute()
 		entry->unlock();
 
 		CameraPose::Ptr pose_right =
-			boost::make_shared<CameraPose>(dense_->camera_->ComputeRightCameraPose(*pose_left));
+      std::make_shared_aligned<CameraPose>(dense_->camera_->ComputeRightCameraPose(*pose_left));
 
 		FrustumCulling frustum_left(pose_left->get_position(), pose_left->get_orientation_matrix(),
 									dense_->camera_->GetFOV_LH(), dense_->camera_->GetFOV_LV(),

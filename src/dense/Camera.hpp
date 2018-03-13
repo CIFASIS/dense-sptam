@@ -84,7 +84,7 @@ class CameraPose
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-	typedef boost::shared_ptr<CameraPose> Ptr;
+  typedef std::shared_ptr<CameraPose> Ptr;
 	typedef Eigen::Vector3d Position;
 	typedef Eigen::Quaterniond Orientation;
 	typedef Eigen::Matrix3d OrientationMatrix;
