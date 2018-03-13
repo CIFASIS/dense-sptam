@@ -45,7 +45,7 @@ class ProjectionThread
 {
 
 public:
-
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	ProjectionThread(Dense *dense);
 
 	inline void WaitUntilFinished()

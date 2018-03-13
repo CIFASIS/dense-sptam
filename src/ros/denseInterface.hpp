@@ -46,6 +46,7 @@ namespace dense
 	class denseInterface
 	{
 	public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 		denseInterface(ros::NodeHandle& nh, ros::NodeHandle& nhp);
 		~denseInterface();
 

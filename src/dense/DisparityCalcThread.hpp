@@ -29,6 +29,8 @@
 
 #include <thread>
 #include <sensor_msgs/CameraInfo.h>
+#include <eigen3/Eigen/Geometry>
+
 
 #include "DispImageQueue.hpp"
 #include "ImageQueue.hpp"
@@ -42,7 +44,7 @@ class DisparityCalcThread
 {
 
 public:
-
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	DisparityCalcThread(Dense *dense);
 	~DisparityCalcThread();
 

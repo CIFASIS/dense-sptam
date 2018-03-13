@@ -53,7 +53,7 @@ class Point : public pcl::PointXYZRGB
 {
 
 public:
-
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	Point() : pcl::PointXYZRGB()
 	{ probability = POINT_NEW_PROBABILITY; }
 
@@ -100,7 +100,7 @@ class PointCloudEntry
 {
 
 public:
-
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	typedef enum EntryState_e {
 		LOCAL_MAP,
 		GLOBAL_MAP_RAM,

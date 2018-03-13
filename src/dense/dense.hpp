@@ -58,6 +58,7 @@ struct dense_parameters {
 class Dense
 {
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	Dense(const sensor_msgs::CameraInfoConstPtr& left_info,
 		  const sensor_msgs::CameraInfoConstPtr& right_info,
 		  struct dense_parameters *parameters);

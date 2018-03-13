@@ -40,7 +40,7 @@ class Camera
 {
 
 public:
-
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	typedef boost::shared_ptr<Camera> Ptr;
 
 	Camera(const sensor_msgs::CameraInfoConstPtr& left_info,
@@ -83,7 +83,7 @@ class CameraPose
 {
 
 public:
-
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	typedef boost::shared_ptr<CameraPose> Ptr;
 	typedef Eigen::Vector3d Position;
 	typedef Eigen::Quaterniond Orientation;
