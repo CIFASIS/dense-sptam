@@ -88,7 +88,7 @@ PointCloudEntry::Ptr PointCloudQueue::getEntry(uint32_t seq, bool force)
 	PointCloudEntry::Ptr& ret = entries_[seq];
 
 	if (force && !ret)
-		ret = boost::make_shared<PointCloudEntry>(seq);
+		ret = std::make_shared<PointCloudEntry>(seq);
 
 	return ret;
 }

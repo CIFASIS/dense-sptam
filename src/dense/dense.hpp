@@ -85,6 +85,6 @@ private:
 	FILE *log_file_;
 };
 
-typedef boost::shared_ptr<Dense> DensePtr;
+typedef std::shared_ptr<Dense> DensePtr;
 
 #endif /* DENSE_H */

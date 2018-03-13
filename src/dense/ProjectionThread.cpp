@@ -84,7 +84,7 @@ void ProjectionThread::compute()
 		 * FIXME: Is it ok to just use the current_pose as the left camera pose?
 		 * Or should we be applying the robot to camera transform first? Like this:
 		 *   CameraPose::Ptr pose_left =
-		 *      boost::make_shared<CameraPose>(
+		 *      std::make_shared<CameraPose>(
 		 *          current_pose->applyTransform(entry->get_transform()));
 		 */
 		CameraPose::Ptr pose_left = update_pose;

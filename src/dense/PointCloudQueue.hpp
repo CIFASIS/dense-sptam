@@ -94,7 +94,7 @@ typedef pcl::PointCloud<Point> PointCloud;
 typedef PointCloud::Ptr PointCloudPtr;
 
 typedef cv::Mat_<cv::Vec3f> MatVec3f;
-typedef boost::shared_ptr<MatVec3f> MatVec3fPtr;
+typedef std::shared_ptr<MatVec3f> MatVec3fPtr;
 
 class PointCloudEntry
 {
@@ -107,7 +107,7 @@ public:
 		GLOBAL_MAP_SWAP
 	} EntryState;
 
-	typedef boost::shared_ptr<PointCloudEntry> Ptr;
+	typedef std::shared_ptr<PointCloudEntry> Ptr;
 
 	PointCloudEntry(uint32_t seq);
 	~PointCloudEntry();

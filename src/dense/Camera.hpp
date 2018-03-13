@@ -41,7 +41,7 @@ class Camera
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-	typedef boost::shared_ptr<Camera> Ptr;
+	typedef std::shared_ptr<Camera> Ptr;
 
 	Camera(const sensor_msgs::CameraInfoConstPtr& left_info,
 		   const sensor_msgs::CameraInfoConstPtr& right_info,
@@ -90,7 +90,7 @@ public:
 	typedef Eigen::Matrix3d OrientationMatrix;
 
 	typedef tf2::Transform Transform;
-	typedef boost::shared_ptr<Transform> TransformPtr;
+	typedef std::shared_ptr<Transform> TransformPtr;
 
 	inline Position get_position()
 	{ return position_; }

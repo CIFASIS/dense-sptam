@@ -35,10 +35,10 @@
 #include "ImageQueue.hpp"
 
 typedef cv::Mat_<float> DispImage;
-typedef boost::shared_ptr<DispImage> DispImagePtr;
+typedef std::shared_ptr<DispImage> DispImagePtr;
 
 typedef std::pair<ImagePtr, DispImagePtr> DispRawImage;
-typedef boost::shared_ptr<DispRawImage> DispRawImagePtr;
+typedef std::shared_ptr<DispRawImage> DispRawImagePtr;
 
 class DispImageQueue
 {

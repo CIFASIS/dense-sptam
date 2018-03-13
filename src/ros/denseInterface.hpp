@@ -74,13 +74,13 @@ namespace dense
 		typedef message_filters::sync_policies::ExactTime
 			<sensor_msgs::Image, sensor_msgs::CameraInfo, sensor_msgs::Image, sensor_msgs::CameraInfo> ExactPolicy;
 		typedef message_filters::Synchronizer<ExactPolicy> ExactSync;
-		boost::shared_ptr<ExactSync> exact_sync_;
+		std::shared_ptr<ExactSync> exact_sync_;
 
 		/* Approximate time image topic synchronizer */
 		typedef message_filters::sync_policies::ApproximateTime
 			<sensor_msgs::Image, sensor_msgs::CameraInfo, sensor_msgs::Image, sensor_msgs::CameraInfo> ApproximatePolicy;
 		typedef message_filters::Synchronizer<ApproximatePolicy> ApproximateSync;
-		boost::shared_ptr<ApproximateSync> approximate_sync_;
+		std::shared_ptr<ApproximateSync> approximate_sync_;
 
 		/* Transform */
 		tf2_ros::Buffer tfBuffer_;

@@ -36,7 +36,7 @@ typedef sensor_msgs::Image Image;
 typedef boost::shared_ptr<Image> ImagePtr;
 
 typedef std::pair<ImagePtr, ImagePtr> ImagePair;
-typedef boost::shared_ptr<ImagePair> ImagePairPtr;
+typedef std::shared_ptr<ImagePair> ImagePairPtr;
 
 class ImageQueue
 {

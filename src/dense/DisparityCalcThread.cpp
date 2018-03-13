@@ -82,8 +82,8 @@ void DisparityCalcThread::computeCV()
 
 		stereo->compute(image_left, image_right, dmat);
 
-		disp_img = boost::make_shared<DispImage>(dmat);
-		disp_raw_img = boost::make_shared<DispRawImage>(raw_left_image, disp_img);
+		disp_img = std::make_shared<DispImage>(dmat);
+		disp_raw_img = std::make_shared<DispRawImage>(raw_left_image, disp_img);
 
 		if (dense_->disp_images_->push(disp_raw_img) < 0)
 			ROS_INFO("##### WARNING: Keyframe %u omitted, projectionThread busy! #####", raw_left_image->header.seq);
@@ -139,8 +139,8 @@ void DisparityCalcThread::computeELAS()
 
 		elas->process(image_left.data, image_right.data, D1_data, D2_data, dims);
 
-		disp_img = boost::make_shared<DispImage>(dmat);
-		disp_raw_img = boost::make_shared<DispRawImage>(raw_left_image, disp_img);
+		disp_img = std::make_shared<DispImage>(dmat);
+		disp_raw_img = std::make_shared<DispRawImage>(raw_left_image, disp_img);
 		if (dense_->disp_images_->push(disp_raw_img) < 0)
 			ROS_INFO("##### WARNING: Keyframe %u omitted, projectionThread busy! #####", raw_left_image->header.seq);
 

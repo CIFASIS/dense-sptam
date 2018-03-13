@@ -158,10 +158,10 @@ void dense::denseInterface::cb_images(const sensor_msgs::ImageConstPtr& img_msg_
 	PointCloudEntry::Ptr entry = dense_->point_clouds_->getEntry(img_msg_left->header.seq);
 	entry->set_transform(base_to_camera);
 
-	ImagePtr img_msg_left_copy = boost::make_shared<Image>(*img_msg_left);
-	ImagePtr img_msg_right_copy = boost::make_shared<Image>(*img_msg_right);
+  ImagePtr img_msg_left_copy = boost::make_shared<Image>(*img_msg_left);
+  ImagePtr img_msg_right_copy = boost::make_shared<Image>(*img_msg_right);
 
-	ImagePairPtr new_img_pair = boost::make_shared<ImagePair>(img_msg_left_copy, img_msg_right_copy);
+	ImagePairPtr new_img_pair = std::make_shared<ImagePair>(img_msg_left_copy, img_msg_right_copy);
 	if (dense_->raw_image_pairs_->push(new_img_pair) < 0)
 		ROS_INFO("##### WARNING: Keyframe %u omitted, too busy! #####", img_msg_left->header.seq);
 }
