@@ -12,6 +12,11 @@ import numpy as np
 import operator
 import os
 import pickle
+import pretty_boxplot as pretty_boxplot
+from colors import colors
+
+
+
 
 def utf8(data):
 	return unicode(data, 'utf-8')
@@ -200,7 +205,7 @@ assert(os.path.isfile(args.dense_log))
 logfile = open(args.dense_log, "r")
 
 task_count = [0] * TASK_LEN
-task_time = [0.0] * TASK_LEN
+task_time = [[] for i in range(TASK_LEN)]
 points = [0] * POINT_TYPE_LEN
 
 for line in logfile.readlines():
@@ -215,19 +220,25 @@ for line in logfile.readlines():
 
   if task == 'disparity':
     task_count[TASK_DISPARITY] += 1
-    task_time[TASK_DISPARITY] += time
+    task_time[TASK_DISPARITY] += [time]
   elif task == 'projection':
     task_count[TASK_PROJECTION] += 1
-    task_time[TASK_PROJECTION] += time
+    task_time[TASK_PROJECTION].append(time)
     points[POINT_TYPE_NEW] += int(data[3])
     points[POINT_TYPE_MATCH] += int(data[4])
     points[POINT_TYPE_UNMATCH] += int(data[5])
     points[POINT_TYPE_OUTLIER] += int(data[6])
   elif task == 'refinement':
     task_count[TASK_REFINEMENT] += 1
-    task_time[TASK_REFINEMENT] += time
+    task_time[TASK_REFINEMENT].append(time)
 
-task_time_mean = map(lambda (x, y): (y / x) * 1000, zip(task_count, task_time))
+
+task_time_sum = [[] for i in range(TASK_LEN)]
+task_time_sum[TASK_DISPARITY] = sum(task_time[TASK_DISPARITY])
+task_time_sum[TASK_PROJECTION] = sum(task_time[TASK_PROJECTION])
+task_time_sum[TASK_REFINEMENT] = sum(task_time[TASK_REFINEMENT])
+
+task_time_mean = map(lambda (x, y): (y / x) * 1000, zip(task_count, task_time_sum))
 
 print "Keyframes processed per phase"
 print "    Disparity:            " + str(task_count[TASK_DISPARITY])
@@ -257,21 +268,29 @@ phase_time_data = {
 
 plot_phase_time(phase_time_data)
 
+labels = [""] * TASK_LEN
+labels[TASK_DISPARITY] = 'Disparity'
+labels[TASK_PROJECTION] = 'Projection'
+labels[TASK_REFINEMENT] = 'Refinement'
+
+
+pretty_boxplot.boxplot(task_time, labels, colors, "asdf", "Time (ms)" )
+
 cloud_size_data = {
-	args.sequence_name: {
-		# Points that were created (triangulated) from a keyframe.
-		'created': points[POINT_TYPE_NEW],
-		# Points discarded as outliers.
-		'outliers': points[POINT_TYPE_OUTLIER],
-		# Final point cloud size (composed by hypothesis and validated points).
-		'total': int(args.hypothesis) + int(args.validated),
-		# Number of hypothesis in final point cloud.
-		'hypothesis': int(args.hypothesis),
-		# Number of hypothesis in final point cloud.
-		'validated': int(args.validated),
-		# Number of matches during the sequence, i.e. number of fusions.
-		'matches': points[POINT_TYPE_MATCH],
-	}
+  args.sequence_name: {
+    # Points that were created (triangulated) from a keyframe.
+    'created': points[POINT_TYPE_NEW],
+    # Points discarded as outliers.
+    'outliers': points[POINT_TYPE_OUTLIER],
+    # Final point cloud size (composed by hypothesis and validated points).
+    'total': int(args.hypothesis) + int(args.validated),
+    # Number of hypothesis in final point cloud.
+    'hypothesis': int(args.hypothesis),
+    # Number of hypothesis in final point cloud.
+    'validated': int(args.validated),
+    # Number of matches during the sequence, i.e. number of fusions.
+    'matches': points[POINT_TYPE_MATCH],
+  }
 }
 
 plot_cloud_size(cloud_size_data)
