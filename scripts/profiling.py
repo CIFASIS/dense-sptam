@@ -270,8 +270,8 @@ plot_phase_time(phase_time_data)
 
 labels = [""] * TASK_LEN
 labels[TASK_DISPARITY] = 'Disparity'
-labels[TASK_PROJECTION] = 'Map Fusion and Expansion'
-labels[TASK_REFINEMENT] = 'Refinement'
+labels[TASK_PROJECTION] = 'Map Fusion'
+labels[TASK_REFINEMENT] = 'Map Refinement'
 colors = [(0, 0.4470, 0.7410)] * TASK_LEN
 
 pretty_boxplot.boxplot(task_time, labels, colors, "", "Time (ms)" )
