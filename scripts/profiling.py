@@ -270,11 +270,11 @@ plot_phase_time(phase_time_data)
 
 labels = [""] * TASK_LEN
 labels[TASK_DISPARITY] = 'Disparity'
-labels[TASK_PROJECTION] = 'Projection'
+labels[TASK_PROJECTION] = 'Map Fusion and Expansion'
 labels[TASK_REFINEMENT] = 'Refinement'
+colors = [(0, 0.4470, 0.7410)] * TASK_LEN
 
-
-pretty_boxplot.boxplot(task_time, labels, colors, "asdf", "Time (ms)" )
+pretty_boxplot.boxplot(task_time, labels, colors, "", "Time (ms)" )
 
 cloud_size_data = {
   args.sequence_name: {
