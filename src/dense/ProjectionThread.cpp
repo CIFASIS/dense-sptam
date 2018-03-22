@@ -34,11 +34,11 @@
 #include "../utils/eigen_alignment.hpp"
 
 Eigen::Vector3d fuseSimpleMean(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
-							   CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt);
+                 CameraPose::Ptr prev_pos, Point prev_point);
 Eigen::Vector3d fuseWeigthDistances(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
-									CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt);
+                  CameraPose::Ptr prev_pos, Point prev_point);
 Eigen::Vector3d fuseInverseDepth(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
-								 CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt);
+                 CameraPose::Ptr prev_pos, Point prev_point);
 
 ProjectionThread::ProjectionThread(Dense *dense)
   : dense_(dense)
@@ -246,15 +246,20 @@ enum stereoscan_status {
 };
 
 Eigen::Vector3d fuseSimpleMean(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
-							   CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt)
+                 CameraPose::Ptr prev_pos, Point prev_point)
 {
+
+  Eigen::Vector3d prev_pt = prev_point.asEigen();
 	return (prev_pt + current_pt) / 2.0;
 }
 
 
 Eigen::Vector3d fuseWeigthDistances(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
-									CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt)
+                  CameraPose::Ptr prev_pos, Point prev_point)
 {
+
+  Eigen::Vector3d prev_pt = prev_point.asEigen();
+
 	double dist_near, dist_far, alpha;
 	Eigen::Vector3d pt_near, pt_far;
 
@@ -282,8 +287,10 @@ Eigen::Vector3d fuseWeigthDistances(CameraPose::Ptr current_pos, Eigen::Vector3d
 }
 
 Eigen::Vector3d fuseInverseDepth(CameraPose::Ptr current_pos, Eigen::Vector3d current_pt,
-								 CameraPose::Ptr prev_pos, Eigen::Vector3d prev_pt)
+                 CameraPose::Ptr prev_pos, Point prev_point)
 {
+
+  Eigen::Vector3d prev_pt = prev_point.asEigen();
 	/* Transform current and prev poitns to camera coordinate system */
 	Eigen::Vector3d current_pt_camera = current_pos->ToCamera( current_pt );
 	Eigen::Vector3d prev_pt_camera = prev_pos->ToCamera( prev_pt );
@@ -293,8 +300,16 @@ Eigen::Vector3d fuseInverseDepth(CameraPose::Ptr current_pos, Eigen::Vector3d cu
 	double inverse_depth_prev = 1.0 / prev_pt_camera.norm();
 
 	/* fuse inverse depths */
-	double depth_fusion = (inverse_depth_current + inverse_depth_prev) / 2.0;
-
+  double depth_fusion;
+  int fusionCounter = prev_point.getFusionCounter();
+  if (fusionCounter == 0) // this is the first time that the point is going to be fused
+  {
+    depth_fusion = (inverse_depth_current + inverse_depth_prev) / 2.0;
+  }
+  else {
+    // pt_fused = pt_prev * n/(n+1) + (1/n+1) * pt_current
+    depth_fusion = inverse_depth_prev * (1.0 * fusionCounter / (fusionCounter + 1)) + (1.0 / (fusionCounter + 1)) * inverse_depth_current;
+  }
 	/* Compute unit vector of current camera */
 	Eigen::Vector3d unit_vector_pt = current_pt_camera / current_pt_camera.norm();
 
@@ -358,12 +373,13 @@ void ProjectionThread::doStereoscan(PointCloudEntry::Ptr prev_entry, DispImagePt
 		/* StereoScan part */
 		if (cv::norm(new_pt_cv - prev_pt) < stereoscan_threshold) {
 			CameraPose::Ptr prev_pos = prev_entry->get_current_pos();
-			Eigen::Vector3d new_pt_eigen = current_pos->ToWorld(CVToEigen(new_pt_cv));
+      Eigen::Vector3d new_pt_eigen = current_pos->ToWorld(CVToEigen(new_pt_cv));
 
 			if (fusionHeuristic)
-				it.fromEigen(fusionHeuristic(current_pos, new_pt_eigen, prev_pos, it.asEigen()));
+        it.fromEigen(fusionHeuristic(current_pos, new_pt_eigen, prev_pos, it));
 
 			it.validate();
+      it.increaseFusionCounter();
 
 			current_cloud->push_back(it);
 			/* Mark pixel as matched - Don't triangulate a new point */

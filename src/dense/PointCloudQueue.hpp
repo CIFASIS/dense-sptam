@@ -55,7 +55,7 @@ class Point : public pcl::PointXYZRGB
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	Point() : pcl::PointXYZRGB()
-	{ probability = POINT_NEW_PROBABILITY; }
+  { probability = POINT_NEW_PROBABILITY; fusion_counter = 0;} //fusion_counter start with 0 when the points is created
 
 	inline cv::Point3d asCV(void)
 	{ return cv::Point3d(this->x, this->y, this->z); }
@@ -78,7 +78,16 @@ public:
 	inline bool isOutlier()
 	{ return probability < POINT_OUTLIER_PROBABILITY; }
 
+  inline void increaseFusionCounter() {
+    fusion_counter++;
+  }
+
+  inline int getFusionCounter() {
+    return fusion_counter;
+  }
+
 	float probability;
+  int fusion_counter;
 
 };
 
