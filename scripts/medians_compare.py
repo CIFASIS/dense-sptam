@@ -81,10 +81,10 @@ def main():
   plt.plot(bins_extended, medians2_extended, label=args.label2, marker="*")
   plt.xlabel("Distance to the camera (depth, m)")
   plt.ylabel("Median error (m)")
+  plt.xticks(np.arange(min(bins_extended), max(bins_extended)+1, 5.0))
   plt.legend(loc=2)
-  plt.savefig("medians_comparison.png")
-  print "Saved medians_comparison.png"
-
+  plt.savefig("medians_comparison.pdf", bbox_inches='tight')
+  print "Saved medians_comparison.pdf"
 
 
 if __name__ == "__main__":
