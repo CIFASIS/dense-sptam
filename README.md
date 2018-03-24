@@ -248,6 +248,25 @@ $ ./devel/lib/dense/kitti_dmap_generator \
     [...]
 ```
 
+### Generate depth maps (`.dmap`) from Tsukuba ground-truth
+
+Generate one depth map (`.dmap`) for only one frame in tsukuba:
+
+```
+usage: /path/to/tsukuba_ground_truth {color|depth} [in-file] [out-file]
+```
+
+Example:
+
+```
+/path/to/tsukuba_ground_truth depth /path/to/tsukuba_depth_L_00001.xml /path/to/tsukuba_depth_L_00001.dmap
+```
+
+To proccess the whole sequence, run in a terminal:
+```
+for i in $(ls /path/to/depth_maps/left/*.xml); do /path/to/tsukuba_ground_truth depth $i $i.dmap; done
+```
+
 ### Plot/show depth maps
 
 Show coloured depth map:
