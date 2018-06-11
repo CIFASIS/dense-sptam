@@ -1,4 +1,65 @@
 # dense-sptam ROS package
+Dense S-PTAM is an extension of the stereo SLAM system [S-PTAM](https://github.com/lrse/sptam). Dense S-PTAM allows to reconstruct a complete 3D point cloud of the environment in real-time using as input the poses estimated by S-PTAM and the disparity maps computed from the stereo images. To compute the disparity the [LIBELAS library](http://www.cvlibs.net/software/libelas/) is used.
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=xZSscfjzV90
+" target="_blank"><img src="http://img.youtube.com/vi/xZSscfjzV90/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="560" height="315" border="0" /></a>  
+(Click the image to redirect to Dense S-PTAM video Online)
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=yPAoFu_LhhA
+" target="_blank"><img src="http://img.youtube.com/vi/yPAoFu_LhhA/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="560" height="315" border="0" /></a>  
+(Click the image to redirect to Dense S-PTAM video Offline)
+
+## Related Publications:
+
+[1] Pire, Taihú; Baravalle, Rodrigo; D'Alessandro, Ariel; Civera, Javier. Real-time and Locally Dense Stereo SLAM. In: Journal Robotica. ISSN: 0263-5747. (Article in press)
+
+[2] D'Alessandro, Ariel; Pire, Taihú; Baravalle, Rodrigo. Hacia una densificación de sistemas SLAM dispersos basados en visión estéreo. In Actas de las IX Jornadas Argentinas de Robótica 2017. pp. 110–115. Facultad Regional Córdoba de la Universidad Tecnológica Nacional. 15-17 de Noviembre, Córdoba, Argentina.
+
+
+# License
+
+Dense S-PTAM is released under GPLv3 license.
+
+For a closed-source version of Dense S-PTAM for commercial purposes, please contact the authors.
+
+If you use Dense S-PTAM in an academic work, please cite:
+
+@article{pire2018dense,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  title = {{Real-time and Locally Dense Stereo SLAM}},  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  author = {Pire, Taih{\\'u} and Fischer, Thomas and Castro, Gast{\\'o}n and De Crist{\\'o}foris, Pablo and Civera, Javier and Jacobo Berlles, Julio},  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  journal = {Journal Robotica},    
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  year = {2018},  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  issn = {0263-5747},  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  doi = {}  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  note = {Article in press}  
+}
+
+@inproceedings{pire2015sptam,  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  title={{Stereo Parallel Tracking and Mapping for robot localization}},  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  author={Pire, Taih{\\'u} and Fischer, Thomas and Civera, Javier and De Crist{\\'o}foris, Pablo and Jacobo berlles, Julio},  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  booktitle={Proc. of the International Conference on Intelligent Robots and Systems (IROS)},   
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  pages = {1373--1378},  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  year={2015},  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  month = {September},  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  doi = {10.1109/IROS.2015.7353546}  
+ }
+
 
 ## Quick start
 
