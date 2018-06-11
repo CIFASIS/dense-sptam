@@ -11,11 +11,15 @@ alt="IMAGE ALT TEXT HERE" width="560" height="315" border="0" /></a>
 alt="IMAGE ALT TEXT HERE" width="560" height="315" border="0" /></a>  
 (Click the image to redirect to Dense S-PTAM video Offline)
 
-## Related Publications:
+## Related Publications
 
-[1] Pire, Taihú; Baravalle, Rodrigo; D'Alessandro, Ariel; Civera, Javier. Real-time and Locally Dense Stereo SLAM. In: Journal Robotica. ISSN: 0263-5747. (Article in press)
+[1] Taihú Pire, Rodrigo Baravalle, Ariel D'Alessandro and Civera, Javier.
+**Real-time and Locally Dense Stereo SLAM**
+Journal Robotica, 2018. (Article in press).
 
-[2] D'Alessandro, Ariel; Pire, Taihú; Baravalle, Rodrigo. Hacia una densificación de sistemas SLAM dispersos basados en visión estéreo. In Actas de las IX Jornadas Argentinas de Robótica 2017. pp. 110–115. Facultad Regional Córdoba de la Universidad Tecnológica Nacional. 15-17 de Noviembre, Córdoba, Argentina.
+[2] Ariel D'Alessandro, Taihú Pire, Rodrigo Baravalle.
+**Hacia una densificación de sistemas SLAM dispersos basados en visión estéreo**
+Actas de las IX Jornadas Argentinas de Robótica, Córdoba, Argentina, 2017.
 
 ## Table of Contents
   - [License](#license)
@@ -36,8 +40,8 @@ alt="IMAGE ALT TEXT HERE" width="560" height="315" border="0" /></a>
     - [Profiling](#profiling)
     - [Altogether](#altogether)
   - [Examples of use](#examples-of-use)
-    - [Dataset KITTI - sequence 04](#dataset-kitti-sequence-04)
-    - [Dataset TSUKUBA - sequence daylight](#dataset-tsukuba-sequence-daylight)
+    - [Dataset KITTI - sequence 04](#dataset-kitti---sequence-04)
+    - [Dataset TSUKUBA - sequence daylight](#dataset-tsukuba---sequence-daylight)
 
 # License
 
