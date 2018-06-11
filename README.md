@@ -22,7 +22,7 @@ alt="IMAGE ALT TEXT HERE" width="560" height="315" border="0" /></a>
   - [Disclaimer](#disclaimer)
   - [Quick start](#quick-start)
     - [Docker](#docker)
-    - [Run it!](#run-it!)
+    - [Run it](#run-it)
     - [Other docker magic](#other-docker-magic)
   - [dense-sptam ROS node](#dense-sptam-ros-node)
     - [Configuration parameters](#configuration-parameters)
@@ -34,7 +34,7 @@ alt="IMAGE ALT TEXT HERE" width="560" height="315" border="0" /></a>
     - [Generate depth maps (`.dmap`) from Tsukuba ground-truth](#generate-depth-maps-(`.dmap`)-from-tsukuba-ground-truth)
     - [Plot/show depth maps](#plot/show-depth-maps)
     - [Profiling](#profiling)
-    - [Altogether!](#altogether!)
+    - [Altogether](#altogether)
   - [Examples of use](#examples-of-use)
     - [Dataset KITTI - sequence 04](#dataset-kitti-sequence-04)
     - [Dataset TSUKUBA - sequence daylight](#dataset-tsukuba-sequence-daylight)
@@ -129,7 +129,7 @@ $ catkin build --cmake-args \
 	-DSHOW_TRACKED_FRAMES=OFF -DSHOW_PROFILING=OFF -DCMAKE_BUILD_TYPE=Release -DUSE_LOOPCLOSURE=OFF
 ```
 
-## Run it!
+## Run it
 
 Once everything is built, launch the nodes using one of the launchfiles
 provided, then play a ROS bag:
@@ -441,7 +441,7 @@ The above script can generate and show/save plots of the collected data. The `--
 and `--validated` options allow to set the respective point cloud size values to be shown
 in the different plots. See `compute_and_plot.sh` script for more info about this feature.
 
-## Altogether!
+## Altogether
 
 This script accounts for all computation and plotting at the same time:
 
