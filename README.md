@@ -17,6 +17,27 @@ alt="IMAGE ALT TEXT HERE" width="560" height="315" border="0" /></a>
 
 [2] D'Alessandro, Ariel; Pire, Taihú; Baravalle, Rodrigo. Hacia una densificación de sistemas SLAM dispersos basados en visión estéreo. In Actas de las IX Jornadas Argentinas de Robótica 2017. pp. 110–115. Facultad Regional Córdoba de la Universidad Tecnológica Nacional. 15-17 de Noviembre, Córdoba, Argentina.
 
+## Table of Contents
+  - [License](#license)
+  - [Disclaimer](#disclaimer)
+  - [Quick start](#quick-start)
+    - [Docker](##docker)
+    - [Run it!](##run-it!)
+    - [Other docker magic](##other-docker-magic)
+  - [dense-sptam ROS node](#dense-sptam-ros-node)
+    - [Configuration parameters](##configuration-parameters)
+    - [Published topics](##published-topics)
+    - [Output](##output)
+  - [Tools](#tools)
+    - [Generate PCD point clouds from KITTI ground truth velodyne binaries](##generate-pcd-point-clouds-from-kitti-ground-truth-velodyne-binaries)
+    - [Generate depth maps (`.dmap`) from DENSE node output for KITTI dataset](##generate-depth-maps-(`.dmap`)-from-DENSE-node-output-for-kitti-dataset)
+    - [Generate depth maps (`.dmap`) from Tsukuba ground-truth](##generate-depth-maps-(`.dmap`)-from-tsukuba-ground-truth)
+    - [Plot/show depth maps](##plot/show-depth-maps)
+    - [Profiling](##profiling)
+    - [Altogether!](##altogether!)
+  - [Examples of use](#examples-of-use)
+    - [Dataset KITTI - sequence 04](##dataset-kitti-sequence-04)
+    - [Dataset TSUKUBA - sequence daylight](##dataset-tsukuba---sequence-daylight)
 
 # License
 
@@ -30,7 +51,7 @@ If you use Dense S-PTAM in an academic work, please cite:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   title = {{Real-time and Locally Dense Stereo SLAM}},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  author = {Pire, Taih{\\'u} and Fischer, Thomas and Castro, Gast{\\'o}n and De Crist{\\'o}foris, Pablo and Civera, Javier and Jacobo Berlles, Julio},  
+  author = {Pire, Taih{\'u} and Baravalle, Rodrigo and D'Alessandro, Ariel and Civera, Javier},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   journal = {Journal Robotica},    
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -43,31 +64,34 @@ If you use Dense S-PTAM in an academic work, please cite:
   note = {Article in press}  
 }
 
-@inproceedings{pire2015sptam,  
+@inproceedings{dalessandro2017hacia,  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  title={{Stereo Parallel Tracking and Mapping for robot localization}},  
+  title={{Hacia una densificaci{\'o}n de sistemas SLAM dispersos basados en visi{\'o}n est{\'e}reo}},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  author={Pire, Taih{\\'u} and Fischer, Thomas and Civera, Javier and De Crist{\\'o}foris, Pablo and Jacobo berlles, Julio},  
+  author={D'Alessandro, Ariel and Pire, Taih{\'u} and Baravalle, Rodrigo},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  booktitle={Proc. of the International Conference on Intelligent Robots and Systems (IROS)},   
+  booktitle={Actas de las IX Jornadas Argentinas de Rob{\'o}tica.},   
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  pages = {1373--1378},  
+  pages = {110--115},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  year={2015},  
+  year={2017},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  month = {September},  
+  month = {November},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  doi = {10.1109/IROS.2015.7353546}  
+  organization = {Facultad Regional C{\'o}rdoba de la Universidad Tecnol{\'o}gica Nacional}  
  }
 
 
-## Quick start
+# Disclaimer
+This site and the code provided here are under active development. Even though we try to only release working high quality code, this version might still contain some issues. Please use it with caution.
+
+# Quick start
 
 The `dense-sptam` package provides a Dockerfile you could use to configure
 and build the project. Note that the same instructions inside the Dockerfile
 could be followed to setup an Ubuntu distro as well.
 
-### Docker
+## Docker
 
 Create a dir for your catkin workspace and clone `dense-sptam` package:
 
@@ -105,7 +129,7 @@ $ catkin build --cmake-args \
 	-DSHOW_TRACKED_FRAMES=OFF -DSHOW_PROFILING=OFF -DCMAKE_BUILD_TYPE=Release -DUSE_LOOPCLOSURE=OFF
 ```
 
-### Run it!
+## Run it!
 
 Once everything is built, launch the nodes using one of the launchfiles
 provided, then play a ROS bag:
@@ -116,14 +140,14 @@ $ roslaunch src/dense-sptam/launch/kitti.launch &
 $ rosbag play --clock path/to/your/kitti.bag
 ```
 
-### Other docker magic
+## Other docker magic
 
 Using `docker.sh run` the container is run with X11 socket shared, so you can
 GUI tools like `rviz` from within the container itself.
 
-## dense node
+# dense-sptam ROS node
 
-### Configuration parameters
+## Configuration parameters
 
 The dense node allows several configuration parameters. These can be set in the launch
 file directly, as done in `launch/kitti.launch` for example:
@@ -194,13 +218,13 @@ distance greater than this value are refined in the refinement thread.
 * `refinement_angular_threshold`: (double, default: *0*) Keyframe pose updates with angular
 distance greater than this value are refined in the refinement thread.
 
-### Published topics
+## Published topics
 
 * `/dense/dense_cloud`: Dense reconstruction point cloud. It only publishes the last
 `local_area_size` frames. Note that publishing the entire global point cloud would
 probably hog your system.
 
-### Output
+## Output
 
 Dense node output is stored at the directory pointed by parameter `output_dir`:
 
@@ -211,9 +235,9 @@ is named with its associated keyframe's id.
 
 * `dense_node.log`: log info collected during the dense node run.
 
-## Tools
+# Tools
 
-### Generate PCD point clouds from KITTI ground truth velodyne binaries
+## Generate PCD point clouds from KITTI ground truth velodyne binaries
 
 ```
 $ ./devel/lib/dense/kitti_ground_truth
@@ -246,7 +270,7 @@ to filter (omit) those points that are closer than this distance threshold.
 This is useful as the velodyne laser may contain noisy points in the first meters,
 which we may want to avoid.
 
-### Generate depth maps (`.dmap`) from DENSE node output for KITTI dataset
+## Generate depth maps (`.dmap`) from DENSE node output for KITTI dataset
 
 ```
 $ ./devel/lib/dense/kitti_dmap_generator
@@ -309,7 +333,7 @@ $ ./devel/lib/dense/kitti_dmap_generator \
     [...]
 ```
 
-### Generate depth maps (`.dmap`) from Tsukuba ground-truth
+## Generate depth maps (`.dmap`) from Tsukuba ground-truth
 
 Generate one depth map (`.dmap`) for only one frame in tsukuba:
 
@@ -328,7 +352,7 @@ To proccess the whole sequence, run in a terminal:
 for i in $(ls /path/to/depth_maps/left/*.xml); do /path/to/tsukuba_ground_truth depth $i $i.dmap; done
 ```
 
-### Plot/show depth maps
+## Plot/show depth maps
 
 Show coloured depth map:
 
@@ -369,7 +393,7 @@ Optional arguments `--clim_low` and `--clim_high` to specify the plotter clim bo
 $ python scripts/plot_depth_map.py ${depth_map}.dmap --clim_low -3 --clim_high 50
 ```
 
-### Profiling
+## Profiling
 
 Every dense node run will output useful log data to a file. This file is
 located at `output_dir/dense_node.log`.
@@ -417,7 +441,7 @@ The above script can generate and show/save plots of the collected data. The `--
 and `--validated` options allow to set the respective point cloud size values to be shown
 in the different plots. See `compute_and_plot.sh` script for more info about this feature.
 
-### Altogether!
+## Altogether!
 
 This script accounts for all computation and plotting at the same time:
 
@@ -443,11 +467,11 @@ Generated output consists in several npy files, used by the following script to 
 $ python scripts/plot_dmap_error.py ${sequence_name}
 ```
 
-## Examples of use
+# Examples of use
 
 Let's run and plot results for some benchmark dataset sequences.
 
-### Dataset KITTI - sequence 04
+## Dataset KITTI - sequence 04
 
 Run dense node and play bag. Note that after bag has finished playing, all ros nodes
 are killed, so launchfile ends too.
@@ -477,7 +501,7 @@ $ ./compute_and_plot.sh path/to/dense/dense_node.log path/to/dense/pcd/ path/to/
 
 This will generate 5 png files in the scripts directory with the names kitti{1-5}.png
 
-### Dataset TSUKUBA - sequence daylight
+## Dataset TSUKUBA - sequence daylight
 
 Same comments and descriptions as in previous example.
 
