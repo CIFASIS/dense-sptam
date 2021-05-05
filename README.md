@@ -55,7 +55,7 @@ If you use Dense S-PTAM in an academic work, please cite:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   title = {{Real-time and Locally Dense Stereo SLAM}},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  author = {Pire, Taih{\'u} and Baravalle, Rodrigo and D'Alessandro, Ariel and Civera, Javier},  
+  author = {Pire, Taih{\\'u} and Baravalle, Rodrigo and D'Alessandro, Ariel and Civera, Javier},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   journal = {Journal Robotica},    
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -70,11 +70,11 @@ If you use Dense S-PTAM in an academic work, please cite:
 
 @inproceedings{dalessandro2017hacia,  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  title={{Hacia una densificaci{\'o}n de sistemas SLAM dispersos basados en visi{\'o}n est{\'e}reo}},  
+  title={{Hacia una densificaci{\\'o}n de sistemas SLAM dispersos basados en visi{\\'o}n est{\\'e}reo}},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  author={D'Alessandro, Ariel and Pire, Taih{\'u} and Baravalle, Rodrigo},  
+  author={D'Alessandro, Ariel and Pire, Taih{\\'u} and Baravalle, Rodrigo},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  booktitle={Actas de las IX Jornadas Argentinas de Rob{\'o}tica.},   
+  booktitle={Actas de las IX Jornadas Argentinas de Rob{\\'o}tica.},   
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   pages = {110--115},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -82,7 +82,7 @@ If you use Dense S-PTAM in an academic work, please cite:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   month = {November},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  organization = {Facultad Regional C{\'o}rdoba de la Universidad Tecnol{\'o}gica Nacional}  
+  organization = {Facultad Regional C{\\'o}rdoba de la Universidad Tecnol{\\'o}gica Nacional}  
  }
 
 
