@@ -70,7 +70,7 @@ If you use Dense S-PTAM in an academic work, please cite:
 
 @inproceedings{dalessandro2017hacia,  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  title={{Hacia una densificaci{\\'o}n de sistemas SLAM dispersos basados en visi{\\'o}n est{\\'e}reo}},  
+  title={Hacia una densificaci{\\'o}n de sistemas {SLAM} dispersos basados en visi{\\'o}n est{\\'e}reo},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   author={D'Alessandro, Ariel and Pire, Taih{\\'u} and Baravalle, Rodrigo},  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
