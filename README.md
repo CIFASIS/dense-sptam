@@ -1,11 +1,17 @@
 # dense-sptam ROS package
 Dense S-PTAM is an extension of the stereo SLAM system [S-PTAM](https://github.com/lrse/sptam). Dense S-PTAM allows to reconstruct a complete 3D point cloud of the environment in real-time using as input the poses estimated by S-PTAM and the disparity maps computed from the stereo images. To compute the disparity the [LIBELAS library](http://www.cvlibs.net/software/libelas/) is used.
 
-[![](https://markdown-videos.deta.dev/youtube/xZSscfjzV90)](https://youtu.be/xZSscfjzV90)
+## Videos
+<a href="https://youtu.be/xZSscfjzV90" target="_blank">
+  <img src="https://github-production-user-asset-6210df.s3.amazonaws.com/6648400/260779074-6eadcce2-3f7a-4cb4-a17e-b84933335048.png" alt="Dense S-PTAM video Online" width="700" />
+</a>
 
 (Dense S-PTAM video Online)
 
-[![](https://markdown-videos.deta.dev/youtube/yPAoFu_LhhA)](https://youtu.be/yPAoFu_LhhA)
+
+<a href="https://youtu.be/yPAoFu_LhhA" target="_blank">
+  <img src="https://github-production-user-asset-6210df.s3.amazonaws.com/6648400/260779383-1d70c955-03d6-4f56-94cd-13b8d1cc9b05.png" alt="Dense S-PTAM video Offline" width="700" />
+</a>
 
 (Dense S-PTAM video Offline)
 
